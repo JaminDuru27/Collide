@@ -1,0 +1,35 @@
+@font-face {
+    font-family: geoform;
+    src: url(/geoform/Geoform-Light.otf);
+}
+*{
+    font-family: geoform;
+    font-weight: 500;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.scrolly::-webkit-scrollbar{
+    width: 5px;
+    background-color: rgb(13, 13, 44);
+}
+.scrolly::-webkit-scrollbar-thumb{
+    width: 5px;
+    height: 5px;
+    border-radius: 2px;
+    background-color: #ffffff42;
+}
+.scrollx::-webkit-scrollbar{
+    height: 5px;
+    background-color: rgb(13, 13, 44);
+}
+.scrollx::-webkit-scrollbar-thumb{
+    width: 5px;
+    height: 5px;
+    border-radius: 2px;
+    background-color: #ffffff42;
+}
+body{
+    overflow: hidden
+}
+
+@import "tailwindcss";
