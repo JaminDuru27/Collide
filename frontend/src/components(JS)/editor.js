@@ -4,9 +4,10 @@ import { Images } from "./canvas/images"
 import { ImageLayers } from "./canvas/layers"
 import { Mouse } from "./canvas/mouse"
 import { Select } from "./canvas/select"
+import { SelectOperations } from "./canvas/selectoperations"
 import { Tools } from "./canvas/tools"
 
-export function Collide(canvas){
+export function Collide(canvas,sets){
     const res= {
         updates:[],
         load(){
@@ -14,14 +15,14 @@ export function Collide(canvas){
             this.mouse = Mouse(this.canvas)
             this.grid = Grid(this.canvas, this.mouse).basedOnNumber()
             this.highlight = Highlight(this.mouse, this.grid)
-            this.select= Select(this.canvas,this.highlight, this.grid)
+            this.select= Select(this.canvas,this.highlight, this.grid, sets)
 
             this.imageLayers = ImageLayers()
 
             this.tools = Tools(this.canvas, this)
+            this.selectoperations = SelectOperations(this, sets)
 
-
-            this.updates.push(this.mouse, this.grid, this.highlight, this.tools, this.select, this.imageLayers)
+            this.updates.push(this.imageLayers, this.mouse, this.grid, this.highlight, this.tools, this.select, )
 
             //assets
             this.images = Images()

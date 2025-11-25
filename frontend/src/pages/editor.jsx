@@ -24,11 +24,13 @@ export function Editor(){
     const [fullscreen,setFullscreen] = useState(false)
     const [hideside, sethidside]  = useState(true)
     const [head, sethead] =useState('')
+    const [selectoptions, setselectoptions] = useState(false)
     
     const [imagecanvas, setImageCanvas] =useState(null)
     const collide = useRef({})
     const feedvalueref = useRef(``)
     const [feedinfo, setFeedInfo] = useState({message:`Welcome Back!`, type:'message'})
+    const [consolidateurl, setconsolidateurl] = useState(null)
     let handlefeed = ()=>{}
 
     
@@ -41,7 +43,7 @@ export function Editor(){
         >
             <Canvas onDoubleClick={()=>{
                 sethidside(true)
-            }} collideref={collide} />
+            }} collideref={collide} sets={{setFeedInfo, setFullscreen, setconsolidateurl, setPlay, setMode, setselectoptions}} />
             <Title fullscreen={fullscreen} isModified={isModified}/>
             <DevTools 
             mode={mode} 
@@ -61,6 +63,8 @@ export function Editor(){
             </Sidebar>
             <Tools collide={collide} mode={mode} setMode={setMode} fullscreen={fullscreen}/>
             <SettingsController mode={mode} setMode={setMode} fullscreen={fullscreen}/>
+            <ConsolidateUrl mode={mode} setMode={setMode} fullscreen={fullscreen}/>
+            <SelectOperations consolidateurl={consolidateurl} setconsolidateurl={setconsolidateurl} setselectoptions={setselectoptions} selectoptions={selectoptions} collide={collide} mode={mode} setMode={setMode} fullscreen={fullscreen} />
             <Feed valueRef={feedvalueref} infoobj = {feedinfo} collide={collide} setinfoobj={setFeedInfo} />
 
         </div>
@@ -68,6 +72,92 @@ export function Editor(){
         </>
     )
 }
+
+function ConsolidateUrl({mode, consolidateurl, setconsolidateurl,setMode}){
+    const a  = useRef(null)
+    function downloadUrl(){
+        if(consolidateurl){
+            const link = document.createElement('a')
+            link.href = consolidateurl
+            link.download = 'selection.png'
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+        }
+    }
+    return (
+        <motion.div 
+        initial={{right:`-200px`}} 
+        animate={consolidateurl?{right:`1px`}:{right:`-200px`}}
+        transition={{duration:1.5, type:`tween`}}
+
+
+        className="controlpanel text-[.7rem] text-[#3636e6] rounded-l-2xl gap-y-4 bg-[#060014] p-2 flex flex-col min-w-5 max-h20  absolute top-[90vh] right-0">
+            <div className="">
+                Image is ready !  &nbsp; &nbsp;    
+                <motion.span
+                onClick={()=>{downloadUrl}} 
+                whileTap={{transform: `scale(.6)`, color: `#3636e6`}}
+                className="capitalize text-white text-center cursor-pointer border-b-2 border-offset-2 border-[#fff]"> click Here</motion.span>    
+            </div>
+        </motion.div>
+    )
+}
+
+
+
+import { MdDeleteSweep } from "react-icons/md";
+import { FaCopy } from "react-icons/fa6";
+import { IoMdCut } from "react-icons/io";
+import { FaPaste } from "react-icons/fa6";
+import { ImEnlarge } from "react-icons/im";
+import { FaCodeMerge } from "react-icons/fa6";
+function SelectOperations({collide,selectoptions, mode, setMode, fullscreen}){
+    const [c, setC] = useState({...collide})
+    useEffect(()=>{
+        const time = setTimeout(()=>{
+            setC({...collide[`current`]})
+        }
+        , 100)
+        return ()=>clearTimeout(time)
+    }, [])
+    const operationIndex = {
+        'delete':{element: MdDeleteSweep, title: `Delete Selection (Del)`, name: `delete`},
+        'copy':{element: FaCopy, title: `Copy Selection (C)`, name: `copy`},
+        'cut':{element: IoMdCut, title: `Cut Selection (X)`, name: `cut`},
+        'paste':{element: FaPaste, title: `Paste Selection (V)`, name: `paste`},
+        'consolidate':{element: FaCodeMerge, title: `Consolidate Selection (Alt S)`, name: `consolidate`},
+        'spread to':{element: ImEnlarge, title: `Spread Selection (Alt W)`, name: `spread`},
+    }
+            console.log(c?.select?.boxes)
+
+    if(Object.keys(collide[`current`]).length <=0)return null
+    else
+    return (
+        <motion.div 
+        initial={{right:`-100px`}} 
+        animate={(selectoptions)?{right:`1px`}:{right:`-100px`}}
+        transition={{duration:1.5, type:`tween`}}
+
+        className="controlpanel rounded-l-2xl gap-y-4 bg-[#060014] p-2 flex flex-col min-w-5 max-h20  absolute top-96  right-0">
+            {
+                Object.keys(c?.selectoperations?.operations)?.map((name, x)=>{
+                    return operationIndex[name].element({
+                        onClick:()=>{   
+                            collide[`current`].selectoperations.performOperation(name)
+                        },
+                        key:x, className:`cursor-pointer`, 
+                        size: 15, 
+                        color:`white`,
+                        title: operationIndex[name].title,  
+                    })
+            } 
+            )}
+        </motion.div>
+    )
+}
+
+
 function SideBarControllers({mode, sethidside, sethead}){
     return (
         <div className="absolute top-4 left-4 flex flex-col gap-3 z-[1]">

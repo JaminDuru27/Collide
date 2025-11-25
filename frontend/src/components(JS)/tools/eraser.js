@@ -5,7 +5,7 @@ export function Eraser(Collide){
     const res = {
         name: `Eraser`,
         load(){},
-        draw(){
+        on(){
             const target = Collide.highlight?.target
             const tiles = Collide.imageLayers?.currentLayer?.tiles
             if(tiles && target){
@@ -16,6 +16,7 @@ export function Eraser(Collide){
                 })
             }
         },
+        off(){},
         update(){}
     }
     res.load()

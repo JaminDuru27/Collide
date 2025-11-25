@@ -21,6 +21,7 @@ export function SideBarImage({collide, setfeedback}){
             const images = collide[`current`].images
             .setup(canvasref[`current`])
             .start()
+            collide[`current`].images.image?.reassign()
             updatedim()
             setC({...collide[`current`]})
         }, 100)
@@ -96,7 +97,7 @@ export function SideBarImage({collide, setfeedback}){
                     setfeedback({message:`enter cell width eg (16)`, type:`number`,
                         cb:({value})=>{
                             setcw(value)
-                            collide[`current`].images?.image?.calccw(cw)
+                            collide[`current`].images?.image?.calccw(value)
                             setC({...collide[`current`]})
                         }
                     })
@@ -111,12 +112,12 @@ export function SideBarImage({collide, setfeedback}){
                 onchange={()=>{setMessage(`cw:${cw} ch:${ch}`);clearTimeout(timeout); settimeout(setTimeout(()=>setMessage(null), time))}}
                 />
                 <SideBarNavIncBtn name='set nx' 
-                set={(p, inc)=>{collide[`current`].images.grid.nx = p+inc; collide[`current`].images.grid.populateBasedOnSize();  setC({...collide[`current`]});updatedim();}}
+                set={(p, inc)=>{collide[`current`].images.image.setnx(p+inc);  setC({...collide[`current`]});updatedim();}}
                 get={()=>collide[`current`].images.grid[`nx`]}
                 onchange={()=>{setMessage(`nx:${nx} ny:${ny}`);clearTimeout(timeout); settimeout(setTimeout(()=>setMessage(null), time))}}
                 />
                 <SideBarNavIncBtn name='set ny' 
-                set={(p, inc)=>{collide[`current`].images.grid.ny = p+inc; collide[`current`].images.grid.populateBasedOnSize();  setC({...collide[`current`]});updatedim();}}
+                set={(p, inc)=>{collide[`current`].images.image.setny(p+inc);  setC({...collide[`current`]});updatedim();}}
                 get={()=>collide[`current`].images.grid[`ny`]}
                 onchange={()=>{setMessage(`nx:${nx} ny:${ny}`);clearTimeout(timeout); settimeout(setTimeout(()=>setMessage(null), time))}}
                 />
@@ -148,7 +149,7 @@ export function SideBarImage({collide, setfeedback}){
                         key={key}
                         whileHover={{color: `#11012d`}}
                         onClick={()=>{
-                            collide[`current`].images.switch(imgobj)
+                            collide[`current`].images.switch(imgobj.id)
                             setC({...collide[`current`]})
                         }}
                         title={`${imgobj.info.name} MB: ${imgobj.info.size} Size: ${imgobj?.imgw}px x  ${imgobj?.imgh}px `}

@@ -15,8 +15,8 @@ export function Images(){
             this.array.push(imgobj)
             return imgobj
         },
-        switch(imageobj){
-            this.image = imageobj
+        switch(id){
+            this.image = this.array.find(img=> img.id === id)
             this.image.reassign()
         },
         setup(canvas){
@@ -30,6 +30,7 @@ export function Images(){
             this.grid.center()
             this.highlight = Highlight(this.mouse, this.grid)
             this.select = Select(this.canvas,this.highlight, this.grid)
+            this.select.shouldupdate = true
             this.updates = [this.mouse,this.grid, this.highlight, this.select]
             return this 
         },

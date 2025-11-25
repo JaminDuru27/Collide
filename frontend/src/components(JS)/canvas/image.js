@@ -7,27 +7,37 @@ export function ImageObject(Images,url){
         $zoom: 1,
         $cw: 0,
         $ch: 0,
+        $w: 0,
+        $h: 0,
+        id: Math.random().toString(36).substring(2,9),
         setinfo(obj){this.info = obj;return this},
         reassign(){
             Images.grid.nx = this.$nx
             Images.grid.ny = this.$ny
-            if(this.image){
-                Images.grid.w = this.imgw
-                Images.grid.h = this.imgh
-                
-            }
-            Images.grid.populateBasedOnSize()
+            Images.grid.w = this.$w
+            Images.grid.h = this.$h    
+            Images.grid.populate()
         },
         calccw(v){
-            console.log(this.imgw, v, this.imgw / v)
             Images.grid.nx = Math.floor(this.imgw / v)
-            Images.grid.populateBasedOnSize()
+            this.$nx = Images.grid.nx
+            Images.grid.populate()
+
         },
         calcch(v){
             Images.grid.ny = Math.floor(this.imgh / v)
-            Images.grid.populateBasedOnSize()
-            console.log(`ny`, Images.grid.ny)
-            
+            this.$ny = Images.grid.ny
+            Images.grid.populate()
+        },
+        setnx(v){
+            Images.grid.nx = v
+            this.$nx = v
+            Images.grid.populate()
+        },
+        setny(v){
+            Images.grid.ny = v
+            this.$ny = v
+            Images.grid.populate()
         },
         calcnumber(nx, ny){
             this.$nx = nx
@@ -36,6 +46,10 @@ export function ImageObject(Images,url){
         },
         load(){
             this.parseurl()
+            this.$w = Images.grid.w
+            this.$h = Images.grid.h
+            this.$nx = Images.grid.nx
+            this.$ny = Images.grid.ny
         },
         parseurl(){
             this.loaded = false
@@ -51,18 +65,20 @@ export function ImageObject(Images,url){
             if(rate)
             this.$zoom = Math.abs(rate)
             if(this.$zoom > 10)this.$zoom = 10
-           
             Images.grid.w += this.$zoom
             Images.grid.h += this.$zoom
+            this.$w = Image.grid.w
+            this.$h = Image.grid.h
             Images.grid.populateBasedOnSize()
         },
         zoomout(rate){
             if(rate)
             this.$zoom = -  Math.abs(rate)
             if(this.$zoom < 1)this.$zoom = 1
-            
             Images.grid.w += this.$zoom
             Images.grid.h += this.$zoom
+            this.$w = Image.grid.w
+            this.$h = Image.grid.h
             Images.grid.populateBasedOnSize()
         },
         draw(ctx){
@@ -81,14 +97,14 @@ export function ImageObject(Images,url){
         },
         update({ctx}){
             this.draw(ctx)
-            this.$gridw = Images.grid.w
-            this.$gridh = Images.grid.h
-            this.$nx = Images.grid.nx
-            this.$ny = Images.grid.ny
             this.$sw  = this?.imgw / this.$nx
             this.$sh  = this?.imgh / this.$ny
             this.sx = Images.select?.boxes[0]?.indx * this.$sw
             this.sy = Images.select?.boxes[0]?.indy * this.$sh
+            this.targetindx = Images.select?.boxes[0]?.indx
+            this.targetindy = Images.select?.boxes[0]?.indy
+            this.targetindw = Images.select?.boxes[0]?.indw
+            this.targetindh = Images.select?.boxes[0]?.indh
         },
     }
     res.load()

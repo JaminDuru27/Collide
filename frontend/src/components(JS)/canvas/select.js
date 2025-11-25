@@ -1,7 +1,8 @@
-export function Select(canvas,highlight, grid){
+export function Select(canvas,highlight, grid,sets){
     const res = {
         targetA: undefined,
         targetB: undefined,
+        shouldupdate: false,
         boxes:[],
         load(){
             this.events()
@@ -30,13 +31,17 @@ export function Select(canvas,highlight, grid){
         },
         events(){
             canvas.addEventListener(`mousedown`, ()=>{
+                if(!this.shouldupdate)return
                 if(!this.targetA && highlight.target)
                 this.targetA = highlight.target 
             })
             canvas.addEventListener(`dblclick`, ()=>{
                 this.boxes = []
+                if(sets)
+                sets.setselectoptions(false)
             })
             canvas.addEventListener(`pointermove`, (e)=>{
+                if(!this.shouldupdate)return
                 if(this.targetA){
                     const {indx, indy, cw, ch} = highlight.target
                     const up = ()=> indy - this.targetA.indy < 0
@@ -63,15 +68,15 @@ export function Select(canvas,highlight, grid){
 
                     if(!this.targetB)
                     this.targetB = {indx: indx , indy: indy, cw,ch}
-
-
-                    
+                
                 }
             })
             canvas.addEventListener(`pointerup`, ()=>{
-                if(this.targetA && this.targetB){
+                if(this.targetA && this.targetB && this.shouldupdate){
                     const {x, y, w, h, indx, indy, indw, indh} = this.render()
                     this.boxes = [{x, y, w, h,indx, indy, indw, indh}]
+                    if(sets)
+                    sets.setselectoptions(true)
                 }
                 this.targetA = undefined 
                 this.targetB = undefined
@@ -89,6 +94,10 @@ export function Select(canvas,highlight, grid){
                         indw: 1, indh: 1,
                     }
                     this.boxes.push(box)
+                }
+                if(this.boxes.length >0){
+                    if(sets)
+                    sets.setselectoptions(true)
                 }
             })
             window.addEventListener(`keydown`, (e)=>{
@@ -116,7 +125,6 @@ export function Select(canvas,highlight, grid){
             const minY = Math.min(this.targetA.indy, this.targetB.indy)
             const indw = maxX - minX
             const indh = maxY - minY
-            console.log(indw,indh)
             return {x, y, w:wAbs, h: hAbs, indx: this.targetA.indx, indy: this.targetA.indy, indw, indh}
         },
         draw(ctx){

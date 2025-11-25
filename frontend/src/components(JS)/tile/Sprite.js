@@ -3,7 +3,7 @@ export function Sprite(Tile, Collide){
         indx: 0, indy: 0, 
         indw: 1, indh: 1, 
         load(){
-            this.imageobj = Collide.images.image
+            this.imageobj = {...Collide.images.image, altered :true}
             if(!this.imageobj) {this.delete = true;Tile.delete = true;return}
             // if(!devmode)Tile.delete = true
             this.indx = Tile.indx
@@ -32,6 +32,7 @@ export function Sprite(Tile, Collide){
                 this.indy * ch, 
                 cw * this.indw,
                 ch * this.indh,
+ 
             )
             ctx.restore()
         }

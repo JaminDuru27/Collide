@@ -5,7 +5,7 @@ export function Fill(Collide){
     const res = {
         name: `Fill`,
         load(){},
-        draw(){
+        on(){
                         
             const select = Collide.select
             const imageobj = Collide.images.image
@@ -24,6 +24,7 @@ export function Fill(Collide){
 
             })
         },
+        off(){},
         update(){}
     }
     res.load()

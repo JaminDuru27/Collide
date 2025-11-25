@@ -5,7 +5,7 @@ export function Pencil(Collide){
     const res = {
         name: `Pencil`,
         load(){},
-        draw(){
+        on(){
             Collide.images?.select?.forEachBox((box)=>{
                 const imageobj = Collide.images.image
                 if(!imageobj)return
@@ -23,6 +23,8 @@ export function Pencil(Collide){
                 tile.updateEliminateDuplicate()
             })
         },
+        off(){},
+
         update(){}
     }
     res.load()
