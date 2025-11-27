@@ -1,11 +1,11 @@
 import { ImageLayer } from "../tile/layer"
 
-export function ImageLayers(){
+export function ImageLayers(grid){
     const res = {
         layers: [],
         currentLayer:undefined,
         add(name){
-            const layer = ImageLayer({name: name??`Layer ${this.layers.length + 1}`, })
+            const layer = ImageLayer({grid,name: name??`Layer ${this.layers.length + 1}`, })
             this.layers.push(layer)
             this.currentLayer = layer
             // console.log(layer)

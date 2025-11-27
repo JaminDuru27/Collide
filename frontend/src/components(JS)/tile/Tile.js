@@ -12,7 +12,7 @@ export function Tile(Collide){
                 Collide.imageLayers.currentLayer.tiles.forEach(t=>{
                     if(t === this)return
                     if(t.indx === this.indx && t.indy === this.indy)
-                    this.delete = true
+                    t.delete = true
                 })
             }
         },

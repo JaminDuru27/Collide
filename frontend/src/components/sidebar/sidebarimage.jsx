@@ -2,9 +2,9 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { RiImageAddFill } from "react-icons/ri"; 
 import { RiGalleryView } from "react-icons/ri"; //merging
-import { SelectImageFile } from "../utils/selectimagefile";
+import { SelectImageFile } from "../../utils/selectimagefile";
 import { FaFileImage } from "react-icons/fa";
-import { Draggable } from "./draggable";
+import { Draggable } from "../draggable";
 const time = 3000
 
 export function SideBarImage({collide, setfeedback}){
@@ -75,7 +75,7 @@ export function SideBarImage({collide, setfeedback}){
                 )}
                 <SideBarNavIncBtn name='set ch'
                 onclick={()=>{
-                    setfeedback({message:`enter cell height eg (16)`, type:`number`,
+                    setfeedback({message:`enter cell height`, type:`number`,
                         cb:({value})=>{
                             setch(value)
                             collide[`current`]?.images?.image?.calcch(value)
@@ -86,7 +86,7 @@ export function SideBarImage({collide, setfeedback}){
                 }}
                 set={(p, inc)=>{
                     setch(x=> x + inc)
-                    collide[`current`].images?.image?.calcch(value)
+                    collide[`current`].images?.image?.calcch(x + inc)
                     setC({...collide[`current`]})
                 }}
                 get={()=>ch}
@@ -94,7 +94,7 @@ export function SideBarImage({collide, setfeedback}){
                 />
                 <SideBarNavIncBtn name='set cw' 
                 onclick={()=>{
-                    setfeedback({message:`enter cell width eg (16)`, type:`number`,
+                    setfeedback({message:`enter cell width`, type:`number`,
                         cb:({value})=>{
                             setcw(value)
                             collide[`current`].images?.image?.calccw(value)
@@ -105,19 +105,40 @@ export function SideBarImage({collide, setfeedback}){
                     }}
                 set={(p, inc)=>{
                     setcw(x=> x + inc)
-                    collide[`current`]?.images?.image?.calccw(cw)
+                    collide[`current`]?.images?.image?.calccw(x + inc)
                     setC({...collide[`current`]})
                 }}
                 get={()=>cw}
                 onchange={()=>{setMessage(`cw:${cw} ch:${ch}`);clearTimeout(timeout); settimeout(setTimeout(()=>setMessage(null), time))}}
                 />
                 <SideBarNavIncBtn name='set nx' 
-                set={(p, inc)=>{collide[`current`].images.image.setnx(p+inc);  setC({...collide[`current`]});updatedim();}}
+                onclick={()=>{
+                    setfeedback({message:`enter cell number on x-axis`, type:`number`,
+                        cb:({value})=>{
+                            setnx(value)
+                            collide[`current`].images?.image?.setnx(value)
+                            setC({...collide[`current`]})
+                        }
+                    })
+                    setMessage(`nx:${nx} ny:${ny}`);clearTimeout(timeout); settimeout(setTimeout(()=>setMessage(null), time))
+                }}
+                
+                set={(p, inc)=>{collide[`current`].images?.image?.setnx(p+inc);  setC({...collide[`current`]});updatedim();}}
                 get={()=>collide[`current`].images.grid[`nx`]}
                 onchange={()=>{setMessage(`nx:${nx} ny:${ny}`);clearTimeout(timeout); settimeout(setTimeout(()=>setMessage(null), time))}}
                 />
                 <SideBarNavIncBtn name='set ny' 
-                set={(p, inc)=>{collide[`current`].images.image.setny(p+inc);  setC({...collide[`current`]});updatedim();}}
+                onclick={()=>{
+                    setfeedback({message:`enter cell number on y-axis`, type:`number`,
+                        cb:({value})=>{
+                            setny(value)
+                            collide[`current`].images?.image?.setny(value)
+                            setC({...collide[`current`]})
+                        }
+                    })
+                    setMessage(`nx:${nx} ny:${ny}`);clearTimeout(timeout); settimeout(setTimeout(()=>setMessage(null), time))
+                }}
+                set={(p, inc)=>{collide[`current`].images?.image?.setny(p+inc);  setC({...collide[`current`]});updatedim();}}
                 get={()=>collide[`current`].images.grid[`ny`]}
                 onchange={()=>{setMessage(`nx:${nx} ny:${ny}`);clearTimeout(timeout); settimeout(setTimeout(()=>setMessage(null), time))}}
                 />

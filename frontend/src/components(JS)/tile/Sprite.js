@@ -10,7 +10,7 @@ export function Sprite(Tile, Collide){
             this.indy = Tile.indy
             this.sx = this.imageobj.sx
             this.sy = this.imageobj.sy
-            if(!this.sx && !this.sy){this.delete = true;Tile.delete = true;return}
+            if(!this.sx && !this.sy && this.sx !== 0 && this.sy !== 0 ){this.delete = true;Tile.delete = true;return}
             this.sw = this.imageobj.$sw
             this.sh = this.imageobj.$sh
             this.loaded= true

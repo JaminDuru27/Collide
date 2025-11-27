@@ -1,4 +1,4 @@
-export function Select(canvas,highlight, grid,sets){
+export function Select(canvas,highlight, grid, sets, layers){
     const res = {
         targetA: undefined,
         targetB: undefined,
@@ -19,6 +19,7 @@ export function Select(canvas,highlight, grid,sets){
                             indw: 1, cw: grid.cw,
                             indh: 1, ch: grid.ch,
                             rindx: x, rindy: y, //relative index
+                            ref: box, //reference to original box
                         }
                         bx.x = grid.x + bx.indx * bx.cw 
                         bx.y = grid.y + bx.indy * bx.ch 
@@ -26,7 +27,7 @@ export function Select(canvas,highlight, grid,sets){
                     }
                 }
             })
-            boxes.forEach(box=>cb(box))
+            boxes.map(box=>cb(box))
             return boxes
         },
         events(){
@@ -39,6 +40,14 @@ export function Select(canvas,highlight, grid,sets){
                 this.boxes = []
                 if(sets)
                 sets.setselectoptions(false)
+            
+                //reset layer target
+                if(!layers)return
+                const layer = layers.currentLayer
+                if(layer){
+                    layer.target = undefined
+                    sets.setTile(null)
+                }
             })
             canvas.addEventListener(`pointermove`, (e)=>{
                 if(!this.shouldupdate)return
@@ -84,16 +93,7 @@ export function Select(canvas,highlight, grid,sets){
             })
             canvas.addEventListener(`pointerdown`, ()=>{
                 if(this.ctrl && highlight.target){
-                    const box  = {
-                        x: grid.x + highlight.target.indx * highlight.target.cw,
-                        y: grid.y + highlight.target.indy * highlight.target.ch,
-                        w: highlight.target.cw,
-                        h: highlight.target.ch,
-                        indx: highlight.target.indx,
-                        indy: highlight.target.indy,
-                        indw: 1, indh: 1,
-                    }
-                    this.boxes.push(box)
+                    this.pushtarget()
                 }
                 if(this.boxes.length >0){
                     if(sets)
@@ -105,6 +105,18 @@ export function Select(canvas,highlight, grid,sets){
                     this.ctrl = true
                 }
             })
+        },
+        pushtarget(){
+            const box  = {
+                x: grid.x + highlight.target.indx * highlight.target.cw,
+                y: grid.y + highlight.target.indy * highlight.target.ch,
+                w: highlight.target.cw,
+                h: highlight.target.ch,
+                indx: highlight.target.indx,
+                indy: highlight.target.indy,
+                indw: 1, indh: 1,
+            }
+            this.boxes.push(box)
         },
         render(){
             if(!this.targetA || !this.targetB || !highlight.target)return{x: 0, y: 0, w: 0, h:0}

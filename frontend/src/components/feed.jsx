@@ -1,7 +1,7 @@
 import { motion } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
 import { IoMdClose } from "react-icons/io";
-export function Feed({collide, infoobj, setinfoobj, valueRef}){
+export function Feed({collide, infoobj, setinfoobj, valueRef, fullscreen}){
     const [info, setinfo] =useState({...infoobj, value: ``})
     const [value, setValue] =useState(``)
     const cb = useRef(infoobj)
@@ -29,7 +29,7 @@ export function Feed({collide, infoobj, setinfoobj, valueRef}){
     return(
         <motion.div
         initial={{width: `5vw`, height: `5vw`}} 
-        animate={infoobj?{width: `40vw`, height: `fit-content`,top:`50px`, borderRadius:`.4rem`}:{top:0, width: `5vw`, height: `5vw`, borderRadius:`50%`}} 
+        animate={infoobj?{width: `40vw`, height: `fit-content`,top:`50px`, borderRadius:`.4rem`}:(fullscreen)?{top: `-100px`}:{top:0, width: `5vw`, height: `5vw`, borderRadius:`50%`}} 
         className="w-10 h-10 bg-[#070014] text-[.8rem] capitalize text-[#884bf8] p-2 rounded-[50%] absolute top-0  left-1/2 translate-x-[-50%]"
         >
             <div className="message">{infoobj?.message??``}</div>

@@ -18,7 +18,8 @@ export function Tools(canvas, Collide ){
             this.events()
         },
         events(){
-            canvas.addEventListener(`mousedown`, ()=>{
+            canvas.addEventListener(`mousedown`, (e)=>{
+                if(e.button === 0)
                 this.startdraw = true
             })
             canvas.addEventListener(`mouseup`, ()=>{

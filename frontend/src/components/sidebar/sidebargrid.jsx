@@ -1,6 +1,6 @@
 import { color, m, number } from "framer-motion"
 import { useState } from "react"
-import { GUI } from "./gui"
+import { GUI } from "../gui"
 
 export function SidebarGrid({collide}){
     const gui  =  [

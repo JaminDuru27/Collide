@@ -11,6 +11,7 @@ export function SelectOperations(Collide, sets){
                 'paste': this.pasteSelection.bind(this),
                 'consolidate': this.consolidateSelection,
                 'spread to': this.SpreadImageToSelection,
+                'duplicate': this.duplicateSelection.bind(this),
             }
         },
         performOperation(name){
@@ -51,11 +52,35 @@ export function SelectOperations(Collide, sets){
                 tile.updateEliminateDuplicate()
             }
         },
-        cutSelection(){},
-        pasteSelection(){
-            console.log('pasting selection')
+        cutSelection(){
+            this.copySelection()
+            this.deleteSelection()
         },
-        copySelection(){
+        pasteSelection(array){
+            (array ?? this.copytiles).forEach(tile=>{
+                const newtile = Tile(Collide)
+                if(Collide.select.boxes.length <=0)return
+                console.log(tile)
+                newtile.indx = tile.rindx + Collide.select.boxes[0].indx
+                newtile.indy = tile.rindy + Collide.select.boxes[0].indy
+                newtile.sprite = Sprite(newtile, Collide)
+                newtile.sprite.imageobj = tile.sprite.imageobj
+                newtile.sprite.sx = tile.sprite.sx
+                newtile.sprite.sy = tile.sprite.sy
+                newtile.sprite.sh = tile.sprite.sh
+                newtile.sprite.sw = tile.sprite.sw
+
+                newtile.sprite.indw = tile.sprite.indw
+                newtile.sprite.indh = tile.sprite.indh
+                newtile.sprite.loaded = true
+                newtile.updateEliminateDuplicate()
+                const tiles = Collide.imageLayers?.currentLayer?.tiles
+                tiles.push(newtile)
+            })
+
+        },
+        copySelection(add = true){
+            if(add)
             this.copytiles = []
             const select = Collide.select
             const tiles = Collide.imageLayers?.currentLayer?.tiles  
@@ -63,13 +88,13 @@ export function SelectOperations(Collide, sets){
                 select.forEachBox(box=>{
                     tiles.forEach(tile=>{
                         if(tile.indx === box.indx && tile.indy === box.indy){
-                            this.copytiles.push(tile)
+                            if(add)
+                            this.copytiles.push({...tile, rindx: box.rindx, rindy: box.rindy})
                         }
                     })
                 }
             )
             }
-            console.log(this.copytiles)
         },
         consolidateSelection(){
             const canvas = document.createElement(`canvas`)
@@ -114,6 +139,48 @@ export function SelectOperations(Collide, sets){
             // document.body.appendChild(canvas)
             // canvas.setAttribute(`style`,`position:absolute;top:0;left:0;z-index:10000;border:2px solid red;`)
 
+        },
+        duplicateSelection(direction = `r   ight`){
+            const dir = direction 
+            const select = Collide.select
+            const tiles = Collide.imageLayers?.currentLayer?.tiles
+            const selectedTiles = []
+            if(tiles){
+                select.forEachBox(box=>{
+                    tiles.forEach(tile=>{
+                        if(tile.indx >= box.indx && tile.indx < box.indx + box.indw &&
+                            tile.indy >= box.indy && tile.indy < box.indy + box.indh){
+                            selectedTiles.push({...tile, rindx:box.rindx, rindy:box.rindy})
+                        }
+                    })
+                    if(dir === `right`){
+                        box.ref.indx = box.indx + 1
+                        // if(box.ref.indx > 0 && box.ref.indx + box.indw < Collide.grid.nx)
+                        box.ref.x = box.ref.indx * Collide.grid.cw + Collide.grid.x
+                    }
+                    if(dir === `left`){
+                        box.ref.indx = box.indx - 1
+                        // if(box.ref.indx > 0 && box.ref.indx + box.indw < Collide.grid.nx)
+                        box.ref.x = box.ref.indx * Collide.grid.cw + Collide.grid.x
+                    }
+                    if(dir === `up`){
+                        box.ref.indy = box.indy - 1
+                        // if(box.ref.indy > 0 && box.ref.indy + box.indh < Collide.grid.ny)
+                        box.ref.y = box.ref.indy * Collide.grid.ch + Collide.grid.y
+                    }
+                    if(dir === `down`){
+                        box.ref.indy = box.indy + 1
+                        // if(box.ref.indy > 0 && box.ref.indy + box.indh < Collide.grid.ny)
+                        box.ref.y = box.ref.indy * Collide.grid.ch + Collide.grid.y
+                    }
+                
+                })
+
+            }
+
+            //create new tiles
+            this.copySelection(false)
+            this.pasteSelection(selectedTiles)
         },
         update(){}
     }  

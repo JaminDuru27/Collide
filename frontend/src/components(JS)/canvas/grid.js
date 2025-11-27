@@ -35,10 +35,15 @@ export function Grid(canvas, mouse){
                     this.y = (e.clientY + b.y) - dy
                 }
             })
-            canvas.addEventListener(`pointerup`, (e)=>{
+            canvas.addEventListener(`mouseup`, (e)=>{
+                if(e.button !== 2)return
                 dx= null
                 dy= null
             })
+            // canvas.addEventListener(`pointerup`, (e)=>{
+            //     dx= null
+            //     dy= null
+            // })
         },
         center(){
             this.x = canvas.clientWidth /   2 - this.w/2
