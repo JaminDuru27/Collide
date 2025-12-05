@@ -1,4 +1,4 @@
-export function Grid(canvas, mouse){
+export function Grid(canvas){
     const res  = {
         x: 0, y: 0,
         w: 100, h: 100,
@@ -6,6 +6,11 @@ export function Grid(canvas, mouse){
         cw: 20, ch:20,
         alpha: 0.1, color: `#fff`,
         boxes2d: [], boxes:[],
+        $ontranslate: [],
+        $onpopulate: [],
+        ontranslate(cb){this.$ontranslate.push(cb);return this},
+        onpopulate(cb){this.$onpopulate.push(cb);return this},
+        call(name){this[`$${name}`].forEach(cb=>cb())},
         load(){
             this.populate = this.populateBasedOnNumber
             this.populate()
@@ -33,6 +38,7 @@ export function Grid(canvas, mouse){
                 if(dx && dy){
                     this.x = (e.clientX + b.x) - dx
                     this.y = (e.clientY + b.y) - dy
+                    this.call(`ontranslate`)
                 }
             })
             canvas.addEventListener(`mouseup`, (e)=>{
@@ -63,6 +69,7 @@ export function Grid(canvas, mouse){
                 if(arr.length > 0)this.boxes2d.push(arr)
             }
             this.boxes = this.boxes2d.flat()
+            this.call(`onpopulate`)
         },
         populateBasedOnNumber(){
             this.boxes2d = []
@@ -80,6 +87,8 @@ export function Grid(canvas, mouse){
                 if(arr.length > 0)this.boxes2d.push(arr)
             }
             this.boxes = this.boxes2d.flat()
+            this.call(`onpopulate`)
+
         },
         draw(){},
         update({ctx}){

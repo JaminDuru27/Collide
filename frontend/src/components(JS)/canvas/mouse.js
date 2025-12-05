@@ -3,20 +3,26 @@ export function Mouse(canvas){
         color: `#fff`,
         size: 10,
         x:0, y: 0,
+        updatex: true, updatey: true,
         load(){
-            window.addEventListener(`pointerdown`,(e)=>{
+            canvas.addEventListener(`pointerdown`,(e)=>{
                 const b =canvas.getBoundingClientRect()
-                this.x = e.x - b.x
-                this.y = e.y - b.y
+                if(this.updatey)this.x = e.x - b.x
+                if(this.updatey)this.y = e.y - b.y
             })
-            window.addEventListener(`pointermove`,(e)=>{
+            canvas.addEventListener(`pointermove`,(e)=>{
                 const b =canvas.getBoundingClientRect()
-                this.x = e.x - b.x
-                this.y = e.y - b.y
+                if(this.updatex)this.x = e.x - b.x
+                if(this.updatey)this.y = e.y - b.y
             })
-            window.addEventListener(`pointerup`,()=>{
+            canvas.addEventListener(`pointerup`,()=>{
             })
         },
+        restrict(){this.updatex = false;this.updatey = false;},
+        unrestrict(){this.updatex = true;this.updatey = true;},
+        restrictx(){this.updatex = false},unrestrictx(){this.updatex = true},
+        restricty(){this.updatey = false},unrestricty(){this.updatey = true},
+        
         draw(ctx){
             ctx.fillStyle = `red`
             ctx.save()

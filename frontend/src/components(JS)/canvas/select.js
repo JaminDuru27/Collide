@@ -1,4 +1,4 @@
-export function Select(canvas,highlight, grid, sets, layers){
+export function Select({canvas, shortcuts ,highlight, grid, sets, layers}){
     const res = {
         targetA: undefined,
         targetB: undefined,
@@ -6,6 +6,32 @@ export function Select(canvas,highlight, grid, sets, layers){
         boxes:[],
         load(){
             this.events()
+            if(shortcuts)
+            this.shortcuts()
+        },
+        shortcuts(){
+            shortcuts.add(`a`).cb(()=>{
+                this.all()
+            })
+        },
+        all(){
+            const bx = {
+                x: grid.x,
+                y: grid.y,
+                w: grid.w,
+                h: grid.h,
+                indx: 0,
+                indy: 0,
+                indw: grid.nx, 
+                indh: grid.ny, 
+                rindx: 0, rindy: 0 //relative index
+            }
+            this.boxes.push(bx)
+            if(this.boxes.length >0){
+                if(sets)
+                sets.setselectoptions(true)
+            }
+
         },
         forEachBox(cb){
             const boxes = []
@@ -117,6 +143,10 @@ export function Select(canvas,highlight, grid, sets, layers){
                 indw: 1, indh: 1,
             }
             this.boxes.push(box)
+            if(this.boxes.length >0){
+                if(sets)
+                sets.setselectoptions(true)
+            }
         },
         render(){
             if(!this.targetA || !this.targetB || !highlight.target)return{x: 0, y: 0, w: 0, h:0}

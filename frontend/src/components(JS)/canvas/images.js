@@ -15,6 +15,12 @@ export function Images(){
             this.array.push(imgobj)
             return imgobj
         },
+        deleteImage(imgobj){
+            const temp = imgobj
+            this.array.splice(this.array.indexOf(imgobj), 1)
+            if(this.image === temp)this.image = undefined
+
+        },
         switch(id){
             this.image = this.array.find(img=> img.id === id)
             this.image.reassign()
@@ -29,7 +35,7 @@ export function Images(){
             this.grid.populate()
             this.grid.center()
             this.highlight = Highlight(this.mouse, this.grid)
-            this.select = Select(this.canvas,this.highlight, this.grid)
+            this.select = Select(this)
             this.select.shouldupdate = true
             this.updates = [this.mouse,this.grid, this.highlight, this.select]
             return this 

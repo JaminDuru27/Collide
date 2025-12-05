@@ -6,6 +6,8 @@ import { ImEnlarge } from "react-icons/im";
 import { FaCodeMerge } from "react-icons/fa6";
 import { motion } from "framer-motion";
 import { HiDuplicate } from "react-icons/hi";
+import { GiStoneBlock } from "react-icons/gi";
+
 import { useState, useEffect } from "react";
 export function SelectOperations({collide,selectoptions, mode, setMode, fullscreen}){
     const [c, setC] = useState({...collide})
@@ -23,6 +25,7 @@ export function SelectOperations({collide,selectoptions, mode, setMode, fullscre
         'paste':{element: FaPaste, title: `Paste Selection (V)`, name: `paste`},
         'consolidate':{element: FaCodeMerge, title: `Consolidate Selection (Alt S)`, name: `consolidate`},
         'spread to':{element: ImEnlarge, title: `Spread Selection (Alt W)`, name: `spread`},
+        'craft':{element: GiStoneBlock, title: `Craft World Collision`, name: `craft`},
         'duplicate':{element: HiDuplicate, title: `Duplicate Selection. Alt + (> for lft, < right / up 'down )`, name: `duplicate`},
     }
     if(Object.keys(collide[`current`]).length <=0)return null

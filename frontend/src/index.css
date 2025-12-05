@@ -6,7 +6,7 @@
     font-family: geoform;
     font-weight: 500;
     -webkit-user-select: none;
-    user-select: none;
+        user-select: none;
 }
 .scrolly::-webkit-scrollbar{
     width: 5px;

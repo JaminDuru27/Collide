@@ -8,6 +8,8 @@ export function Sprite(Tile, Collide){
             // if(!devmode)Tile.delete = true
             this.indx = Tile.indx
             this.indy = Tile.indy
+            this.indw = Tile.indw
+            this.indh = Tile.indh
             this.sx = this.imageobj.sx
             this.sy = this.imageobj.sy
             if(!this.sx && !this.sy && this.sx !== 0 && this.sy !== 0 ){this.delete = true;Tile.delete = true;return}

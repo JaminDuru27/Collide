@@ -20,17 +20,25 @@ export function Editor(){
     const [head, sethead] =useState('')
     const [selectoptions, setselectoptions] = useState(false)
     const [tile, setTile] = useState(null)
+    const [contextobject, setcontextobject] = useState(null)
     const [imagecanvas, setImageCanvas] =useState(null)
+    const dragelement = useRef(null)
+    const [updatedrag, setupdatedrag] = useState(false)
     const collide = useRef({})
     const feedvalueref = useRef(``)
     const [feedinfo, setFeedInfo] = useState({message:`Welcome Back!`, type:'message'})
-    const [consolidateurl, setconsolidateurl] = useState(null)
+    const [url, seturl] = useState(null)
+    const [bodyfactory,setbodyfactory] = useState(null)
+    const [updatetools, setupdatetools] = useState(false) 
+    const [updatestats, setupdatestats] = useState(false) 
+    const [mergedatas, setmergedatas] = useState([]) 
     let handlefeed = ()=>{}
 
     
     useEffect(()=>{hideside===true?sethead(``):null},[hideside])
     return (
         <>
+        {console.log(url)}
         <div 
         ref={editorref}
         className="w-full text-[#fff] h-screen bg-[#0f012d] "
@@ -40,12 +48,12 @@ export function Editor(){
             }} collideref={collide} 
             gets={{
                 feedvalueref, isModified, setisModified, imagecanvas,
-                feedinfo, fullscreen, consolidateurl, selectoptions, mode, play,
-                hideside, head, tile,
+                feedinfo, fullscreen, url, selectoptions, mode, play,
+                hideside, head, tile, bodyfactory
             }}
             sets={{
-                setFeedInfo, setFullscreen, setconsolidateurl, setPlay,
-                 setMode, setselectoptions, setTile,
+                setFeedInfo, setFullscreen, seturl, setPlay, setupdatetools,setupdatestats,
+                 setMode, setselectoptions, setTile, setbodyfactory
             }} />
             <Title fullscreen={fullscreen} isModified={isModified}/>
             <DevTools 
@@ -55,20 +63,24 @@ export function Editor(){
             fullscreen={fullscreen} 
             setFullscreen={setFullscreen} 
             />
-            
+            <Draggable dragelement={dragelement} updatedrag={updatedrag}/>
             <SideBarControllers fullscreen={fullscreen} mode={mode} sethead={sethead} sethidside={sethidside} />
 
             <Sidebar dir="left" hide={hideside} fullscreen={fullscreen} setHide={sethidside} ref={editorref}>
                 {(head ===`grid`) && <SidebarGrid  collide={collide} fullscreen={fullscreen} />}
-                {(head ===`layers`) && <SideBarLayers  collide={collide} fullscreen={fullscreen} />}
-                {(head ===`addimage`) && <SideBarImage setfeedback={setFeedInfo}  collide={collide} fullscreen={fullscreen} />}
+                {(head ===`layers`) && <SideBarLayers  setcontextobject={setcontextobject} setfeedback={setFeedInfo} collide={collide} fullscreen={fullscreen} />}
+                {(head ===`addimage`) && <SideBarImage setmergedatas={setmergedatas} dragelement={dragelement} setupdatedrag={setupdatedrag} setcontext={setcontextobject} setfeedback={setFeedInfo}  collide={collide} fullscreen={fullscreen} />}
             </Sidebar>
-            <Tools collide={collide} mode={mode} setMode={setMode} fullscreen={fullscreen}/>
+            <Tools collide={collide} mode={mode} updatetools={updatetools} setMode={setMode} fullscreen={fullscreen}/>
             <SettingsController mode={mode} setMode={setMode} fullscreen={fullscreen}/>
-            <ConsolidateUrl mode={mode} setMode={setMode} fullscreen={fullscreen}/>
-            <SelectOperations consolidateurl={consolidateurl} setconsolidateurl={setconsolidateurl} setselectoptions={setselectoptions} selectoptions={selectoptions} collide={collide} mode={mode} setMode={setMode} fullscreen={fullscreen} />
+            <ConsolidateUrl mode={mode} seturl={seturl} url={url} setMode={setMode} fullscreen={fullscreen}/>
+            <SelectOperations setselectoptions={setselectoptions} selectoptions={selectoptions} collide={collide} mode={mode} setMode={setMode} fullscreen={fullscreen} />
             <Feed valueRef={feedvalueref} fullscreen={fullscreen} infoobj = {feedinfo} collide={collide} setinfoobj={setFeedInfo} />
             <TileOptions tile={tile} collide={collide} setTile={setTile} />
+            <ContextMenu contextobject={contextobject} setcontextobject={setcontextobject} />
+            <Stats fullscreen={fullscreen} updatestats={updatestats} />
+            <BodyFactory collide={collide} setbodyfactory={setbodyfactory} bodyfactory={bodyfactory} />
+            <SpriteMerger mergedatas={mergedatas} setmergedatas={setmergedatas} />
         </div>
 
         </>
@@ -84,4 +96,9 @@ import { ConsolidateUrl } from "../components/editor/consolidateurl";
 import { SelectOperations } from "../components/editor/selectoptions";
 import { Tile } from "../components(JS)/tile/Tile";
 import { TileOptions } from "../components/editor/tileoptions";
+import { MdOnlinePrediction } from "react-icons/md";
+import { ContextMenu } from "../components/contextmenu";
+import { BodyFactory } from "../components/editor/bodyfactory";
+import { Stats } from "../components/editor/stats";
+import { SpriteMerger } from "../components/editor/merger";
 

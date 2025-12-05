@@ -2,6 +2,7 @@ export function Tile(Collide){
     const res = {
         indx: Collide.highlight?.target?.indx, 
         indy: Collide.highlight?.target?.indy,
+        indw: 1, indh: 1,
         sprite: undefined,
         bodies:[], eliminateDuplicate:true,
         load(){

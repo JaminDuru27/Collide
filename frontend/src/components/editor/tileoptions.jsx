@@ -28,7 +28,7 @@ export function TileOptions({collide,tile, setTile}){
         const x= tile.indx * w + c.grid.x
         const y= tile.indy * h + c.grid.y
         const b = element[`current`].getBoundingClientRect()
-        setpos({top:y-b.height, left:x - b.width/2 + w/2 })
+        setpos({top:y-b.height - 5, left:x - b.width/2 + w/2 })
     }, [tile])
     const operationIndex = {
         'delete':{element: MdDeleteSweep, title: `Delete Selection (Del)`, name: `delete`},
@@ -48,7 +48,7 @@ export function TileOptions({collide,tile, setTile}){
             
             <motion.div 
             initial={{opacity:0}}
-            animate={tile?{opacity:1}:{opacity:0}}
+            animate={tile?{opacity:1}:{opacity:0, display:`none`}}
             transition={{}}
             ref={element}
             style={{top:pos.top, left:pos.left}}

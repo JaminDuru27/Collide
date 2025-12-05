@@ -12,6 +12,7 @@ export function SelectOperations(Collide, sets){
                 'consolidate': this.consolidateSelection,
                 'spread to': this.SpreadImageToSelection,
                 'duplicate': this.duplicateSelection.bind(this),
+                'craft': this.craftworldcollisionfromtile.bind(this),
             }
         },
         performOperation(name){
@@ -19,6 +20,25 @@ export function SelectOperations(Collide, sets){
             if(operation)operation()
         },
         copytiles:[],
+        craftworldcollisionfromtile(){
+            const select = Collide.select
+            const tiles = Collide.imageLayers?.currentLayer?.tiles  
+            const copytiles = []
+            if(tiles){
+                select.forEachBox(box=>{
+                    tiles.forEach(tile=>{
+                        if(tile.indx === box.indx && tile.indy === box.indy){
+                            copytiles.push({...tile, rindx: box.rindx, rindy: box.rindy})
+                        }
+                    })
+                }
+            )
+            }
+            Collide.collisionbodyfactory.addtiles(copytiles)
+            sets.setbodyfactory(true)
+            Collide.collisionbodyfactory.resizeOp(copytiles)
+
+        },
         deleteSelection(){
             const select = Collide.select
             const tiles = Collide.imageLayers?.currentLayer?.tiles
@@ -46,9 +66,9 @@ export function SelectOperations(Collide, sets){
 
                 tile.indx = fx
                 tile.indy = fy
+                tile.indw = select.boxes[0].indw
+                tile.indh = select.boxes[0].indh
                 tile.sprite = Sprite(tile, Collide)
-                tile.sprite.indw = select.boxes[0].indw
-                tile.sprite.indh = select.boxes[0].indh
                 tile.updateEliminateDuplicate()
             }
         },
@@ -63,6 +83,9 @@ export function SelectOperations(Collide, sets){
                 console.log(tile)
                 newtile.indx = tile.rindx + Collide.select.boxes[0].indx
                 newtile.indy = tile.rindy + Collide.select.boxes[0].indy
+                newtile.indw = tile.indw
+                newtile.indh = tile.indh
+                
                 newtile.sprite = Sprite(newtile, Collide)
                 newtile.sprite.imageobj = tile.sprite.imageobj
                 newtile.sprite.sx = tile.sprite.sx
@@ -70,8 +93,6 @@ export function SelectOperations(Collide, sets){
                 newtile.sprite.sh = tile.sprite.sh
                 newtile.sprite.sw = tile.sprite.sw
 
-                newtile.sprite.indw = tile.sprite.indw
-                newtile.sprite.indh = tile.sprite.indh
                 newtile.sprite.loaded = true
                 newtile.updateEliminateDuplicate()
                 const tiles = Collide.imageLayers?.currentLayer?.tiles
@@ -134,10 +155,7 @@ export function SelectOperations(Collide, sets){
             })
 
             const dataurl = canvas.toDataURL()
-            sets.setconsolidateurl(dataurl)
-            console.log(dataurl)
-            // document.body.appendChild(canvas)
-            // canvas.setAttribute(`style`,`position:absolute;top:0;left:0;z-index:10000;border:2px solid red;`)
+            sets.seturl({url:dataurl + '', name: Collide.imageLayers?.currentLayer?.name})
 
         },
         duplicateSelection(direction = `r   ight`){

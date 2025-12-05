@@ -5,7 +5,7 @@ export function Inspect(Collide){
     const res = {
         name: `Inspect`,
         load(){},
-        draw(){
+        on(){
                         
             const target = Collide.highlight.target
             const imageobj = Collide.images.image
@@ -45,6 +45,7 @@ export function Inspect(Collide){
             Collide.images.select.boxes.push(selectbox)
             Collide.images.grid.populate()
         },
+        off(){},
         update(){}
     }
     res.load()

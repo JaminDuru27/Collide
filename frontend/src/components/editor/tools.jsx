@@ -3,17 +3,20 @@ import { FaEraser } from "react-icons/fa";
 import { FaFillDrip } from "react-icons/fa";
 import { FaEyeDropper } from "react-icons/fa6";
 import { PiSelectionDuotone } from "react-icons/pi";
+import { FaMapMarkerAlt  } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useState , useEffect} from "react";
-export function Tools({mode, collide, setMode, fullscreen}){
+export function Tools({mode, collide, setMode, updatetools, fullscreen}){
     const [c, setC] = useState({...collide})
     const [currenttool, setcurrenttool] = useState(`Pencil`)
+    const [render, setRender]= useState(false)
     const tools = {
         Pencil:{element: FaPencilAlt, title: `Pencil (B)`, name: `Pencil`},
         Eraser:{element: FaEraser, title: `Eraser (E)`, name: `Eraser`},
         Fill:{element: FaFillDrip, title: `Fill (G)`, name: `Fill`},
         Inspect:{element: FaEyeDropper, title: `Inspect (Alt or I)`, name: `Inspect`},
         Select:{element: PiSelectionDuotone, title: `Select (M)`, name: `Select`},
+        Mark:{element: FaMapMarkerAlt , title: ``, name: `Mark`},
     }
     useEffect(()=>{
         const time = setTimeout(()=>{
@@ -38,6 +41,7 @@ export function Tools({mode, collide, setMode, fullscreen}){
                     setC({...collide[`current`]})
                 },
                 key:x, className:`${c.tools.tool.name === obj.name?`pb-[.3rem] border-b-2 border-[#ffffff7f] border-b-2 border-[#ffffff7f] rounded-[.2rem]`:``} cursor-pointer`, 
+                title: tools[obj.name].title,
                 size: c.tools.tool.name === obj.name?18:15, 
                 color:`white`
             })

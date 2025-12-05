@@ -4,14 +4,18 @@ import { RiImageAddFill } from "react-icons/ri";
 import { RiGalleryView } from "react-icons/ri"; //merging
 import { SelectImageFile } from "../../utils/selectimagefile";
 import { FaFileImage } from "react-icons/fa";
+import { BiSolidLeftArrow } from "react-icons/bi";
 import { Draggable } from "../draggable";
+import { MdDelete } from "react-icons/md";
+
 const time = 3000
 
-export function SideBarImage({collide, setfeedback}){
+export function SideBarImage({setmergedatas, dragelement, setupdatedrag,collide, setfeedback, setcontext}){
     const [ch, setch]= useState(5)
     const [cw, setcw]= useState(5)
     const [nx, setnx]= useState(10)
     const [ny, setny]= useState(10)
+    const [imageObjectInfo,setImageObjectInfo]= useState(null)
     const [message, setMessage]= useState(null)
     const [timeout, settimeout]= useState(()=>{})
     const canvasref = useRef(null)
@@ -43,16 +47,15 @@ export function SideBarImage({collide, setfeedback}){
         SelectImageFile((data)=>{
             const imgobj= collide[`current`].images.add(data.url)
             .setinfo(data)
-            console.log(imgobj)
             setC({...collide[`current`]})
         })
     }
     return (
-        <div className="flex gap-y-4 flex-col justify-between items-center">
+        <div className="flex gap-y-4 flex-col h-full overflow-y-auto justify-between items-center overflow-x-visible">
             
             <h1 className="text-[1.2rem] opacity-[.7] mb-4 mt-2">Image</h1>
 
-            <div className="nav w-full rounded-sm bg-[#060014] flex justify-start gap-x-2 overflow-auto scrollx items-center p-2">
+            <div className="nav w-full rounded-sm bg-[#060014] flex justify-start gap-x-2 overflow-x-auto overflow-y-hidden scrollx items-center p-2">
                 {c.images.image && (
                     <SideBarNavIncBtn name='zoom' 
                     onclick={()=>{
@@ -150,9 +153,13 @@ export function SideBarImage({collide, setfeedback}){
                 className="font-bold absolute top-0 right-0 text-[.7rem] text-[black] bg-white/10 rounded-sm backdrop-blur-2xl py-1 px-2 "
                 >{message}</motion.div>
                 <motion.div
+                title='make draggable'
                 initial={{opacity:0}}
                 whileHover={{opacity:1}}
-                onClick={()=>{}} 
+                onClick={()=>{
+                    dragelement[`current`] = canvasref[`current`]
+                    setupdatedrag(p=>!p)
+                }} 
                 className="bib absolute rounded-tl-2xl rounded-bl-4xl cursor-pointer bg-white/20 top-0 right-0  w-4 h-4">
 
                 </motion.div>
@@ -169,9 +176,33 @@ export function SideBarImage({collide, setfeedback}){
                         <motion.div 
                         key={key}
                         whileHover={{color: `#11012d`}}
-                        onClick={()=>{
-                            collide[`current`].images.switch(imgobj.id)
-                            setC({...collide[`current`]})
+                        onHoverStart={(e)=>{
+                            setImageObjectInfo({...imgobj, b: e.target.getBoundingClientRect()})
+                        }}
+                        onHoverEnd={()=>{
+                            setImageObjectInfo(null)
+                        }}
+                        onMouseDown={(e)=>{
+                            if(e.button === 0){
+                                collide[`current`].images.switch(imgobj.id)
+                                setC({...collide[`current`]})
+                            }
+                            if(e.button === 2){
+                                const b = e.target.getBoundingClientRect()
+                                setcontext(p=>({
+                                    pos:{x: b.x + b.width + 50, y: b.y},
+                                    [imgobj.info.name]:[
+                                        {   
+                                            element: MdDelete,
+                                            name: `delete`,
+                                            cb:()=>{
+                                                collide[`current`].images.deleteImage(imgobj)
+                                                setC({...collide[`current`]})
+                                            }
+                                        }
+                                    ]
+                                }))
+                            }
                         }}
                         title={`${imgobj.info.name} MB: ${imgobj.info.size} Size: ${imgobj?.imgw}px x  ${imgobj?.imgh}px `}
                         className="cursor-pointer text-[.6rem] justify-start  w-full overflow-hidden flex mb-2 items-center">
@@ -182,6 +213,26 @@ export function SideBarImage({collide, setfeedback}){
                 })
             }
             </div>
+            {
+                imageObjectInfo && (
+                    <motion.div
+                    initial={{opacity:0, translateY:`10px`,}}
+                    animate={{opacity:1, translateY:`0px`,}}
+                    transition={{duration:.6}}
+                    exit={{opacity:0}}
+                    style={{
+                        top: `calc(${Math.floor(imageObjectInfo?.b?.top)}px - 10rem/2 + ${imageObjectInfo.b.height/2}px)`,
+                        left: `calc(100% + 20px)`,
+                    }}
+                    className={`absolute w-[10rem] h-[10rem]  text-[.7rem] t rounded-sm backdrop-blur-[3px] bg-white/20 border-2 border-amber-50/10`}>
+                        <img src={imageObjectInfo.image.src} alt="" className="w-full h-full rounded-sm" />
+                        <div className="arr w-5 h-5 absolute top-1/2 translate-y-[-50%] left-[-40px] ">
+                        <BiSolidLeftArrow color="#fff" size={25}  />
+                        </div>
+                    </motion.div>
+                ) 
+            }
+            
 
             <motion.div
             whileTap={{scale:0.8}} 
@@ -192,7 +243,11 @@ export function SideBarImage({collide, setfeedback}){
             </motion.div>
             <motion.div
             whileTap={{scale:0.8}} 
-            onClick={()=>{}} 
+            onClick={()=>{
+                SelectImageFile((data)=>{
+                    setmergedatas(p=>([...p, {...data, nx: 1, ny: 1,}]))
+                })
+            }} 
             className="w-[10rem] h-[10rem] flex flex-col gap-2 items-center justify-center  rounded-sm bg-white/20">
                 <RiGalleryView color="#11012d" size={30}  />   
                 <div className="text-[#11012d] text-[.8rem]">Merge Images Here</div>

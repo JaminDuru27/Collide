@@ -1,14 +1,26 @@
 export function Mark(Collide){
     const res = {
-        name: `Select`,
-        load(){},
-        enter(){
-            Collide.select.shouldupdate = true
-            console.log(Collide.select.shouldupdate, Collide.select)
+        name: `Mark`,
+        color: undefined,
+        load(){
+            window.addEventListener(`mousedown`, (e)=>{
+                if(e.button === 2){
+                    const {point}= Collide.positions.onHover()
+                    if(point)this.color = point.color
+                }
+            })
         },
-        leave(){
-            Collide.select.shouldupdate = false
+
+        on(){
+            const point = Collide.positions.mark()
+            if(point && this.color){
+                point.color = this.color
+                this.color = undefined
+            }
         },
+        off(){},
+        enter(){},
+        leave(){},
         update(){}
     }
     res.load()

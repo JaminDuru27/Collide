@@ -5,7 +5,7 @@ export function TileOperations(Collide, sets){
         },
         load(){
             this.operations = {
-                'selectsprite': this.selectspite,
+                'selectsprite': this.selectsprite,
                 'craft': this.craft,
                 'rotate': this.rotate,
                 'copy': this.copy,
@@ -16,7 +16,7 @@ export function TileOperations(Collide, sets){
             this.events()
         },
         events(){
-            window.addEventListener(`mousedown`, (e)=>{
+            Collide.canvas.addEventListener(`mousedown`, (e)=>{
                 if(e.button !== 2)return
                 const target = Collide.highlight.target
                 const layer = Collide.imageLayers.currentLayer
@@ -27,17 +27,59 @@ export function TileOperations(Collide, sets){
                 layer.target = findTile
 
             })
+            Collide.canvas.addEventListener(`dblclick`, (e)=>{
+                sets.setTile(null)
+
+            })
         },
-        selectspite(){},
         craft(){},
         rotate(){},
+        selectsprite(){
+            Collide.select.boxes = []
+            const layer = Collide.imageLayers.currentLayer
+            Collide.select.pushtarget()
+            const tiletarget = layer.target
+            layer.tiles.forEach(tile=>{
+                if(
+                    tile.sprite.sx === tiletarget.sprite.sx &&
+                    tile.sprite.sy === tiletarget.sprite.sy &&
+                    tile.sprite.indw === tiletarget.sprite.indw &&
+                    tile.sprite.indh === tiletarget.sprite.indh
+                ){
+                    const grid = Collide.grid
+                    const box  = {
+                        indx: tile.indx,
+                        indy: tile.indy,
+                        x: grid.x + tile.indx * grid.cw,
+                        y: grid.y + tile.indy * grid.ch,
+                        w: tile.sprite.indw * grid.cw,
+                        h: tile.sprite.indh * grid.ch,
+                        indw: tile.sprite.indw, indh: tile.sprite.indh,
+                    }
+                    Collide.select.boxes.push(box)
+                }
+                sets.setselectoptions(true)
+            })
+            
+        },
+
         copy(){
             Collide.select.pushtarget()
-            // Collide.selectoperations.performOperation(`copy`)
+            Collide.selectoperations.performOperation(`copy`)
         },
-        cut(){},
-        paste(){},
-        delete(){},
+        cut(){
+            Collide.select.pushtarget()
+            Collide.selectoperations.performOperation(`cut`)
+        },
+        paste(){
+            Collide.select.pushtarget()
+            Collide.selectoperations.performOperation(`paste`)
+        },
+        delete(){
+            Collide.select.pushtarget()
+            Collide.selectoperations.performOperation(`delete`)  
+            sets.setTile(null)
+        },
     }
     res.load()
     return res
