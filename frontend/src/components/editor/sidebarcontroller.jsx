@@ -4,13 +4,14 @@ import { PiPlugsFill } from "react-icons/pi";
 import { HiViewGridAdd } from "react-icons/hi";
 import { SiDatabricks } from "react-icons/si";
 import { Sidebtn } from "./sidebtn";
+import { MdGrid4X4 } from "react-icons/md";
 export function SideBarControllers({mode, sethidside, sethead}){
     return (
         <div className="absolute top-4 left-4 flex flex-col gap-3 z-[1]">
         {mode===`draw` && (
             <>
             <Sidebtn delay={0} onpointerenter={()=>{sethidside(false); sethead(`grid`)}} >
-                <BsFillGridFill color="white" />   
+                <MdGrid4X4 color="white" />   
             </Sidebtn>
             <Sidebtn delay={.1} onpointerenter={()=>{sethidside(false); sethead(`addimage`)}} >
                 <RiImageAddFill color="white" />   
@@ -18,12 +19,15 @@ export function SideBarControllers({mode, sethidside, sethead}){
             <Sidebtn delay={.2} onpointerenter={()=>{sethidside(false); sethead(`layers`)}} >
                 <SiDatabricks color="white" />   
             </Sidebtn>
+            <Sidebtn delay={0} onpointerenter={()=>{sethidside(false); sethead(`scenes`)}} >
+                <BsFillGridFill color="white" />   
+            </Sidebtn>
             </>
         )}
         {mode===`dev` && (
             <>
             <Sidebtn delay={0} onpointerenter={()=>{sethidside(false); sethead(`grid`)}} >
-                <BsFillGridFill color="white" />   
+                <MdGrid4X4 color="white" />   
             </Sidebtn>
             <Sidebtn delay={.1} onpointerenter={()=>{sethidside(false); sethead(`plugins`)}} >
                 <PiPlugsFill color="white" />   
@@ -33,6 +37,9 @@ export function SideBarControllers({mode, sethidside, sethead}){
             </Sidebtn>
             <Sidebtn delay={.3} onpointerenter={()=>{sethidside(false); sethead(`layers`)}} >
                 <SiDatabricks color="white" />   
+            </Sidebtn>
+            <Sidebtn delay={0} onpointerenter={()=>{sethidside(false); sethead(`scenes`)}} >
+                <BsFillGridFill color="white" />   
             </Sidebtn>
             </>
         )}

@@ -21,12 +21,14 @@ export function TileOptions({collide,tile, setTile}){
         return ()=>clearTimeout(time)
     }, [])
 
+    const scene = ()=>{return c.scenes?.currentLocker?.currentScene}
+
     useEffect(()=>{
         if(!tile)return
-        const w = (c.grid.cw * tile.sprite.indw)
-        const h = (c.grid.ch * tile.sprite.indh)
-        const x= tile.indx * w + c.grid.x
-        const y= tile.indy * h + c.grid.y
+        const w = (scene().grid.cw * tile.sprite.indw)
+        const h = (scene().grid.ch * tile.sprite.indh)
+        const x= tile.indx * w + scene().grid.x
+        const y= tile.indy * h + scene().grid.y
         const b = element[`current`].getBoundingClientRect()
         setpos({top:y-b.height - 5, left:x - b.width/2 + w/2 })
     }, [tile])

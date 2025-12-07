@@ -23,7 +23,7 @@ export function SideBarImage({setmergedatas, dragelement, setupdatedrag,collide,
     useEffect(()=>{
         const time = setTimeout(()=>{
             const images = collide[`current`].images
-            .setup(canvasref[`current`])
+            .setup(canvasref)
             .start()
             collide[`current`].images.image?.reassign()
             updatedim()
@@ -45,6 +45,7 @@ export function SideBarImage({setmergedatas, dragelement, setupdatedrag,collide,
     }
     function addImage(){
         SelectImageFile((data)=>{
+            console.log(data)
             const imgobj= collide[`current`].images.add(data.url)
             .setinfo(data)
             setC({...collide[`current`]})
@@ -56,7 +57,7 @@ export function SideBarImage({setmergedatas, dragelement, setupdatedrag,collide,
             <h1 className="text-[1.2rem] opacity-[.7] mb-4 mt-2">Image</h1>
 
             <div className="nav w-full rounded-sm bg-[#060014] flex justify-start gap-x-2 overflow-x-auto overflow-y-hidden scrollx items-center p-2">
-                {c.images.image && (
+                {c?.images?.image && (
                     <SideBarNavIncBtn name='zoom' 
                     onclick={()=>{
                     setfeedback(p=>({message: `set zoom value`, type:'number', 

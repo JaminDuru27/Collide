@@ -5,7 +5,7 @@ export function Canvas({onClick =()=>{},onDoubleClick= ()=>{},collideref, gets, 
     const canvas = useRef(null)
     useEffect(()=>{
         const timeout =setTimeout(()=>{
-            const collide = Collide(canvas.current,gets, sets)
+            const collide = Collide(canvas,gets, sets)
             // editor.parseData()
             collide.start()
             collideref.current = collide

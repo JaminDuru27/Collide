@@ -2,32 +2,51 @@ import { DisposableCanvas } from "./disposablecanvas"
 import { Grid } from "../components(JS)/canvas/grid"
 import { IoEllipseSharp } from "react-icons/io5"
 
-export function Merger(canvas, imagesInfo){
+export function Merger(canvasRef, imagesInfo){
     const res = {
         images: [],
-        title: ``,
+        title: `image-merge`,
         showGrid: false,
         cellw: 50,
         cellh: 50,
         wrap: 4,
-        save(){
-            console.log(`save`)
+        save(collide){
+            if(!this.currentoperation)return
+            const url = canvasRef[`current`].toDataURL(`image/png`)
+            const imgobj = collide.images.add(url)
+            const {maxindx, maxindy} = this.getMaxIndex()
+            imgobj.$nx = maxindx
+            imgobj.$ny = maxindy
+            imgobj.$w = 200
+            imgobj.$h = 200
+            imgobj.setinfo({
+                name: this.title,type: `image/png`,
+                size: `unknown`, url
+            })
         },
         download(){
-            console.log(`download`)
+            if(!this.currentoperation)return
+            const url = canvasRef[`current`].toDataURL(`image/png`)
+            const a = document.createElement(`a`)
+            a.href = url
+            a.download = this.title + `.png`
+            a.click()
         },
         setWrap(v){
+            if(!this.currentoperation)return
             this.wrap = v
             if(this.currentoperation)
             this.setOperation(this.currentoperation)
         },
         setcellW(v){
+            if(!this.currentoperation)return
             this.cellw = v
             if(this.currentoperation)
             this.setOperation(this.currentoperation)
         },
         setcellH(v){
-            this.cellw = v
+            if(!this.currentoperation)return
+            this.cellh = v
             if(this.currentoperation)
             this.setOperation(this.currentoperation)
         },
@@ -43,7 +62,7 @@ export function Merger(canvas, imagesInfo){
                 'X': this.X.bind(this),
                 'Y': this.Y.bind(this),
             }
-            DisposableCanvas(this, canvas).onupdate((p)=>{
+            DisposableCanvas(this, canvasRef).onupdate((p)=>{
                 this.images.forEach(image=>{
                     if(image.allLoaded()){
                         image.drawChunks(p, this)
@@ -84,7 +103,6 @@ export function Merger(canvas, imagesInfo){
                     if(indx >= this.wrap-1){indx = -1    ;indy ++}
                     // else 
                     indx++
-                    console.log(indy, indx, `indy`)
                     chunk.indx = indx
                     chunk.indy = indy
                 })
@@ -155,6 +173,7 @@ export function Merger(canvas, imagesInfo){
                 },
                 drawChunks({ctx}, obj){
                     this.chunks.forEach(chunk=>{
+                        ctx.imageSmoothingEnabled = false
                         ctx.drawImage(
                             chunk.img,
                             chunk.indx * obj.cellw,
@@ -165,19 +184,21 @@ export function Merger(canvas, imagesInfo){
                 }
             }
         },
-        wrapCanvas(){
+        getMaxIndex(){
             const allchunks = []
             this.images.map(imgobj=>imgobj.chunks.map(chunk=>{allchunks.push(chunk)}))
-            const maxindx = Math.max(...allchunks.map(chunk=>chunk.indx))
-            const maxindy = Math.max(...allchunks.map(chunk=>chunk.indy))
-
-            const w = maxindx * this.cellw
+            const maxindx = Math.max(...allchunks.map(chunk=>chunk.indx + 1))
+            const maxindy = Math.max(...allchunks.map(chunk=>chunk.indy + 1))
+            return {maxindx, maxindy,}
+        },
+        wrapCanvas(){
+            const {maxindx, maxindy} = this.getMaxIndex()
+            const w = maxindx  * this.cellw
             const h = maxindy * this.cellh
-            canvas.width = w
-            canvas.height = h
-            canvas.style.width = w + `px`
-            canvas.style.height = h + `px`
-            console.log(maxindx, maxindy)
+            canvasRef[`current`].width = w 
+            canvasRef[`current`].height = h
+            canvasRef[`current`].style.width = w + `px`
+            canvasRef[`current`].style.height = h + `px`
         },
 
         parseImagesInfo(){

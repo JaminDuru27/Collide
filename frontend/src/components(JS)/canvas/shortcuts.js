@@ -17,9 +17,8 @@ export function ShortCuts(){
                 if(this.inputs.includes(e.key.toLocaleLowerCase()))
                 this.inputs.splice(this.inputs.indexOf(e.key.toLocaleLowerCase()), 1)
                 this.array.forEach(keys=>{
-                    if(keys.cond(this.inputs)){keys.callend()}
+                    if(!keys.notcond(this.inputs)){keys.callend()}
                     if(!keys.cond(this.inputs)){keys.reset()}
-                    
                 })
             })
         },
@@ -47,7 +46,8 @@ export function Keys(combo){
             this.$cb()
             this.shouldcall = false
         },
-        cond(inputs){return combo.every(c=>inputs.includes(c))},
+        notcond(inputs){return combo.every(c=>(typeof c === `string`)? !inputs.includes(c): !c())},
+        cond(inputs){return combo.every(c=>(typeof c === `string`)? inputs.includes(c): c())},
         reset(){this.shouldcall = true;return this},
         load(){
 

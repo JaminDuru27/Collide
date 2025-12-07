@@ -6,18 +6,19 @@ export function Fill(Collide){
         name: `Fill`,
         load(){},
         on(){
+            const  Scene = ()=>Collide.scenes?.currentLocker?.currentScene
                         
-            const select = Collide.select
-            const imageobj = Collide.images.image
+            const select = Scene().select
+            const imageobj = Scene().images.image
             if(!imageobj)return
-            Collide.select.forEachBox(box=>{
-                const tile = Tile(Collide)
-                if(!Collide.images?.select){tile.delete = true;return}
-                if(!Collide.highlight.target){tile.delete = true;return}
+            Scene().select.forEachBox(box=>{
+                const tile = Tile(Scene())
+                if(!Scene.images?.select){tile.delete = true;return}
+                if(!Scene.highlight.target){tile.delete = true;return}
 
                 tile.indx = box.indx
                 tile.indy = box.indy
-                tile.sprite = Sprite(tile, Collide)
+                tile.sprite = Sprite(tile, Collide, Scene)
                 
 
                 tile.updateEliminateDuplicate()

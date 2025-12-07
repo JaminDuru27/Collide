@@ -1,16 +1,16 @@
-export function Tile(Collide){
+export function Tile(Scene,){
     const res = {
-        indx: Collide.highlight?.target?.indx, 
-        indy: Collide.highlight?.target?.indy,
+        indx: Scene.highlight?.target?.indx, 
+        indy: Scene.highlight?.target?.indy,
         indw: 1, indh: 1,
         sprite: undefined,
         bodies:[], eliminateDuplicate:true,
         load(){
-            Collide.imageLayers.currentLayer.tiles.push(this)
+            Scene.imageLayers.currentLayer.tiles.push(this)
         },
         updateEliminateDuplicate(){
             if(this.eliminateDuplicate){
-                Collide.imageLayers.currentLayer.tiles.forEach(t=>{
+                Scene.imageLayers.currentLayer.tiles.forEach(t=>{
                     if(t === this)return
                     if(t.indx === this.indx && t.indy === this.indy)
                     t.delete = true
@@ -19,7 +19,7 @@ export function Tile(Collide){
         },
         count: 0,
         update(p){
-            if(this.indx > Collide.grid.nx -1 || this.indy > Collide.grid.ny-1){
+            if(this.indx > Scene.grid.nx -1 || this.indy > Scene.grid.ny-1){
                 return
             }
             if(this.count >2){

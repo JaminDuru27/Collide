@@ -1,4 +1,4 @@
-export function Sprite(Tile, Collide){
+export function Sprite(Tile,Collide, Scene){
     const res = {
         indx: 0, indy: 0, 
         indw: 1, indh: 1, 
@@ -12,6 +12,7 @@ export function Sprite(Tile, Collide){
             this.indh = Tile.indh
             this.sx = this.imageobj.sx
             this.sy = this.imageobj.sy
+
             if(!this.sx && !this.sy && this.sx !== 0 && this.sy !== 0 ){this.delete = true;Tile.delete = true;return}
             this.sw = this.imageobj.$sw
             this.sh = this.imageobj.$sh
@@ -21,10 +22,10 @@ export function Sprite(Tile, Collide){
             if(!this?.imageobj?.loaded)return
             if(!this.loaded)return
             const ctx = props.ctx
-            const x = Collide.grid.x
-            const y = Collide.grid.y
-            const cw = Collide.grid.cw
-            const ch = Collide.grid.ch
+            const x = Scene.grid.x
+            const y = Scene.grid.y
+            const cw = Scene.grid.cw
+            const ch = Scene.grid.ch
             ctx.save()
             ctx.translate(x, y)
             ctx.drawImage(this.imageobj.image,

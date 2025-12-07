@@ -32,6 +32,7 @@ export function Editor(){
     const [updatetools, setupdatetools] = useState(false) 
     const [updatestats, setupdatestats] = useState(false) 
     const [mergedatas, setmergedatas] = useState([]) 
+    const [showsettings, setshowsettings] = useState(false) 
     let handlefeed = ()=>{}
 
     
@@ -56,7 +57,9 @@ export function Editor(){
                  setMode, setselectoptions, setTile, setbodyfactory
             }} />
             <Title fullscreen={fullscreen} isModified={isModified}/>
-            <DevTools 
+            <DevTools
+            showsettings={showsettings} 
+            setshowsettings={setshowsettings} 
             mode={mode} 
             play={play} 
             setPlay={setPlay} 
@@ -72,7 +75,7 @@ export function Editor(){
                 {(head ===`addimage`) && <SideBarImage setmergedatas={setmergedatas} dragelement={dragelement} setupdatedrag={setupdatedrag} setcontext={setcontextobject} setfeedback={setFeedInfo}  collide={collide} fullscreen={fullscreen} />}
             </Sidebar>
             <Tools collide={collide} mode={mode} updatetools={updatetools} setMode={setMode} fullscreen={fullscreen}/>
-            <SettingsController mode={mode} setMode={setMode} fullscreen={fullscreen}/>
+            <SettingsController setshowsettings={setshowsettings} mode={mode} setMode={setMode} fullscreen={fullscreen}/>
             <ConsolidateUrl mode={mode} seturl={seturl} url={url} setMode={setMode} fullscreen={fullscreen}/>
             <SelectOperations setselectoptions={setselectoptions} selectoptions={selectoptions} collide={collide} mode={mode} setMode={setMode} fullscreen={fullscreen} />
             <Feed valueRef={feedvalueref} fullscreen={fullscreen} infoobj = {feedinfo} collide={collide} setinfoobj={setFeedInfo} />
@@ -80,7 +83,8 @@ export function Editor(){
             <ContextMenu contextobject={contextobject} setcontextobject={setcontextobject} />
             <Stats fullscreen={fullscreen} updatestats={updatestats} />
             <BodyFactory collide={collide} setbodyfactory={setbodyfactory} bodyfactory={bodyfactory} />
-            <SpriteMerger mergedatas={mergedatas} setmergedatas={setmergedatas} />
+            <SpriteMerger mergedatas={mergedatas} collide={collide} setmergedatas={setmergedatas} />
+            <Settings collide={collide} fullscreen={fullscreen} showsettings={showsettings} setshowsettings={setshowsettings}/>
         </div>
 
         </>
@@ -101,4 +105,5 @@ import { ContextMenu } from "../components/contextmenu";
 import { BodyFactory } from "../components/editor/bodyfactory";
 import { Stats } from "../components/editor/stats";
 import { SpriteMerger } from "../components/editor/merger";
+import { Settings } from "../components/editor/settings";
 

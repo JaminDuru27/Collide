@@ -16,7 +16,7 @@ export function Tools(canvas, Collide, sets){
                 Mark(Collide),
                 SelectTool(Collide),
             ]
-            this.setTool(`Eraser`)
+            this.setTool(`Pencil`)
             this.events()
             this.shortcuts()
         },
@@ -41,14 +41,16 @@ export function Tools(canvas, Collide, sets){
                 this.setTool(`Select`);
                 sets.setupdatetools(p=>!p)
             })
-            Collide.shortcuts.add(`alt`).cb(()=>{
+            Collide.shortcuts.add(`alt`, ()=>this.tool !== `Mark`).cb(()=>{
                 this.setTool(`Inspect`);
                 sets.setupdatetools(p=>!p)
             })
             .endcb(()=>{
-                if(this.prevtool)
-                this.setTool(this.prevtool.name)})
-            
+                if(this.prevtool){
+                    this.setTool(this.prevtool.name)
+                }
+            })
+                
         },
         events(){
             canvas.addEventListener(`mousedown`, (e)=>{

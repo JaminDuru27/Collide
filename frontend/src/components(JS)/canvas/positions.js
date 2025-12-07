@@ -1,7 +1,8 @@
 import { Point } from "./point"
 let alpha = 0
-export function PositionPoints(Collide){
+export function PositionPoints(Collide, Shortcuts, Grid, Tools, Mouse){
     const res ={
+        mode: `relative`,
         size: 10,
         hidden: false,
         array: [],
@@ -44,10 +45,10 @@ export function PositionPoints(Collide){
             this.array.forEach(arr=>arr.hidden = false)
         },
         load(){
-            Collide.grid.ontranslate(()=>{
+            Grid.ontranslate(()=>{
                 this.array.forEach(p=>p.setpos())
             })
-            Collide.grid.onpopulate(()=>{
+            Grid.onpopulate(()=>{
                 this.array.forEach(p=>p.setpos())
             })
             this.icon = new Image()
@@ -57,12 +58,21 @@ export function PositionPoints(Collide){
                 this.iconh = this.icon.h
             }
             this.icon.src = `/editor/mark.png`
+            this.shortcuts()
+        },
+        shortcuts(){
+            Shortcuts.add(`alt`, ()=>Tools?.tool?.name === `Mark`).cb(()=>{
+                this.mode = `absolute`
+                console.log(this.mode)
+            }).endcb(()=>{
+                this.mode = `relative`
+            })
         },
         onHover(){
             const hoveredonpoints = []
             this.array.forEach(p=>{
-                const dx = Collide.mouse.x - p.dx
-                const dy = Collide.mouse.y - p.dy
+                const dx = Mouse.x - p.dx
+                const dy = Mouse.y - p.dy
                 const dist = Math.sqrt(dx*dx + dy*dy)
                 if(dist <= this.size){
                     hoveredonpoints.push(p)
@@ -71,14 +81,16 @@ export function PositionPoints(Collide){
             return {point: hoveredonpoints[0], all: hoveredonpoints}
         },
         mark(){ //auto 
-            const x = Collide.mouse.x
-            const y = Collide.mouse.y
+            const x = Mouse.x
+            const y = Mouse.y
             const point  = this.addpoint(x, y)
             return point
         },
         addpoint(x, y){ //auto
             if(this.array.find(e=>e.x === x && e.y === y)) return       
-            const obj = Point(this, Collide)
+            const obj = Point(this, Grid)
+            if(this.mode === `relative`)obj.relativemode()
+            else if(this.mode === `absolute`)obj.absolutemode()
             obj.set(x, y)
             this.array.push(obj)
             return obj

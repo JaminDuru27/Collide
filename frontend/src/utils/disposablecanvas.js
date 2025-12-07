@@ -1,25 +1,29 @@
-export function DisposableCanvas(object, canvas){
+export function DisposableCanvas(object, canvasRef){
     const res = {
 
         load(){
-            object.ctx = canvas.getContext(`2d`) 
-            canvas.width = canvas.clientWidth 
-            canvas.height = canvas.clientHeight 
+            object.ctx = canvasRef[`current`].getContext(`2d`) 
+            canvasRef[`current`].width = canvasRef[`current`].clientWidth 
+            canvasRef[`current`].height = canvasRef[`current`].clientHeight 
 
             window.addEventListener(`resize`, ()=>{
-            canvas.width = canvas.clientWidth 
-            canvas.height = canvas.clientHeight 
+            canvasRef[`current`].width = canvasRef[`current`].clientWidth 
+            canvasRef[`current`].height = canvasRef[`current`].clientHeight 
                 if(object.onresize)object.onresize
             })
             object.clear = this.clear.bind(this)
             object.dispose = this.dispose.bind(this)
             object.update = this.update.bind(this)
         },
-        clear(){object.ctx.clearRect(0, 0, canvas.width, canvas.height); return this},
+        clear(){object.ctx.clearRect(0, 0, canvasRef[`current`]?.width, canvasRef[`current`]?.height); return this},
         hardimage(){object.ctx.imageSmoothingEnabled = false},
         $onupdate:[],
-        onupdate(cb){this.$onupdate.push(cb);return this},
-        update(){
+        onupdate(cb){this.$onupdate.push(cb.bind(object));return this},
+        update(intervaltime = 1000/60){
+            object.ctx = canvasRef[`current`]?.getContext(`2d`)
+            if(!object.ctx)return 
+            canvasRef[`current`].width = canvasRef[`current`].clientWidth 
+            canvasRef[`current`].height = canvasRef[`current`].clientHeight 
             this.animate = ()=>{
                 if(object.ctx){
                     this.clear()
@@ -28,7 +32,7 @@ export function DisposableCanvas(object, canvas){
                     this.$onupdate.map(cb=>cb(props))
                 }
             }
-            this.interval = setInterval(()=>{this.animate()}, 1000/60)
+            this.interval = setInterval(()=>{this.animate()}, intervaltime)
             return this
         },
         dispose(){

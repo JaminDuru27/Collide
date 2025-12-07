@@ -11,8 +11,8 @@ export function CollisionBodyFactory(Collide, sets){
         vertices: [],
         updates: [],
         points: [],
-        color: getRandomHexColor(),
-        alpha: 0.5,
+        color: Collide.scenes?.currentScene?.bodyLayers?.currentLayer?.color ?? getRandomHexColor(),
+        alpha: 0.9,
         lineWidth: 0,
         pointersize: 7,
         finished: false,
@@ -122,7 +122,6 @@ export function CollisionBodyFactory(Collide, sets){
             this.finished =false
         },
         addtoworld(){
-            console.log(this.targetTiles[0])
             if(!this.finished){sets.setFeedInfo({message:`Complete polygon`, type   :'message'});return}
             sets.setFeedInfo(null)
             const body  = CollisionBody(Collide)
@@ -140,7 +139,8 @@ export function CollisionBodyFactory(Collide, sets){
             body.addVertices(array)
             .setContainerIndex({indx: minx, indy:miny, indw: this.grid.nx, indh: this.grid.ny})
             .calcpos()
-            Collide.bodies.push(body)
+            if(Collide.bodyLayers.currentLayer)
+            Collide.bodyLayers.currentLayer.addBody(body)
             sets.setbodyfactory(null)
             this.clear()
             this.targetTiles = []

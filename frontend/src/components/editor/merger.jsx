@@ -4,7 +4,7 @@ import { BiExit } from "react-icons/bi"
 import { Merger } from "../../utils/merger";
 import { ImExit } from "react-icons/im";
 
-export function SpriteMerger({mergedatas, setmergedatas}){
+export function SpriteMerger({mergedatas, collide,setmergedatas}){
     const [m, setM]= useState([])
     const canvas = useRef(null)
     const merger = useRef(null)
@@ -29,7 +29,7 @@ export function SpriteMerger({mergedatas, setmergedatas}){
         }
         if(!mergeStage)return()=>{}
         if(canvas[`current`] && !merger[`current`]){
-            merger[`current`] = Merger(canvas[`current`], m)
+            merger[`current`] = Merger(canvas, m)
         }
     
     },[mergeStage])
@@ -105,10 +105,15 @@ export function SpriteMerger({mergedatas, setmergedatas}){
             <BiExit color="white" size={19} className="absolute right-3 top-3" onClick={()=>{
                 setmergedatas([])
                 if(merger[`current`])merger[`current`].dispose()
+                collide[`current`].disposableCanvas.update()
+                collide[`current`].images.disposableCanvas.update()
+                setMergeStage(0)
             }}/>
             <motion.div
             onClick={()=>{
                 setMergeStage(true)
+                collide[`current`].disposableCanvas.dispose()
+                collide[`current`].images.disposableCanvas.dispose()
             }}
             whileTap={{scale:.8}}
             whileHover={{background:`#ffffff30`}} 
@@ -141,7 +146,7 @@ export function SpriteMerger({mergedatas, setmergedatas}){
                             </div>
                             <div className="flex justify-center items-center bg-black/50 rounded-2xl p-1 gap-2 px-2 text-[.7rem]">
                                 H <input 
-                                value={mergerstate?.cellw}
+                                value={mergerstate?.cellh}
                                 onInput={(e)=>{
                                     merger[`current`].setcellH(e.target.value)
                                     setmergerstate({...merger[`current`]})
@@ -159,12 +164,12 @@ export function SpriteMerger({mergedatas, setmergedatas}){
                                 type="checkbox" className="w-10 text-[.7rem] p-1  rounded-2xl border-[1px] border-[#fff]" />
                             </div>
                             <div
-                            onClick={()=>{merger[`current`].save()}}
+                            onClick={()=>{merger[`current`].save(collide[`current`])}}
                             className="flex cursor-pointer p-2 px-4 justify-center items-center bg-black/50 rounded-2xl  gap-2  text-[.7rem]">
                             Save
                             </div>
                             <div
-                            onClick={()=>{merger[`current`].save()}}
+                            onClick={()=>{merger[`current`].download()}}
                             className="shrink-0 flex cursor-pointer p-2 px-4 justify-center items-center bg-black/50 rounded-2xl  gap-2  text-[.7rem]">
                             Download (Size: {canvas[`current`]?.width} x {canvas[`current`]?.height})px
                             </div>
@@ -196,13 +201,14 @@ export function SpriteMerger({mergedatas, setmergedatas}){
 
                         </div>
                         <div className="w-full h-[80%] relative rounded border-[1px] border-white/20 overflow-auto">
-                            <canvas ref={canvas}className="w-full absolute top-0 left-0 h-full"></canvas>
+                            <canvas ref={canvas}className="w-full border-2 border-black absolute top-0 left-0 h-full"></canvas>
 
                         </div>
                     </div>
                     <ImExit onClick={()=>{
                         setMergeStage(false);
                         if(merger)merger[`current`].dispose()    
+                        setMergeStage(0)
                     }} className="absolute top-2 left-2" color="white"/>
 
 

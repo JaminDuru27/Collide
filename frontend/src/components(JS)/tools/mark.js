@@ -3,16 +3,18 @@ export function Mark(Collide){
         name: `Mark`,
         color: undefined,
         load(){
+            const  Scene = ()=>Collide.scenes?.currentLocker?.currentScene
             window.addEventListener(`mousedown`, (e)=>{
                 if(e.button === 2){
-                    const {point}= Collide.positions.onHover()
+                    const {point}= Scene().positions.onHover()
                     if(point)this.color = point.color
                 }
             })
         },
 
         on(){
-            const point = Collide.positions.mark()
+            const  Scene = ()=>Collide.scenes?.currentLocker?.currentScene
+            const point = Scene().positions.mark()
             if(point && this.color){
                 point.color = this.color
                 this.color = undefined

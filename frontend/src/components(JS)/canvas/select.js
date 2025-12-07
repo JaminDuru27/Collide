@@ -1,10 +1,12 @@
-export function Select({canvas, shortcuts ,highlight, grid, sets, layers}){
+export function Select(Collide, canvas, shortcuts, sets, ){
     const res = {
         targetA: undefined,
         targetB: undefined,
         shouldupdate: false,
         boxes:[],
         load(){
+            //if no shortcut or set value, it means its just a test canvas
+            this.Scene = (!sets && !shortcuts)?()=>Collide:()=>Collide.scenes?.currentLocker?.currentScene
             this.events()
             if(shortcuts)
             this.shortcuts()
@@ -16,14 +18,14 @@ export function Select({canvas, shortcuts ,highlight, grid, sets, layers}){
         },
         all(){
             const bx = {
-                x: grid.x,
-                y: grid.y,
-                w: grid.w,
-                h: grid.h,
+                x: this.Scene().grid.x,
+                y: this.Scene().grid.y,
+                w: this.Scene().grid.w,
+                h: this.Scene().grid.h,
                 indx: 0,
                 indy: 0,
-                indw: grid.nx, 
-                indh: grid.ny, 
+                indw: this.Scene().grid.nx, 
+                indh: this.Scene().grid.ny, 
                 rindx: 0, rindy: 0 //relative index
             }
             this.boxes.push(bx)
@@ -42,13 +44,13 @@ export function Select({canvas, shortcuts ,highlight, grid, sets, layers}){
                         const bx = {
                             indx: box.indx + x,
                             indy: box.indy + y,
-                            indw: 1, cw: grid.cw,
-                            indh: 1, ch: grid.ch,
+                            indw: 1, cw: this.Scene().grid.cw,
+                            indh: 1, ch: this.Scene().grid.ch,
                             rindx: x, rindy: y, //relative index
                             ref: box, //reference to original box
                         }
-                        bx.x = grid.x + bx.indx * bx.cw 
-                        bx.y = grid.y + bx.indy * bx.ch 
+                        bx.x = this.Scene().grid.x + bx.indx * bx.cw 
+                        bx.y = this.Scene().grid.y + bx.indy * bx.ch 
                         boxes.push(bx)
                     }
                 }
@@ -57,10 +59,11 @@ export function Select({canvas, shortcuts ,highlight, grid, sets, layers}){
             return boxes
         },
         events(){
+            if(!canvas)return
             canvas.addEventListener(`mousedown`, ()=>{
                 if(!this.shouldupdate)return
-                if(!this.targetA && highlight.target)
-                this.targetA = highlight.target 
+                if(!this.targetA && this.Scene().highlight.target)
+                this.targetA = this.Scene().highlight.target 
             })
             canvas.addEventListener(`dblclick`, ()=>{
                 this.boxes = []
@@ -68,8 +71,8 @@ export function Select({canvas, shortcuts ,highlight, grid, sets, layers}){
                 sets.setselectoptions(false)
             
                 //reset layer target
-                if(!layers)return
-                const layer = layers.currentLayer
+                if(!this.Scene().layers)return
+                const layer = this.Scene().layers.currentLayer
                 if(layer){
                     layer.target = undefined
                     sets.setTile(null)
@@ -78,7 +81,7 @@ export function Select({canvas, shortcuts ,highlight, grid, sets, layers}){
             canvas.addEventListener(`pointermove`, (e)=>{
                 if(!this.shouldupdate)return
                 if(this.targetA){
-                    const {indx, indy, cw, ch} = highlight.target
+                    const {indx, indy, cw, ch} = this.Scene().highlight.target
                     const up = ()=> indy - this.targetA.indy < 0
                     const left = ()=> indx - this.targetA.indx < 0
                     const right = ()=> indx - this.targetA.indx > 0
@@ -118,7 +121,7 @@ export function Select({canvas, shortcuts ,highlight, grid, sets, layers}){
                 this.ctrl = false
             })
             canvas.addEventListener(`pointerdown`, ()=>{
-                if(this.ctrl && highlight.target){
+                if(this.ctrl && this.Scene().highlight.target){
                     this.pushtarget()
                 }
                 if(this.boxes.length >0){
@@ -134,12 +137,12 @@ export function Select({canvas, shortcuts ,highlight, grid, sets, layers}){
         },
         pushtarget(){
             const box  = {
-                x: grid.x + highlight.target.indx * highlight.target.cw,
-                y: grid.y + highlight.target.indy * highlight.target.ch,
-                w: highlight.target.cw,
-                h: highlight.target.ch,
-                indx: highlight.target.indx,
-                indy: highlight.target.indy,
+                x: this.Scene().grid.x + this.Scene().highlight.target.indx * this.Scene().highlight.target.cw,
+                y: this.Scene().grid.y + this.Scene().highlight.target.indy * this.Scene().highlight.target.ch,
+                w: this.Scene().highlight.target.cw,
+                h: this.Scene().highlight.target.ch,
+                indx: this.Scene().highlight.target.indx,
+                indy: this.Scene().highlight.target.indy,
                 indw: 1, indh: 1,
             }
             this.boxes.push(box)
@@ -149,11 +152,11 @@ export function Select({canvas, shortcuts ,highlight, grid, sets, layers}){
             }
         },
         render(){
-            if(!this.targetA || !this.targetB || !highlight.target)return{x: 0, y: 0, w: 0, h:0}
-            const tAx = this.targetA.indx  * this.targetA.cw + grid.x
-            const tAy = this.targetA.indy  * this.targetA.ch + grid.y
-            const tBx = this.targetB.indx  * this.targetB.cw + grid.x
-            const tBy = this.targetB.indy  * this.targetB.ch + grid.y
+            if(!this.targetA || !this.targetB || !this.Scene().highlight.target)return{x: 0, y: 0, w: 0, h:0}
+            const tAx = this.targetA.indx  * this.targetA.cw + this.Scene().grid.x
+            const tAy = this.targetA.indy  * this.targetA.ch + this.Scene().grid.y
+            const tBx = this.targetB.indx  * this.targetB.cw + this.Scene().grid.x
+            const tBy = this.targetB.indy  * this.targetB.ch + this.Scene().grid.y
             const w = tBx - tAx  
             const h = tBy - tAy
 
@@ -187,10 +190,10 @@ export function Select({canvas, shortcuts ,highlight, grid, sets, layers}){
             
             if(!this.targetA)return
             if(!this.targetB)return
-            const tAx = this.targetA.indx  * this.targetA.cw + grid.x
-            const tAy = this.targetA.indy  * this.targetA.ch + grid.y
-            const tBx = this.targetB.indx  * this.targetB.cw + grid.x
-            const tBy = this.targetB.indy  * this.targetB.ch + grid.y
+            const tAx = this.targetA.indx  * this.targetA.cw + this.Scene().grid.x
+            const tAy = this.targetA.indy  * this.targetA.ch + this.Scene().grid.y
+            const tBx = this.targetB.indx  * this.targetB.cw + this.Scene().grid.x
+            const tBy = this.targetB.indy  * this.targetB.ch + this.Scene().grid.y
             const w = tBx - tAx 
             const h = tBy - tAy
             ctx.fillStyle = `#0b0a49`

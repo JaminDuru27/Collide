@@ -6,6 +6,9 @@ export function CollisionBody(Collide){
         hidden: false,
         alpha: .6,
         vertices: [],
+        getexportdata(){
+            return {container: this.container, type: `relative`, vertices: this.vertices}
+        },
         addVertices(array){
             this.vertices = array
             return this

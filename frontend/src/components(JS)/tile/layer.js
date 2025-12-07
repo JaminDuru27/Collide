@@ -1,6 +1,6 @@
 import { getRandomHexColor } from "../../utils/randomcolor"
 
-export function ImageLayer({Collide,Layers,name}){
+export function ImageLayer({select, grid, selectoperations,Layers,name}){
     const res = {
         name,
         hidden: false,
@@ -13,12 +13,12 @@ export function ImageLayer({Collide,Layers,name}){
         movedown(){},
         consolidate(){
             Layers.currentLayer = this
-            Collide.select.all()
-            Collide.selectoperations.performOperation(`consolidate`)
+            select.all()
+            selectoperations.performOperation(`consolidate`)
         },
         indicateTarget({ctx}){
             if(!this.target)return
-            const grid = Collide.grid
+            const grid = getRandomHexColor()
             const x = (this.target.indx * grid.cw) + grid.x  
             const y = (this.target.indy * grid.ch) + grid.y  
             const w = (this.target.sprite.indw * grid.cw) 

@@ -1,17 +1,26 @@
 import { genId } from "../../utils/genid";
 import { getRandomHexColor } from "../../utils/randomcolor"
 let now = 0
-export function Point(Positions, Collide){
+export function Point(Positions, Grid){
     const res = {
         x:0, y: 0,
         dx:0, dy: 0,
         color: getRandomHexColor(),
         name: Positions.array.length + 1,
         hidden: false,
-        gridw: Collide.grid.w, 
-        gridh: Collide.grid.h, 
+        mode: `relative`,
+        gridnx: Grid.nx, gridny: Grid.ny, 
+        gridw: Grid.w, gridh: Grid.h, 
         id: `points` + genId(),
         load(){},
+        absolutemode(){this.mode = `absolute`; return this},
+        relativemode(){this.mode = `relative`; return this},
+        getexportdata(){
+            return {
+            x:this.x, y:this.y, id: this.id, type: this.mode, ratio: this.ratio,
+            container:{indx: 0, indy: 0, indw: this.gridnx, indh: this.gridny
+            }
+        }},
         set(x, y){
             this.x = x; this.y = y
             this.dx = x; this.dy = y
@@ -20,13 +29,15 @@ export function Point(Positions, Collide){
         },
         calcratio(){
             this.ratio = {
-                x: (this.x - Collide.grid.x)/ this.gridw,
-                y: (this.y - Collide.grid.y)/ this.gridh,
+                x: (this.x - Grid.x)/ this.gridw,
+                y: (this.y - Grid.y)/ this.gridh,
             }
         },
         setpos(){
-            this.x = Collide.grid.x + this.ratio.x * this.gridw 
-            this.y = Collide.grid.y + this.ratio.y * this.gridh 
+            if(this.mode === `relative`){
+                this.x = Grid.x + this.ratio.x * this.gridw 
+                this.y = Grid.y + this.ratio.y * this.gridh
+            }
             this.lx = this.x + 5
             this.ly = this.y - 20
         },

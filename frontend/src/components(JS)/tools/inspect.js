@@ -6,10 +6,11 @@ export function Inspect(Collide){
         name: `Inspect`,
         load(){},
         on(){
+            const  Scene = ()=>Collide.scenes?.currentLocker?.currentScene
                         
-            const target = Collide.highlight.target
-            const imageobj = Collide.images.image
-            const layer = Collide.imageLayers.currentLayer
+            const target = Scene().highlight.target
+            const imageobj = Scene().images.image
+            const layer = Scene().imageLayers.currentLayer
             if(!imageobj)return
             if(!target)return
             if(!layer)return
@@ -17,19 +18,19 @@ export function Inspect(Collide){
             if(!tile)return
             if(!tile.sprite)return
             if(!tile.sprite.imageobj)return
-            if(!Collide.images?.image)return
+            if(!Scene().images?.image)return
             const tileimageobj = tile.sprite.imageobj
-            const findimageobject = Collide.images.array.find(img=> img.id === tileimageobj.id)
+            const findimageobject = Scene().images.array.find(img=> img.id === tileimageobj.id)
             if(!findimageobject)return
 
-            Collide.images.switch(findimageobject.id)
+            Scene().images.switch(findimageobject.id)
 
-            Collide.images.grid.nx = tile.sprite.imageobj.$nx
-            Collide.images.grid.ny = tile.sprite.imageobj.$ny
-            Collide.images.grid.w = tile.sprite.imageobj.$w
-            Collide.images.grid.h = tile.sprite.imageobj.$h
+            Scene().images.grid.nx = tile.sprite.imageobj.$nx
+            Scene().images.grid.ny = tile.sprite.imageobj.$ny
+            Scene().images.grid.w = tile.sprite.imageobj.$w
+            Scene().images.grid.h = tile.sprite.imageobj.$h
 
-            Collide.images.select.boxes = []
+            Scene().images.select.boxes = []
             const selectbox = {
                 indx: tileimageobj.targetindx,
                 indy: tileimageobj.targetindy,
@@ -37,13 +38,13 @@ export function Inspect(Collide){
                 rindy: 0,
                 indw: tileimageobj.targetindw,
                 indh: tileimageobj.targetindh,
-                x: Collide.images.grid.x + findimageobject.targetindx * (tile.sprite.imageobj.$w / tile.sprite.imageobj.$nx),
-                y: Collide.images.grid.y + findimageobject.targetindy * (tile.sprite.imageobj.$h / tile.sprite.imageobj.$ny),
+                x: Scene().images.grid.x + findimageobject.targetindx * (tile.sprite.imageobj.$w / tile.sprite.imageobj.$nx),
+                y: Scene().images.grid.y + findimageobject.targetindy * (tile.sprite.imageobj.$h / tile.sprite.imageobj.$ny),
                 w: tile.sprite.imageobj.$w / tile.sprite.imageobj.$nx,
                 h: tile.sprite.imageobj.$h / tile.sprite.imageobj.$ny,
             }
-            Collide.images.select.boxes.push(selectbox)
-            Collide.images.grid.populate()
+            Scene().images.select.boxes.push(selectbox)
+            Scene().images.grid.populate()
         },
         off(){},
         update(){}

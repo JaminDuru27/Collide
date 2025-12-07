@@ -1,7 +1,7 @@
 import { Sprite } from "../tile/Sprite"
 import { Tile } from "../tile/Tile"
 
-export function SelectOperations(Collide, sets){
+export function SelectOperations(Collide, Scene,Images, sets){
     const res = {
         load(){
             this.operations = {
@@ -22,7 +22,7 @@ export function SelectOperations(Collide, sets){
         copytiles:[],
         craftworldcollisionfromtile(){
             const select = Collide.select
-            const tiles = Collide.imageLayers?.currentLayer?.tiles  
+            const tiles = Scene.imageLayers?.currentLayer?.tiles  
             const copytiles = []
             if(tiles){
                 select.forEachBox(box=>{
@@ -41,7 +41,7 @@ export function SelectOperations(Collide, sets){
         },
         deleteSelection(){
             const select = Collide.select
-            const tiles = Collide.imageLayers?.currentLayer?.tiles
+            const tiles = Scene.imageLayers?.currentLayer?.tiles
             if(tiles){
                 select.forEachBox(box=>{
                     tiles.forEach(tile=>{
@@ -55,8 +55,9 @@ export function SelectOperations(Collide, sets){
         },
         SpreadImageToSelection(){
             const select = Collide.select
-            const tiles = Collide.imageLayers?.currentLayer?.tiles
-            const images = Collide.images
+            const tiles = Scene.imageLayers?.currentLayer?.tiles
+            const images = Images
+            if(!images)return
             if(tiles && select.boxes.length >0){
                 const tile = Tile(Collide)
                 const fx = select.boxes[0].indx
@@ -68,7 +69,7 @@ export function SelectOperations(Collide, sets){
                 tile.indy = fy
                 tile.indw = select.boxes[0].indw
                 tile.indh = select.boxes[0].indh
-                tile.sprite = Sprite(tile, Collide)
+                tile.sprite = Sprite(tile, Scene)
                 tile.updateEliminateDuplicate()
             }
         },
@@ -78,7 +79,7 @@ export function SelectOperations(Collide, sets){
         },
         pasteSelection(array){
             (array ?? this.copytiles).forEach(tile=>{
-                const newtile = Tile(Collide)
+                const newtile = Tile(Scene)
                 if(Collide.select.boxes.length <=0)return
                 console.log(tile)
                 newtile.indx = tile.rindx + Collide.select.boxes[0].indx
@@ -86,7 +87,7 @@ export function SelectOperations(Collide, sets){
                 newtile.indw = tile.indw
                 newtile.indh = tile.indh
                 
-                newtile.sprite = Sprite(newtile, Collide)
+                newtile.sprite = Sprite(newtile, Scene)
                 newtile.sprite.imageobj = tile.sprite.imageobj
                 newtile.sprite.sx = tile.sprite.sx
                 newtile.sprite.sy = tile.sprite.sy
@@ -95,7 +96,7 @@ export function SelectOperations(Collide, sets){
 
                 newtile.sprite.loaded = true
                 newtile.updateEliminateDuplicate()
-                const tiles = Collide.imageLayers?.currentLayer?.tiles
+                const tiles = Scene.imageLayers?.currentLayer?.tiles
                 tiles.push(newtile)
             })
 
@@ -104,7 +105,7 @@ export function SelectOperations(Collide, sets){
             if(add)
             this.copytiles = []
             const select = Collide.select
-            const tiles = Collide.imageLayers?.currentLayer?.tiles  
+            const tiles = Scene.imageLayers?.currentLayer?.tiles  
             if(tiles){
                 select.forEachBox(box=>{
                     tiles.forEach(tile=>{
@@ -124,14 +125,14 @@ export function SelectOperations(Collide, sets){
             
             const indw = select.boxes[0].indw
             const indh = select.boxes[0].indh
-            const w = indw * Collide.grid.cw
-            const h = indh * Collide.grid.ch
+            const w = indw * Scene.grid.cw
+            const h = indh * Scene.grid.ch
             canvas.width = w
             canvas.height = h
 
             const tiles = []
             select.forEachBox(box=>{
-                Collide.imageLayers?.currentLayer?.tiles.forEach(tile=>{
+                Scene.imageLayers?.currentLayer?.tiles.forEach(tile=>{
                     if(tile.indx >= box.indx && tile.indx < box.indx + box.indw &&
                           tile.indy >= box.indy && tile.indy < box.indy + box.indh){
                         tiles.push(tile)
@@ -140,28 +141,28 @@ export function SelectOperations(Collide, sets){
             })
             tiles.forEach(tile=>{
                 const sprite = tile.sprite
-                const imageobj = Collide.images.image
+                const imageobj = Images.image
                 if(!imageobj)return
                 const sx = sprite.sx
                 const sy = sprite.sy
                 const sw = imageobj.$sw
                 const sh = imageobj.$sh
-                const dx = (tile.indx - select.boxes[0].indx) * Collide.grid.cw
-                const dy = (tile.indy - select.boxes[0].indy) * Collide.grid.ch
-                const dw = Collide.grid.cw
-                const dh = Collide.grid.ch
+                const dx = (tile.indx - select.boxes[0].indx) * Scene.grid.cw
+                const dy = (tile.indy - select.boxes[0].indy) * Scene.grid.ch
+                const dw = Scene.grid.cw
+                const dh = Scene.grid.ch
                 ctx.imageSmoothingEnabled = false
                 ctx.drawImage(imageobj.image, sx, sy, sw, sh, dx, dy, dw, dh)
             })
 
             const dataurl = canvas.toDataURL()
-            sets.seturl({url:dataurl + '', name: Collide.imageLayers?.currentLayer?.name})
+            sets.seturl({url:dataurl + '', name: Scene.imageLayers?.currentLayer?.name})
 
         },
         duplicateSelection(direction = `r   ight`){
             const dir = direction 
             const select = Collide.select
-            const tiles = Collide.imageLayers?.currentLayer?.tiles
+            const tiles = Scene.imageLayers?.currentLayer?.tiles
             const selectedTiles = []
             if(tiles){
                 select.forEachBox(box=>{
@@ -173,23 +174,23 @@ export function SelectOperations(Collide, sets){
                     })
                     if(dir === `right`){
                         box.ref.indx = box.indx + 1
-                        // if(box.ref.indx > 0 && box.ref.indx + box.indw < Collide.grid.nx)
-                        box.ref.x = box.ref.indx * Collide.grid.cw + Collide.grid.x
+                        // if(box.ref.indx > 0 && box.ref.indx + box.indw < Scene.grid.nx)
+                        box.ref.x = box.ref.indx * Scene.grid.cw + Scene.grid.x
                     }
                     if(dir === `left`){
                         box.ref.indx = box.indx - 1
-                        // if(box.ref.indx > 0 && box.ref.indx + box.indw < Collide.grid.nx)
-                        box.ref.x = box.ref.indx * Collide.grid.cw + Collide.grid.x
+                        // if(box.ref.indx > 0 && box.ref.indx + box.indw < Scene.grid.nx)
+                        box.ref.x = box.ref.indx * Scene.grid.cw + Scene.grid.x
                     }
                     if(dir === `up`){
                         box.ref.indy = box.indy - 1
-                        // if(box.ref.indy > 0 && box.ref.indy + box.indh < Collide.grid.ny)
-                        box.ref.y = box.ref.indy * Collide.grid.ch + Collide.grid.y
+                        // if(box.ref.indy > 0 && box.ref.indy + box.indh < Scene.grid.ny)
+                        box.ref.y = box.ref.indy * Scene.grid.ch + Scene.grid.y
                     }
                     if(dir === `down`){
                         box.ref.indy = box.indy + 1
-                        // if(box.ref.indy > 0 && box.ref.indy + box.indh < Collide.grid.ny)
-                        box.ref.y = box.ref.indy * Collide.grid.ch + Collide.grid.y
+                        // if(box.ref.indy > 0 && box.ref.indy + box.indh < Scene.grid.ny)
+                        box.ref.y = box.ref.indy * Scene.grid.ch + Scene.grid.y
                     }
                 
                 })

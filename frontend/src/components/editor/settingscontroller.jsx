@@ -5,7 +5,7 @@ import { FaDrawPolygon } from "react-icons/fa6";
 import { TbDeviceGamepad3Filled } from "react-icons/tb";
 
 
-export function SettingsController({mode, setMode, fullscreen}){
+export function SettingsController({mode, setshowsettings, setMode, fullscreen}){
     return (
         <motion.div 
         initial={{right:`-100px`}} 
@@ -13,7 +13,9 @@ export function SettingsController({mode, setMode, fullscreen}){
         transition={{duration:1.5, type:`tween`}}
 
         className="controlpanel rounded-l-2xl gap-y-4 bg-[#060014] p-2 flex flex-col min-w-5 max-h20  absolute top-10 right-0">
-            <IoMdSettings title="settings" className="cursor-pointer"  color="white"/>
+            <IoMdSettings onClick={()=>{
+                setshowsettings(p=>!p)
+            }} title="settings" className="cursor-pointer"  color="white"/>
             <div className="cursor-pointer"  onClick={()=>{
                 setMode(p=>(p === `draw`)?`dev`:`draw`)
             }}>

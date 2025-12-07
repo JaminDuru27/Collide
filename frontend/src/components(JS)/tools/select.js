@@ -3,10 +3,11 @@ export function SelectTool(Collide){
         name: `Select`,
         load(){},
         enter(){
+            const  Scene = ()=>Collide.scenes?.currentLocker?.currentScene
             Collide.select.shouldupdate = true
-            console.log(Collide.select.shouldupdate, Collide.select)
         },
         leave(){
+            const  Scene = ()=>Collide.scenes?.currentLocker?.currentScene
             Collide.select.shouldupdate = false
         },
         update(){}

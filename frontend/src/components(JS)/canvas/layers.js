@@ -1,11 +1,11 @@
 import { ImageLayer } from "../tile/layer"
 
-export function ImageLayers(Collide){
+export function ImageLayers(select, grid, selectoperations){
     const res = {
         layers: [],
         currentLayer:undefined,
         add(name){
-            const layer = ImageLayer({Collide,Layers:this,name: name??`Layer ${this.layers.length + 1}`, })
+            const layer = ImageLayer({select, grid, selectoperations,Layers:this,name: name??`Layer ${this.layers.length + 1}`, })
             this.layers.push(layer)
             this.currentLayer = layer
             // console.log(layer)

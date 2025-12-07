@@ -11,13 +11,56 @@ import { TbArrowMoveUp, TbArrowMoveDown } from "react-icons/tb";
 export function SideBarLayers({collide, setfeedback, setcontextobject}){
     const [rewind, setrewind] = useState(false)
     const [c, setC] = useState({...collide[`current`]})
-    
+    const Scene = ()=>c.scenes?.currentLocker?.currentScene
     useEffect(()=>{
         const time = setTimeout(()=>{
             setC({...collide[`current`]})
         }, 100)
         return ()=>clearTimeout(time)
     }, [])
+    function handlebodieslayermousedown(e, layer){
+        if(e.button === 2){
+            const b = e.target.getBoundingClientRect()
+            setcontextobject({
+                pos:{x: b.x + b.width + 50, y: b.y},
+                [layer.name]:[
+                    {   
+                        element: MdDelete,
+                        name: `delete`,
+                        cb:()=>{
+                            layer.delete()
+                            setC({...collide[`current`]})
+                        }
+                    },
+                    {   
+                        element: BiRename,
+                        name: `rename`,
+                        cb:()=>{
+                            setfeedback({type:'text', message: `Rename`, cb:({value})=>{
+                                layer.rename(value)
+                            }})
+                        }
+                    },
+                    {   
+                        element: TbArrowMoveUp,
+                        name: `moveup`,
+                        cb:()=>{
+                            layer.moveup()
+                            setC({...collide[`current`]})
+                        }
+                    },
+                    {   
+                        element: TbArrowMoveDown,
+                        name: `movedown`,
+                        cb:()=>{
+                            layer.movedown()
+                            setC({...collide[`current`]})
+                        }
+                    },
+                ]
+            })
+        }
+    }
     function handlelayermousedown(e, layer){
         if(e.button === 2){
             const b = e.target.getBoundingClientRect()
@@ -79,7 +122,7 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
                         element: MdDelete,
                         name: `delete`,
                         cb:()=>{
-                            collide[`current`].positions.deleteId(p)
+                            collide[`current`].scenes.currentLocker.currentScene.positions.deleteId(p)
                             setC({...collide[`current`]})
                         }
                     },
@@ -90,7 +133,7 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
                             setfeedback(
                                 {message:`rename position`, 
                                 cb:({value})=>{
-                                    collide[`current`].positions.renameId(p, value)
+                                    collide[`current`].scenes.currentLocker.currentScene.positions.renameId(p, value)
                                     setC({...collide[`current`]})
                                 }
                             })
@@ -100,7 +143,7 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
                         element: MdDelete,
                         name: `delete color`,
                         cb:()=>{
-                            collide[`current`].positions.deleteColor(p)
+                            collide[`current`].scenes.currentLocker.currentScene.positions.deleteColor(p)
                             setC({...collide[`current`]})
                         }
                     },
@@ -111,7 +154,7 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
                             setfeedback(
                                 {message:`rename position`, 
                                 cb:({value})=>{
-                                    collide[`current`].positions.renameColor(p, value)
+                                    collide[`current`].scenes.currentLocker.currentScene.positions.renameColor(p, value)
                                     setC({...collide[`current`]})
                                 }
                             })
@@ -127,6 +170,7 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
     else
     return (
         <>
+            <h1 className="text-[1.2rem] opacity-[.7] mb-4 mt-2">{Scene().name}</h1>
             <h1 className="text-[1.2rem] opacity-[.7] mb-4 mt-2">Tiles</h1>
 {/* ----------------------------Layer Nav-------------------------------------------------------- */}
                 <div className="nav w-full p-1 py-2  flex justify-end items-center gap-x-2 border-b-2 border-[#ffffff3c] ">
@@ -139,17 +183,17 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
                     title="reload" className="cursor-pointer"/>
                     <BiSolidLayerPlus
                     onClick={()=>{
-                        collide[`current`].imageLayers.add()
+                        collide[`current`].scenes.currentLocker.currentScene.imageLayers.add()
                         setC({...collide[`current`]})
 
                     }}
                     title="add layer" className="cursor-pointer"/>
                     <MdDelete onClick={()=>{
-                        const cl = collide[`current`].imageLayers.currentLayer
+                        const cl = collide[`current`].scenes.currentLocker.currentScene.imageLayers.currentLayer
                         if(cl){
                             cl.delete = true
-                            const index = collide[`current`].imageLayers.layers.indexOf(cl)
-                            collide[`current`].imageLayers.layers.splice(index, 1)
+                            const index = collide[`current`].scenes.currentLocker.currentScene.imageLayers.layers.indexOf(cl)
+                            collide[`current`].scenes.currentLocker.currentScene.imageLayers.layers.splice(index, 1)
                             setC({...collide[`current`]})
                         }
                     }} title="delete layer" className="cursor-pointer"/>
@@ -160,16 +204,16 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
 
                 {
 // ------------------------------ LAYER -------------------------------------------------
-                c.imageLayers.layers.map((layer, i)=>(
+                Scene().imageLayers.layers.map((layer, i)=>(
                     <>
                     <div 
                     key={`layer`+ i}
                     onMouseDown={(e)=>{handlelayermousedown(e, layer)}}
                     onClick={()=>{
-                        collide[`current`].imageLayers.currentLayer = layer
+                        collide[`current`].scenes.currentLocker.currentScene.imageLayers.currentLayer = layer
                         setC({...collide[`current`]})
                     }}
-                    className={`layer py-2 ${(c.imageLayers.currentLayer !== layer)?`opacity-[0.5]`:`opacity-[1]`} flex items-center justify-between bg-[#ffffff2b] border-1 px-2 rounded-sm text-[.9rem] border-[#ffffffa4] text-[white]`}>
+                    className={`layer py-2 ${(Scene().imageLayers.currentLayer !== layer)?`opacity-[0.5]`:`opacity-[1]`} flex items-center justify-between bg-[#ffffff2b] border-1 px-2 rounded-sm text-[.9rem] border-[#ffffffa4] text-[white]`}>
                         <div className="name  w-[70%] overflow-hidden text-[.7rem]">{layer.name}</div>
                         <motion.div 
                         whileHover={{transform: `rotate(360deg)`}}
@@ -195,7 +239,73 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
                 }
             
             </div>
-        <h1 className="text-[1.2rem] opacity-[.7] my-5 mt-10">Indicated Positions</h1>
+        <h1 className="text-[1.2rem] opacity-[.7] my-5 mt-10">Bodies</h1>
+
+        <div className="nav w-full p-1 py-2  flex justify-end items-center gap-x-2 border-b-2 border-[#ffffff3c] ">
+            <IoReloadOutline 
+            onClick={()=>{
+                // setrewind(p=>!p)
+                setC({...collide[`current`]})
+
+            }}
+            title="reload" className="cursor-pointer"/>
+            <BiSolidLayerPlus
+            onClick={()=>{
+                collide[`current`].scenes.currentLocker.currentScene.bodyLayers.addLayer()
+                setC({...collide[`current`]})
+            }}
+            title="add layer" className="cursor-pointer"/>
+            <MdDelete onClick={()=>{
+                const cl = collide[`current`].scenes.currentLocker.currentScene.bodyLayers.currentLayer
+                if(cl){
+                    cl.delete()
+                    const index = collide[`current`].scenes.currentLocker.currentScene.bodyLayers.layers.indexOf(cl)
+                    collide[`current`].scenes.currentLocker.currentScene.bodyLayers.layers.splice(index, 1)
+                    setC({...collide[`current`]})
+                }
+            }} title="delete layer" className="cursor-pointer"/>
+        </div>
+    <div className="tileslayers overflow-y-auto scrolly flex flex-col gap-4 p-2 bg-[#06011b] max-h-1/2 rounded-[.4rem] ">
+
+                {
+// ------------------------------ Bodies -------------------------------------------------
+            Scene().bodyLayers.layers.map((layer, i)=>(
+                <>
+                <div 
+                key={`layer`+ i}
+                onMouseDown={(e)=>{handlebodieslayermousedown(e, layer)}}
+                onClick={()=>{
+                    collide[`current`].scenes.currentLocker.currentScene.bodyLayers.currentLayer = layer
+                    setC({...collide[`current`]})
+                }}
+                className={`layer py-2 ${(Scene().bodyLayers.currentLayer !== layer)?`opacity-[0.5]`:`opacity-[1]`} flex items-center justify-between bg-[#ffffff2b] border-1 px-2 rounded-sm text-[.9rem] border-[#ffffffa4] text-[white]`}>
+                    <div className="name  w-[70%] overflow-hidden text-[.7rem]">{layer.name}</div>
+                    <motion.div 
+                    whileHover={{transform: `rotate(360deg)`}}
+                    className="eye  relative flex items-center cursor-pointer justify-center  w-[30%] h-full">
+                        <MdOutlineWbSunny 
+                        size={20} color={layer.color} 
+                        className="absolute top-1/2 left-1/2 translate-[-50%]"
+                        />
+                        <div
+                            onClick={()=>{
+                            if(layer.hidden){layer.hidden = false;return}
+                            if(!layer.hidden){layer.hidden = true; return}
+                            //
+                            setC({...collide[`current`]})
+                        }}
+                        style={{backgroundColor:(!layer.hidden)?layer.color:'transparent'}} 
+                        className="absolute w-2 h-2 rounded-[50%] top-1/2 left-1/2 translate-[-50%]"
+                        ></div>
+                    </motion.div>
+                </div>
+                </>
+            ))
+            }
+        
+        </div>
+    <h1 className="text-[1.2rem] opacity-[.7] my-5 mt-10">Indicated Positions</h1>
+
 
         {/* // ------------------------------ POSITION POINTS ------------------------------------------------- */}
         <div className="nav w-full p-1 mb-2 flex gap-2 items-center justify-end">
@@ -215,7 +325,7 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
                 collide[`current`].positions.unhide()
                 setC({...collide[`current`]})
             }}
-            className={`text-[.6rem] bg-white/10 rounded-[.2rem] p-1`}>{`${(collide[`current`].positions.hidden)?`show`:`hide`}`}</div>
+            className={`text-[.6rem] bg-white/10 rounded-[.2rem] p-1`}>{`${(collide[`current`].scenes.currentLocker.currentScene.positions.hidden)?`show`:`hide`}`}</div>
         
             <div 
             onClick={()=>{
@@ -226,18 +336,18 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
         </div>
         <div className="w-full gap-2 overflow-x-auto scrollx overflow-y-hidden  flex justify-start items-center bg-[#06011b] p-2 h-10">
             {
-            c.positions.array.map((p, i)=>(
+                Scene().positions.array.map((p, i)=>(
                 <motion.div 
                 key={`ddm`+ i}
                 onMouseDown={(e)=>{
                     handlePositionMouseDown(e, p)
-                    setC({...collide[`current`]})
+                    setC({...collide[`current`].scenes.currentLocker.currentScene})
                 }}
                 onHoverStart={(e)=>{
-                    collide[`current`].positions.showcolors(p.color)
+                    collide[`current`].scenes.currentLocker.currentScene.positions.showcolors(p.color)
                 }}
                 onHoverEnd={(e)=>{
-                    collide[`current`].positions.reset()
+                    collide[`current`].scenes.currentLocker.currentScene.positions.reset()
                 }}
 
                 title={p.name}

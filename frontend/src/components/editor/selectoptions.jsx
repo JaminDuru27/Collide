@@ -18,6 +18,7 @@ export function SelectOperations({collide,selectoptions, mode, setMode, fullscre
         , 100)
         return ()=>clearTimeout(time)
     }, [])
+    const Scene = ()=>c.scenes?.currentLocker?.currentScene
     const operationIndex = {
         'delete':{element: MdDeleteSweep, title: `Delete Selection (Del)`, name: `delete`},
         'copy':{element: FaCopy, title: `Copy Selection (C)`, name: `copy`},
@@ -38,10 +39,10 @@ export function SelectOperations({collide,selectoptions, mode, setMode, fullscre
 
         className="controlpanel rounded-l-2xl gap-y-4 bg-[#060014] p-2 flex flex-col min-w-5 max-h20  absolute top-96  right-0">
             {
-                Object.keys(c?.selectoperations?.operations)?.map((name, x)=>{
+                Object.keys(Scene().selectoperations?.operations)?.map((name, x)=>{
                     return operationIndex[name].element({
                         onClick:()=>{   
-                            collide[`current`].selectoperations.performOperation(name)
+                            collide[`current`].scenes?.currentLocker?.currentScene?.selectoperations?.performOperation(name)
                         },
                         key:x, className:`cursor-pointer`, 
                         size: 15, 
