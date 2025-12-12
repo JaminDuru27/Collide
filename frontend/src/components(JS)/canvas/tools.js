@@ -7,6 +7,7 @@ import { Mark } from "../tools/mark"
 
 export function Tools(canvas, Collide, sets){
     const res ={
+        prevtool: undefined,
         load(){
             this.array = [
                 Pencil(Collide),
@@ -37,19 +38,24 @@ export function Tools(canvas, Collide, sets){
                 this.setTool(`Mark`);
                 sets.setupdatetools(p=>!p)
             })
+            Collide.shortcuts.add(`p`, `alt`, ()=>{this.tool.name === `Mark`}).cb(()=>{
+                this.setTool(`Mark`);
+                sets.setupdatetools(p=>!p)
+            })
             Collide.shortcuts.add(`m`).cb(()=>{
                 this.setTool(`Select`);
                 sets.setupdatetools(p=>!p)
             })
-            Collide.shortcuts.add(`alt`, ()=>this.tool !== `Mark`).cb(()=>{
+            Collide.shortcuts.add(`alt`, ()=>this.tool.name !== `Mark`).cb(()=>{
                 this.setTool(`Inspect`);
                 sets.setupdatetools(p=>!p)
             })
-            .endcb(()=>{
-                if(this.prevtool){
-                    this.setTool(this.prevtool.name)
-                }
-            })
+            // .endcb(()=>{
+            //     if(this.prevtool){
+            //         this.setTool(this.prevtool.name)
+            //         sets.setupdatetools(p=>!p)
+            //     }
+            // })
                 
         },
         events(){

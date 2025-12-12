@@ -1,25 +1,25 @@
 export function TileOperations(Collide, Select, sets){
     const res = {
-        Scene(){return Collide.scenes?.currentLocker?.currentScene},
+        Scene(){return Collide?.select?.targetScene ?? Collide.scenes?.currentLocker?.currentScene},
         performOperation(name){
             this.operations[name]()
         },
         load(){
             this.operations = {
-                'selectsprite': this.selectsprite,
-                'craft': this.craft,
-                'rotate': this.rotate,
-                'copy': this.copy,
-                'cut': this.cut,
-                'paste': this.paste,
-                'delete': this.delete,
+                'selectsprite': this.selectsprite.bind(this),
+                'craft': this.craft.bind(this),
+                'rotate': this.rotate.bind(this),
+                'copy': this.copy.bind(this),
+                'cut': this.cut.bind(this),
+                'paste': this.paste.bind(this),
+                'delete': this.delete.bind(this),
             }
             this.events()
         },
         events(){
             Collide.canvas.addEventListener(`mousedown`, (e)=>{
                 if(e.button !== 2)return
-                const target = this.Scene().highlight?.target
+                const target = Collide.highlight?.target
                 const layer = this.Scene().imageLayers?.currentLayer
 
                 if(!layer)return
@@ -40,6 +40,7 @@ export function TileOperations(Collide, Select, sets){
         rotate(){},
         selectsprite(){
             Select.boxes = []
+            console.log(this.Scene())
             const layer = this.Scene().imageLayers.currentLayer
             Select.pushtarget()
             const tiletarget = layer.target
@@ -50,7 +51,7 @@ export function TileOperations(Collide, Select, sets){
                     tile.sprite.indw === tiletarget.sprite.indw &&
                     tile.sprite.indh === tiletarget.sprite.indh
                 ){
-                    const grid = this.Scene().Grid
+                    const grid = this.Scene().grid
                     const box  = {
                         indx: tile.indx,
                         indy: tile.indy,

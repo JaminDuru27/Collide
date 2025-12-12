@@ -121,11 +121,45 @@ export function CollisionBodyFactory(Collide, sets){
             this.lastv = undefined
             this.finished =false
         },
+        simplifyvertices(){
+            const yheads = {}
+            const xheads = {}
+            this.vertices.forEach((v, i)=>{
+                yheads[v.y] = []
+            })
+            for(let yhead in yheads){this.vertices.map(v=>{if(v.y === +(yhead))yheads[yhead].push(v)})}
+            for(let yhead in yheads){
+                const array = yheads[yhead].filter(p=>!p.head)
+                const min = Math.min(...array.map(v=>v.x)), max = Math.max(...array.map(v=>v.x))
+                if(array.length > 2)
+                array.map(p=>{
+                    if(p.x === min){p.head = true;return} ;if(p.x === max){p.head = true;return}
+                    p.remove()
+                })
+                // if(array.length <= 2)array.map(v=>v.head = true)
+            }
+            //for x
+            this.vertices.forEach((v, i)=>{
+                xheads[v.x] = []
+            })
+            for(let xhead in xheads){this.vertices.map(v=>{if(v.x === +(xhead))xheads[xhead].push(v)})}
+            for(let xhead in xheads){
+                const array = xheads[xhead].filter(p=>!p.head)
+                const min = Math.min(...array.map(v=>v.y)), max = Math.max(...array.map(v=>v.y))
+                if(array.length > 2)
+                array.map(p=>{
+                    if(p.y === min){p.head = true;return} ;if(p.y === max){p.head = true;return}
+                    p.remove()
+                })
+                // if(array.length <= 2)array.map(v=>v.head = true)
+
+            }
+        },  
         addtoworld(){
             if(!this.finished){sets.setFeedInfo({message:`Complete polygon`, type   :'message'});return}
             sets.setFeedInfo(null)
             const body  = CollisionBody(Collide)
-            body.color = this.color
+            body.color = this.Scene().bodyLayers?.layers?.color ?? this.color
             const array =[]
             this.vertices.forEach(v=>{
                 array.push({
@@ -139,8 +173,8 @@ export function CollisionBodyFactory(Collide, sets){
             body.addVertices(array)
             .setContainerIndex({indx: minx, indy:miny, indw: this.grid.nx, indh: this.grid.ny})
             .calcpos()
-            if(Collide.bodyLayers.currentLayer)
-            Collide.bodyLayers.currentLayer.addBody(body)
+            if(this.Scene().bodyLayers.currentLayer)
+            this.Scene().bodyLayers.currentLayer.addBody(body)
             sets.setbodyfactory(null)
             this.clear()
             this.targetTiles = []
@@ -163,10 +197,11 @@ export function CollisionBodyFactory(Collide, sets){
             })
             // this.grid.alpha = 0
             this.grid.center()
-            this.highlight = Highlight(this.mouse, this.grid)
-            this.updates = [this.mouse,this.grid, this.highlight]
+            // this.highlight = Highlight(this.mouse, Collide, this.Scene())
+            this.updates = [this.mouse,this.grid]
                         
         },
+        Scene(){return Collide.scenes.currentLocker.currentScene},
         addtiles(tiles){
             this.targetTiles = tiles
             this.maxrindx = Math.max(...this.targetTiles.map(e=>e.rindx))
@@ -274,10 +309,10 @@ function Point(factory){
             this.x = factory.grid.x + this.ratio.x * this.getparentw()   
             this.y = factory.grid.y + this.ratio.y * this.getparenth()   
         },
-
+        load(){
+        },
         draw(ctx, color, alpha, size){
             if(!this.x && !this.y)return
-            ctx.save()
             ctx.beginPath()
             ctx.globalAlpha  = alpha
             ctx.fillStyle =  color
@@ -285,12 +320,12 @@ function Point(factory){
             ctx.arc(this.x, this.y, size, 0, Math.PI * 2)
             ctx.fill()
             ctx.closePath()
-            ctx.restore()
         },
         remove(){this.delete = true},
         update(ctx, color  = `yellow`, alpha = 0.4, size = 5){
             this.draw(ctx, color, alpha, size)
         }
     }
+    res.load()
     return res
 }

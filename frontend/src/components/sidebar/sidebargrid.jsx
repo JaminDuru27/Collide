@@ -45,11 +45,11 @@ export function SidebarGrid({collide}){
         {type: `Header`, name:`Highlight Properties`},
         
         {type: Number,name:'alpha', min:0, max:1,
-        get:()=>scene().highlight.alpha,
-        set:(e)=>scene().highlight.alpha = e},
+        get:()=>collide[`current`].highlight.alpha,
+        set:(e)=>collide[`current`].highlight.alpha = e},
         {type: `Color`,name:'color',
-        get:()=>scene().highlight.color,
-        set:(e)=>scene().highlight.color = e},
+        get:()=>collide[`current`].highlight.color,
+        set:(e)=>collide[`current`].highlight.color = e},
 
         {type: `Header`, name:`Mouse Properties`},
 

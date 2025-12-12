@@ -6,6 +6,7 @@ export function CollisionBody(Collide){
         hidden: false,
         alpha: .6,
         vertices: [],
+        Scene(){return Collide.scenes.currentLocker.currentScene},
         getexportdata(){
             return {container: this.container, type: `relative`, vertices: this.vertices}
         },
@@ -18,10 +19,10 @@ export function CollisionBody(Collide){
             return this
         },
         calcpos(){
-            const x = this.container.indx  * Collide.grid.cw + Collide.grid.x  
-            const y = this.container.indy  * Collide.grid.ch + Collide.grid.y
-            const w = this.container.indw * Collide.grid.cw
-            const h = this.container.indh * Collide.grid.ch
+            const x = this.container.indx  * this.Scene().grid.cw + this.Scene().grid.x  
+            const y = this.container.indy  * this.Scene().grid.ch + this.Scene().grid.y
+            const w = this.container.indw * this.Scene().grid.cw
+            const h = this.container.indh * this.Scene().grid.ch
             this.vertices.map(v=>{
                 v.x = x + v.ratio.x * w
                 v.y = y + v.ratio.y * h

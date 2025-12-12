@@ -11,8 +11,8 @@ export function Settings({showsettings,collide, setshowsettings}){
     const [showjsjsonbtn, setshowjsjson] = useState(false)
     return (
         <motion.div 
-        initial = {{opacity: 0}}
-        animate  = {(showsettings)?{opacity: 1}:{opacity: 0}}
+        initial = {{opacity: 0, display: `none`}}
+        animate  = {(showsettings)?{opacity: 1, display: `block`}:{opacity: 0, display: `none`}}
         style={{background: `#14000024`,
         boxShadow: `-2px 0px 20px -7px #000`,
         backdropFilter: `blur(4px)`,

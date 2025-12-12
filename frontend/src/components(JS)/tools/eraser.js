@@ -7,7 +7,7 @@ export function Eraser(Collide){
         load(){},
         on(){
             const  Scene = ()=>Collide.scenes?.currentLocker?.currentScene
-            const target = Scene().highlight?.target
+            const target = Collide.highlight?.target
             const tiles = Scene().imageLayers?.currentLayer?.tiles
             if(tiles && target){
                 tiles.forEach(tile=>{

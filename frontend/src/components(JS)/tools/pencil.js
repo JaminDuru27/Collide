@@ -10,18 +10,19 @@ export function Pencil(Collide){
             Collide.images?.select?.forEachBox((box)=>{
                 const imageobj = Collide.images.image
                 if(!imageobj)return
-                const tile = Tile(Scene())
+                const tile = Tile(Scene(), Collide)
                 // if(!Collide.images?.select){tile.delete = true;return}
             
-                if(!Scene().highlight.target){tile.delete = true;return}
+                if(!Collide.highlight.target){tile.delete = true;return}
 
-                tile.indx = box.rindx + Scene().highlight.target.indx
-                tile.indy = box.rindy + Scene().highlight.target.indy
+                tile.indx = box.rindx + Collide.highlight.target.indx
+                tile.indy = box.rindy + Collide.highlight.target.indy
                 tile.sprite = Sprite(tile, Collide, Scene())
 
                 tile.sprite.sx = box.indx * imageobj.$sw 
                 tile.sprite.sy = box.indy * imageobj.$sh
-
+                tile.sprite.sindx += box.rindx 
+                tile.sprite.sindy += box.rindy
                 tile.updateEliminateDuplicate()
             })
         },

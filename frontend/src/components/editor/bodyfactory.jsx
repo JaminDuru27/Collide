@@ -7,7 +7,7 @@ import { MdDeleteForever } from "react-icons/md";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { IoReload } from "react-icons/io5";
-import { BiZoomIn, BiZoomOut } from "react-icons/bi";
+import { BiSort, BiZoomIn, BiZoomOut } from "react-icons/bi";
 import { FaCheck } from "react-icons/fa";
 export function BodyFactory({collide, setbodyfactory, bodyfactory}){
     const [c, setC] = useState(collide[`current`])
@@ -24,6 +24,7 @@ export function BodyFactory({collide, setbodyfactory, bodyfactory}){
         {element: MdDeleteForever   , title: `clear`, cb:()=>{collide[`current`].collisionbodyfactory.clear()}},
         {element: BiZoomIn, title: `zoomin`, cb:()=>{collide[`current`].collisionbodyfactory.zoomin()}},
         {element: BiZoomOut, title: `zoomout`, cb:()=>{collide[`current`].collisionbodyfactory.zoomout()}},
+        {element: BiSort, title: `simpllify`, cb:()=>{console.log(collide[`current`]);collide[`current`].collisionbodyfactory.simplifyvertices()}},
     ]
     return (
         <div 

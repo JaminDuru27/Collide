@@ -62,9 +62,9 @@ export function ImageObject(Images,url){
             this.image.src = url
         },
         zoomin(rate){
+
             if(rate)
             this.$zoom = Math.abs(rate)
-            if(this.$zoom > 10)this.$zoom = 10
             Images.grid.w += this.$zoom
             Images.grid.h += this.$zoom
             this.$w = Image?.grid?.w
@@ -73,10 +73,9 @@ export function ImageObject(Images,url){
         },
         zoomout(rate){
             if(rate)
-            this.$zoom = -  Math.abs(rate)
-            if(this.$zoom < 1)this.$zoom = 1
-            Images.grid.w += this.$zoom
-            Images.grid.h += this.$zoom
+            this.$zoom = Math.abs(rate)
+            Images.grid.w -= this.$zoom
+            Images.grid.h -= this.$zoom
             this.$w = Image?.grid?.w
             this.$h = Image?.grid?.h
             Images.grid.populate()
@@ -101,7 +100,8 @@ export function ImageObject(Images,url){
             this.$sh  = this?.imgh / this.$ny
             this.sx = Images.select?.boxes[0]?.indx * this.$sw
             this.sy = Images.select?.boxes[0]?.indy * this.$sh
-            
+            this.sindx = Images.select?.boxes[0]?.indx
+            this.sindy = Images.select?.boxes[0]?.indy
             if(Images.select?.boxes[0]?.indx === 0)this.sx = 0
             if(Images.select?.boxes[0]?.indy === 0)this.sy = 0
 

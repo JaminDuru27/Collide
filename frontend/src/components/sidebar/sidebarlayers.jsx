@@ -170,7 +170,7 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
     else
     return (
         <>
-            <h1 className="text-[1.2rem] opacity-[.7] mb-4 mt-2">{Scene().name}</h1>
+            <h1 className="text-[1.2rem] opacity-[.7] mb-4 mt-2">{Scene()?.name}</h1>
             <h1 className="text-[1.2rem] opacity-[.7] mb-4 mt-2">Tiles</h1>
 {/* ----------------------------Layer Nav-------------------------------------------------------- */}
                 <div className="nav w-full p-1 py-2  flex justify-end items-center gap-x-2 border-b-2 border-[#ffffff3c] ">
@@ -201,10 +201,9 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
 
 
             <div className="tileslayers overflow-y-auto scrolly flex flex-col gap-4 p-2 bg-[#06011b] max-h-1/2 rounded-[.4rem] ">
-
                 {
 // ------------------------------ LAYER -------------------------------------------------
-                Scene().imageLayers.layers.map((layer, i)=>(
+                Scene()?.imageLayers?.layers?.map((layer, i)=>(
                     <>
                     <div 
                     key={`layer`+ i}
@@ -266,10 +265,9 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
             }} title="delete layer" className="cursor-pointer"/>
         </div>
     <div className="tileslayers overflow-y-auto scrolly flex flex-col gap-4 p-2 bg-[#06011b] max-h-1/2 rounded-[.4rem] ">
-
                 {
 // ------------------------------ Bodies -------------------------------------------------
-            Scene().bodyLayers.layers.map((layer, i)=>(
+            Scene()?.bodyLayers?.layers?.map((layer, i)=>(
                 <>
                 <div 
                 key={`layer`+ i}
@@ -334,14 +332,15 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
             className={`text-[.6rem] bg-white/10 rounded-[.2rem] p-1`}>Reload</div>
         
         </div>
+
         <div className="w-full gap-2 overflow-x-auto scrollx overflow-y-hidden  flex justify-start items-center bg-[#06011b] p-2 h-10">
             {
-                Scene().positions.array.map((p, i)=>(
+                Scene()?.positions?.array?.map((p, i)=>(
                 <motion.div 
                 key={`ddm`+ i}
                 onMouseDown={(e)=>{
                     handlePositionMouseDown(e, p)
-                    setC({...collide[`current`].scenes.currentLocker.currentScene})
+                    setC({...collide[`current`]})
                 }}
                 onHoverStart={(e)=>{
                     collide[`current`].scenes.currentLocker.currentScene.positions.showcolors(p.color)

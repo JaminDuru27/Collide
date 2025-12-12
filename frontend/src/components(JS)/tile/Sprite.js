@@ -12,6 +12,8 @@ export function Sprite(Tile,Collide, Scene){
             this.indh = Tile.indh
             this.sx = this.imageobj.sx
             this.sy = this.imageobj.sy
+            this.sindx = this.imageobj.sindx
+            this.sindy = this.imageobj.sindy
 
             if(!this.sx && !this.sy && this.sx !== 0 && this.sy !== 0 ){this.delete = true;Tile.delete = true;return}
             this.sw = this.imageobj.$sw

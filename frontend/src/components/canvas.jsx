@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react"
 import { Collide } from "../components(JS)/editor"
 
-export function Canvas({onClick =()=>{},onDoubleClick= ()=>{},collideref, gets, sets }){
+export function Canvas({onClick =()=>{}, onDoubleClick=()=>{}, onmousedown= ()=>{},collideref, gets, sets }){
     const canvas = useRef(null)
     useEffect(()=>{
         const timeout =setTimeout(()=>{
@@ -9,7 +9,11 @@ export function Canvas({onClick =()=>{},onDoubleClick= ()=>{},collideref, gets, 
             // editor.parseData()
             collide.start()
             collideref.current = collide
-
+             window.addEventListener(`keydown`, (e)=>{
+                if(e.key === `ContextMenu`){
+                    onmousedown({clientX: collide.mouse.x, clientY:collide.mouse.y },undefined)
+                }
+             })
         }, 100) 
         return ()=>{clearTimeout(timeout)}
     },[])

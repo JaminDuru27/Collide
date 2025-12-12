@@ -1,7 +1,7 @@
 import { Sprite } from "../tile/Sprite"
 import { Tile } from "../tile/Tile"
 
-export function SelectOperations(Collide, Scene,Images, sets){
+export function SelectOperations(Collide, Scene, sets){
     const res = {
         load(){
             this.operations = {
@@ -14,26 +14,27 @@ export function SelectOperations(Collide, Scene,Images, sets){
                 'duplicate': this.duplicateSelection.bind(this),
                 'craft': this.craftworldcollisionfromtile.bind(this),
             }
+
+            Collide.shortcuts.add(`delete`).cb(()=>{this.performOperation(`delete`)})
+            Collide.shortcuts.add(`x`).cb(()=>{this.performOperation(`cut`)})
+            Collide.shortcuts.add(`c`).cb(()=>{this.performOperation(`copy`)})
+            Collide.shortcuts.add(`v`).cb(()=>{this.performOperation(`paste`)})
+            Collide.shortcuts.add(`alt` , `s`).cb(()=>{this.performOperation(`consolidate`)})
+            Collide.shortcuts.add(`alt` , `w`).cb(()=>{this.performOperation(`spread to`)})
+            Collide.shortcuts.add(`shift` , `arrowleft`).cb(()=>{this.performOperation(`duplicate`, 'left')})
+            Collide.shortcuts.add(`shift` , `arrowright`).cb(()=>{this.performOperation(`duplicate`, 'right')})
+            Collide.shortcuts.add(`shift` , `arrowup`).cb(()=>{this.performOperation(`duplicate`, 'up')})
+            Collide.shortcuts.add(`shift` , `arrowdown`).cb(()=>{this.performOperation(`duplicate`, 'down')})
         },
-        performOperation(name){
+        performOperation(name, arg = undefined){
             const operation = this.operations[name]
-            if(operation)operation()
+            if(operation)operation(arg)
         },
         copytiles:[],
         craftworldcollisionfromtile(){
-            const select = Collide.select
-            const tiles = Scene.imageLayers?.currentLayer?.tiles  
-            const copytiles = []
-            if(tiles){
-                select.forEachBox(box=>{
-                    tiles.forEach(tile=>{
-                        if(tile.indx === box.indx && tile.indy === box.indy){
-                            copytiles.push({...tile, rindx: box.rindx, rindy: box.rindy})
-                        }
-                    })
-                }
-            )
-            }
+
+            const copytiles = this.copySelection(false)
+            console.log(copytiles)
             Collide.collisionbodyfactory.addtiles(copytiles)
             sets.setbodyfactory(true)
             Collide.collisionbodyfactory.resizeOp(copytiles)
@@ -56,10 +57,10 @@ export function SelectOperations(Collide, Scene,Images, sets){
         SpreadImageToSelection(){
             const select = Collide.select
             const tiles = Scene.imageLayers?.currentLayer?.tiles
-            const images = Images
+            const images = Collide.images
             if(!images)return
             if(tiles && select.boxes.length >0){
-                const tile = Tile(Collide)
+                const tile = Tile(Scene, Collide)
                 const fx = select.boxes[0].indx
                 const fy = select.boxes[0].indy
                 const imageobj = images.image
@@ -69,7 +70,7 @@ export function SelectOperations(Collide, Scene,Images, sets){
                 tile.indy = fy
                 tile.indw = select.boxes[0].indw
                 tile.indh = select.boxes[0].indh
-                tile.sprite = Sprite(tile, Scene)
+                tile.sprite = Sprite(tile, Collide, Scene)
                 tile.updateEliminateDuplicate()
             }
         },
@@ -77,18 +78,18 @@ export function SelectOperations(Collide, Scene,Images, sets){
             this.copySelection()
             this.deleteSelection()
         },
-        pasteSelection(array){
+        pasteSelection(array){           
             (array ?? this.copytiles).forEach(tile=>{
-                const newtile = Tile(Scene)
+                const scene = Collide.scenes.currentLocker.currentScene
+                const newtile = Tile(scene, Collide)
                 if(Collide.select.boxes.length <=0)return
-                console.log(tile)
                 newtile.indx = tile.rindx + Collide.select.boxes[0].indx
                 newtile.indy = tile.rindy + Collide.select.boxes[0].indy
                 newtile.indw = tile.indw
                 newtile.indh = tile.indh
                 
-                newtile.sprite = Sprite(newtile, Scene)
-                newtile.sprite.imageobj = tile.sprite.imageobj
+                newtile.sprite = Sprite(newtile,Collide, scene)
+                newtile.sprite.imageobj = {...tile.sprite.imageobj, altered: true}
                 newtile.sprite.sx = tile.sprite.sx
                 newtile.sprite.sy = tile.sprite.sy
                 newtile.sprite.sh = tile.sprite.sh
@@ -96,27 +97,32 @@ export function SelectOperations(Collide, Scene,Images, sets){
 
                 newtile.sprite.loaded = true
                 newtile.updateEliminateDuplicate()
-                const tiles = Scene.imageLayers?.currentLayer?.tiles
+                const tiles = scene.imageLayers?.currentLayer?.tiles
                 tiles.push(newtile)
             })
 
         },
         copySelection(add = true){
-            if(add)
-            this.copytiles = []
+            const resulttiles = []
+
             const select = Collide.select
             const tiles = Scene.imageLayers?.currentLayer?.tiles  
             if(tiles){
                 select.forEachBox(box=>{
                     tiles.forEach(tile=>{
                         if(tile.indx === box.indx && tile.indy === box.indy){
-                            if(add)
-                            this.copytiles.push({...tile, rindx: box.rindx, rindy: box.rindy})
+                            resulttiles.push({...tile, rindx: box.rindx, rindy: box.rindy})
                         }
                     })
                 }
             )
+            if(add){
+                if(resulttiles.length)
+                this.copytiles = resulttiles
             }
+            console.log(resulttiles, `resulttiles`)
+            return resulttiles
+        }
         },
         consolidateSelection(){
             const canvas = document.createElement(`canvas`)
@@ -141,8 +147,8 @@ export function SelectOperations(Collide, Scene,Images, sets){
             })
             tiles.forEach(tile=>{
                 const sprite = tile.sprite
-                const imageobj = Images.image
-                if(!imageobj)return
+                const imageobj = Collide.images?.image
+                if(!imageobj)return 
                 const sx = sprite.sx
                 const sy = sprite.sy
                 const sw = imageobj.$sw
@@ -157,9 +163,9 @@ export function SelectOperations(Collide, Scene,Images, sets){
 
             const dataurl = canvas.toDataURL()
             sets.seturl({url:dataurl + '', name: Scene.imageLayers?.currentLayer?.name})
-
         },
-        duplicateSelection(direction = `r   ight`){
+        duplicateSelection(direction = `right`){
+            console.log(direction)
             const dir = direction 
             const select = Collide.select
             const tiles = Scene.imageLayers?.currentLayer?.tiles

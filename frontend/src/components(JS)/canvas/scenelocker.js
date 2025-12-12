@@ -6,55 +6,107 @@ export function SceneLocker(name, Collide, Scenes, sets,gets){
         name,
         id: `scene`+ genId(),
         scenes : [],
-        add(){
-            const scene = Scene(`Scene ${this.scenes.length + 1}`, Collide, sets,gets)
+        showplacement: false,
+        add(scene = Scene(`Scene ${this.scenes.length + 1}`, Collide, sets,gets), tagnew = true){
             this.scenes.push(scene)
+            if(!tagnew)return scene
             this.currentScene = scene
             return scene
         },
+        unlockallscenes(){this.scenes.map(scene=>scene.locked = false)},
         targetScene(id){
-            this.scene.forEach(scene=>{
+            console.log(id)
+            this.scenes.forEach(scene=>{
                 if(scene.id === id){
+                    if(!scene.locked)
                     this.currentScene = scene
+                    const x = scene.grid.x
+                    const y = scene.grid.y
+                    const dx = x- this.scenes[0].grid.x
+                    const dy = y- this.scenes[0].grid.y
+
+                    this.scenes[0].grid.center()
+                    this.scenes[0].grid.x -= dx 
+                    this.scenes[0].grid.y -= dy
                 }
             })
         },
+
         checkHoverOnScenes(scene){
             return (
                 Collide.mouse.x > scene.grid.x &&
                 Collide.mouse.y > scene.grid.y &&
-                Collide.mouse.x < scene.grid.w + scene.grid.w &&
-                Collide.mouse.y < scene.grid.h + scene.grid.h
+                Collide.mouse.x < scene.grid.x + scene.grid.w &&
+                Collide.mouse.y < scene.grid.y + scene.grid.h
             )
         },
+        highlightplacement({ctx}){
+            if(!this.showplacement)return
+            if(!this.currentScene)return
+            const grid = this.currentScene.grid
+            let dir , taken
+
+
+
+            if(Collide.mouse.x > grid.x + grid.w)dir =`right`
+            else if(Collide.mouse.x < grid.x )dir =`left`
+            else if(Collide.mouse.y > grid.y + grid.h)dir =`bottom`
+            else if(Collide.mouse.y < grid.y )dir =`top`
+            else dir = null
+
+            if(!dir)return
+            if(this.currentScene[`join${dir}`])taken = true;else false
+            ctx.fillStyle = taken?`#b307078f`:`green`
+            if(dir === `top`){ctx.fillRect(grid.x, grid.y -10, grid.w, 6)}
+            if(dir === `bottom`){ctx.fillRect(grid.x, grid.y + grid.h +10, grid.w, 6)}
+            if(dir === `left`){ctx.fillRect(grid.x -10, grid.y,  6,grid.h)}
+            if(dir === `right`){ctx.fillRect(grid.x +10 + grid.w, grid.y,  6,grid.h)}
+            this.dir = dir
+        },
+        lockScene(id){
+            this.unlockallscenes()
+            if(id)this.scenes.forEach(scene=>{if(scene.id === id)scene.locked = true; else scene.locked = false })
+            else this.scenes.forEach(scene=>{if(scene.id === this.currentScene.id)scene.locked = true; else scene.locked = false})
+        },
         load(){
-            this.add()
-            this.add()
+            const scene1 = this.add()
+            const scene2 = this.add()
+            scene1.join(scene2, `right`)
         },
         highlightcurrentscene({ctx}){
             if(!this.currentScene)return
             const g = this?.currentScene?.grid
             if(!g)return
-            ctx.strokeStyle = `red`
-            ctx.strokeRect(g.x, g.y, g.w, g.h)
+            ctx.save()
+            ctx.lineWidth = 4
+            ctx.setLineDash([8,4])
+            ctx.strokeStyle = `#454588`
+            const p = 6
+            const x = g.x - p, y= g.y -p, w=g.w + (p*2) ,h=g.h + (p*2)
+            ctx.strokeRect(x, y, w, h)
+            ctx.restore()
 
             ctx.save()
             ctx.font = `12px Arial`
             ctx.fillStyle = `rgba(225, 225, 225, 0.5)`
-            ctx.fillText(this.currentScene.name, g.x + 5, g.y + 14)
+            ctx.fillText(`${this.name} - ${this.currentScene.name} ${(this.currentScene.locked)?` - Locked`:``}` , g.x + 5, g.y + 14)
             ctx.restore()
         },
         update(p){
+            this.highlightcurrentscene(p)
+
             this.scenes.forEach((scene, c)=>{
                 scene.update(p)
                 if(scene.delete)this.scenes.splice(c, 1)
             })
             this.scenes.forEach(scene=>{
                 if(this.checkHoverOnScenes(scene)){
+                    if(this.scenes.every(scene=>scene.locked === false))
                     this.currentScene = scene
                 }
             })
-            this.highlightcurrentscene(p)
+            this.highlightplacement(p)
+
         },
     }
     res.load()

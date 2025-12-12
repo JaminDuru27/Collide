@@ -28,7 +28,6 @@ export function Images(){
         },
         setup(canvasRef){
             this.setupcanvas(canvasRef)
-            console.log(this.canvas)
             this.mouse =  Mouse(this.canvas)
             this.mouse.size = 5
             this.grid = Grid(this.canvas, this.mouse).basedOnSize()
@@ -36,7 +35,7 @@ export function Images(){
             this.grid.ch = 10
             this.grid.populate()
             this.grid.center()
-            this.highlight = Highlight(this.mouse, this.grid)
+            this.highlight = Highlight(this.mouse, this, this)
             this.select = Select(this, this.canvas, )
             this.select.shouldupdate = true
             this.updates = [this.mouse,this.grid, this.highlight, this.select]
@@ -54,6 +53,8 @@ export function Images(){
             })
         },
         start(){
+            this?.disposableCanvas?.dispose()
+
             const update = (p)=>{
                 this.ctx = p.ctx
                 if(!this.ctx)return
@@ -62,10 +63,10 @@ export function Images(){
                 this.updates.forEach(obj=>{obj.update(p)})
             }
             this.disposableCanvas = DisposableCanvas(this, this.canvasRef)
-            .onupdate((p)=>{
+            this.disposableCanvas.update()
+            this.disposableCanvas.onupdate((p)=>{
                 update(p)
-            })
-            .update() 
+            }) 
             return this
         }
     }

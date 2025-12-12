@@ -6,20 +6,24 @@ export function Scenes(Collide, sets,gets){
     const res = {
         lockers:[],
         add(){
-            const sceneLocker  = SceneLocker(`Scene ${this.lockers.length + 1}` , Collide, this, sets,gets)
+            const sceneLocker  = SceneLocker(`Locker ${this.lockers.length + 1}` , Collide, this, sets,gets)
             this.lockers.push(sceneLocker)
             this.currentLocker = sceneLocker
             return sceneLocker
         },
         targetLocker(id){
-            this.scene.forEach(sceneLocker=>{
+            this.lockers.forEach(sceneLocker=>{
                 if(sceneLocker.id === id){
                     this.currentLocker = sceneLocker
                 }
             })
         },
         load(){
+            const locker1= this.add()
             this.add()
+            this.targetLocker(locker1.id)
+
+            
         },
         update(p){
             if(this.currentLocker){

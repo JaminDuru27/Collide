@@ -24,8 +24,11 @@ export function Collide(canvasRef,gets, sets){
             this.mouse = Mouse(this.canvas)
             this.select= Select(this,this.canvas, this.shortcuts,sets,)
             this.tileoperations  = TileOperations(this,this.select,sets)
+            this.images  = Images()
+            
             
             this.scenes = Scenes(this, sets, gets)
+            this.highlight = Highlight(this.mouse, this,)
             this.collisionbodyfactory  = CollisionBodyFactory(this, sets)
 
 
@@ -40,15 +43,12 @@ export function Collide(canvasRef,gets, sets){
             // this.selectoperations = SelectOperations(this, sets)
 
             this.updates.push(
-                // this.imageLayers, this.mouse, 
-                // this.grid,this.positions, this.highlight, 
-                this.select,
                 this.mouse,
                 this.scenes,
                 this.tools, 
-                // this.select, 
-                // this.collisionbodyfactory, 
-                // this.bodyLayers
+                this.select,
+                this.highlight,
+                this.collisionbodyfactory, 
             )
 
             //assets

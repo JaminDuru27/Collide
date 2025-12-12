@@ -3,6 +3,7 @@ export function Select(Collide, canvas, shortcuts, sets, ){
         targetA: undefined,
         targetB: undefined,
         shouldupdate: false,
+        targetScene:undefined,
         boxes:[],
         load(){
             //if no shortcut or set value, it means its just a test canvas
@@ -62,8 +63,9 @@ export function Select(Collide, canvas, shortcuts, sets, ){
             if(!canvas)return
             canvas.addEventListener(`mousedown`, ()=>{
                 if(!this.shouldupdate)return
-                if(!this.targetA && this.Scene().highlight.target)
-                this.targetA = this.Scene().highlight.target 
+                if(!this.targetA && Collide.highlight.target)
+                this.targetA = Collide.highlight.target 
+                this.targetScene = this.Scene() 
             })
             canvas.addEventListener(`dblclick`, ()=>{
                 this.boxes = []
@@ -80,8 +82,9 @@ export function Select(Collide, canvas, shortcuts, sets, ){
             })
             canvas.addEventListener(`pointermove`, (e)=>{
                 if(!this.shouldupdate)return
+                if(!this.targetScene)return
                 if(this.targetA){
-                    const {indx, indy, cw, ch} = this.Scene().highlight.target
+                    const {indx, indy, cw, ch} = Collide.highlight.target
                     const up = ()=> indy - this.targetA.indy < 0
                     const left = ()=> indx - this.targetA.indx < 0
                     const right = ()=> indx - this.targetA.indx > 0
@@ -113,15 +116,17 @@ export function Select(Collide, canvas, shortcuts, sets, ){
                 if(this.targetA && this.targetB && this.shouldupdate){
                     const {x, y, w, h, indx, indy, indw, indh} = this.render()
                     this.boxes = [{x, y, w, h,indx, indy, indw, indh}]
-                    if(sets)
-                    sets.setselectoptions(true)
+                    if(sets){
+                        sets.setselectoptions(true)
+                    }
                 }
                 this.targetA = undefined 
                 this.targetB = undefined
+                this.targetScene = undefined
                 this.ctrl = false
             })
             canvas.addEventListener(`pointerdown`, ()=>{
-                if(this.ctrl && this.Scene().highlight.target){
+                if(this.ctrl && Collide.highlight.target){
                     this.pushtarget()
                 }
                 if(this.boxes.length >0){
@@ -137,12 +142,12 @@ export function Select(Collide, canvas, shortcuts, sets, ){
         },
         pushtarget(){
             const box  = {
-                x: this.Scene().grid.x + this.Scene().highlight.target.indx * this.Scene().highlight.target.cw,
-                y: this.Scene().grid.y + this.Scene().highlight.target.indy * this.Scene().highlight.target.ch,
-                w: this.Scene().highlight.target.cw,
-                h: this.Scene().highlight.target.ch,
-                indx: this.Scene().highlight.target.indx,
-                indy: this.Scene().highlight.target.indy,
+                x: this.Scene().grid.x + Collide.highlight.target.indx * Collide.highlight.target.cw,
+                y: this.Scene().grid.y + Collide.highlight.target.indy * Collide.highlight.target.ch,
+                w: Collide.highlight.target.cw,
+                h: Collide.highlight.target.ch,
+                indx: Collide.highlight.target.indx,
+                indy: Collide.highlight.target.indy,
                 indw: 1, indh: 1,
             }
             this.boxes.push(box)
@@ -152,7 +157,7 @@ export function Select(Collide, canvas, shortcuts, sets, ){
             }
         },
         render(){
-            if(!this.targetA || !this.targetB || !this.Scene().highlight.target)return{x: 0, y: 0, w: 0, h:0}
+            if(!this.targetA || !this.targetB || !Collide.highlight.target)return{x: 0, y: 0, w: 0, h:0}
             const tAx = this.targetA.indx  * this.targetA.cw + this.Scene().grid.x
             const tAy = this.targetA.indy  * this.targetA.ch + this.Scene().grid.y
             const tBx = this.targetB.indx  * this.targetB.cw + this.Scene().grid.x

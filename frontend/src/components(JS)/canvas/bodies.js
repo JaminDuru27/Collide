@@ -49,10 +49,12 @@ export function BodyLayer(name){
         rename(v){this.name = v},
         delete(){this.Delete = true},
         addBody(body){
-            this.bodies.push(body)
+            const b = {...body, color: this.color}
+            this.bodies.push(b)
         },
         load(){},
         update(p){
+            if(this.hidden)return
             this.bodies.forEach((body, i)=>{
                 body.update(p)
                 if(body.delete)this.bodies.splice(i, 1)

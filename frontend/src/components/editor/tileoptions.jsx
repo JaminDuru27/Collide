@@ -38,7 +38,7 @@ export function TileOptions({collide,tile, setTile}){
         'cut':{element: IoMdCut, title: `Cut Selection (X)`, name: `cut`},
         'paste':{element: FaPaste, title: `Paste Selection (V)`, name: `paste`},
         'selectsprite':{element: GrSelect, title: `Select All Sprites `, name: `selectsprite`},
-        'craft':{element: GiStoneBlock, title: `Use as templayer for collision `, name: `craft`},
+        // 'craft':{element: GiStoneBlock, title: `Use as templayer for collision `, name: `craft`},
         'rotate':{element: FaArrowRotateLeft, title: `Rotate Tile Sprite`, name: `rotate`},
     }
     if(!c)return null
@@ -58,7 +58,7 @@ export function TileOptions({collide,tile, setTile}){
                 {
                 Object.keys(c?.tileoperations?.operations)?.map((name,x)=>(
                 
-                    operationIndex[name].element({
+                    operationIndex[name]?.element({
                     onClick:()=>{
                         collide[`current`].tileoperations.performOperation(name)
                     }
