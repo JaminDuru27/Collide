@@ -71,7 +71,7 @@ export function SceneLocker(name, Collide, Scenes, sets,gets){
         load(){
             const scene1 = this.add()
             const scene2 = this.add()
-            scene1.join(scene2, `right`)
+            scene2.join(scene1.id, `right`)
         },
         highlightcurrentscene({ctx}){
             if(!this.currentScene)return
@@ -92,9 +92,29 @@ export function SceneLocker(name, Collide, Scenes, sets,gets){
             ctx.fillText(`${this.name} - ${this.currentScene.name} ${(this.currentScene.locked)?` - Locked`:``}` , g.x + 5, g.y + 14)
             ctx.restore()
         },
+        getData(){return {data:{type: `Locker`, id: this.id, name: this.name,}, scenes: [...this.scenes.map(scene=>scene.getData())]}},
+        revertData(lockerData){
+            this.scenes = []
+            this.currentScene = undefined
+
+            this.name = lockerData.data.name
+            this.type = lockerData.data.type
+            this.id = lockerData.data.id
+
+
+            lockerData.scenes.forEach(data=>{
+                const scene = Scene(`Scene ${this.scenes.length + 1}`, Collide, sets, gets)
+                scene.revertData(data)
+                this.scenes.push(scene)
+                this.currentScene = scene
+            })
+            lockerData.scenes.forEach((data, x)=>{
+                this.scenes[x].join(data.data.refsceneid, data.data.dir)
+            })
+            
+        },
         update(p){
             this.highlightcurrentscene(p)
-
             this.scenes.forEach((scene, c)=>{
                 scene.update(p)
                 if(scene.delete)this.scenes.splice(c, 1)

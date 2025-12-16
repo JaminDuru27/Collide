@@ -28,25 +28,8 @@ const userSchema = new mongoose.Schema({
         select: false // Don't include password in queries by default
     },
     projects:{
-        type: [projectSchema],
-        // validate:{
-        //     validator: function(v){
-        //         if(this.premium){
-        //             return v.length <= 20
-        //         } else {
-        //             return v.length >= 1 && v.length <= 5
-        //         }
-        //     },
-        //     message: props=>{
-        //         if(props.value.length > 20){
-        //             return `Premium users can only have up to 30 projects`
-        //         }else if(props.value.length < 1){
-        //             return `A user must gave at least project`
-        //         } else if(props.value.length > 5){
-        //             return `Non-promiusm users can have up to 5 projects only`
-        //         }
-        //     }
-        // }
+        type: mongoose.Schema.Types.Mixed,
+        default: []
     },
     premium: {
         type: Boolean,
@@ -63,12 +46,12 @@ const userSchema = new mongoose.Schema({
 
 })
 userSchema.pre('save', async function (next) {
-    if(this.isModified(`password`))return next()
+    if (!this.isModified('password')) return next()
     try{
-    // Generate salt and hash password
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
+        // Generate salt and hash password
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
     }catch(err){
         next(err)
     }
@@ -76,7 +59,7 @@ userSchema.pre('save', async function (next) {
 
 userSchema.methods.toPublicProfile = function(){
     return {
-        id: this._id,
+        // id: this._id,
         username: this.username,
         email: this.email,
         projects: this.projects,

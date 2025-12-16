@@ -8,6 +8,26 @@ export function PositionPoints(Collide, Shortcuts, Grid, Tools, Mouse){
         array: [],
         hide(){this.hidden = true},
         unhide(){this.hidden = false},
+        getData(){
+            const data =[...this.array.map(p=>({
+                id: p.id,
+                name: p.name, color: p.color, 
+                mode: p.mode, hidden: p.hidden,
+                x: p.x,y: p.y, ratio: p.ratio,
+                gridw: p.gridw, gridh: p.gridh,
+                gridnx: p.gridnx, gridny: p.gridny, 
+            }))]
+            return data
+        },
+        revertData(positionsData){
+            this.array = []
+            positionsData.forEach(pdata=>{
+                const point  = this.addpoint(pdata.x, pdata.y)
+                for(let x in pdata){
+                    point[x] = pdata[x]
+                }
+            })
+        },
         deleteColor(pp){
             this.array.map(p=>{
                 if(p.color === pp.color){p.delete = true}

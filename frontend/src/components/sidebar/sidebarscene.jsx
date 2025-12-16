@@ -117,6 +117,7 @@ function Scene({locker, scene,collide,c,setC, key}){
             point.y <= rect.bottom
         ) {
             const Locker  = collide[`current`].scenes.currentLocker
+            if(!Locker)return
             if(Locker !== locker){
                 const newScene = Locker.add(undefined, false)
                 Locker.currentScene.join(newScene, Locker.dir)

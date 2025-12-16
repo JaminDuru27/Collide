@@ -1,40 +1,70 @@
 import mongoose from "mongoose"
 import { User } from "../Models/user.js"
 import { GenerateID } from "../utils/generayeId.js"
+import jwt from 'jsonwebtoken';
 
 export async function CreateProject(req, res){
     try{
-        const {userid, projectname} = req.body
-        //---------------------  Validate ID --------------------------------
-
-        if(!mongoose.Types.ObjectId.isValid(userid)){
-            console.log(`isd not valid`)
-            return res.status(500).send({
-                success:false,
-                message: `Id not valid`
+        const {projectdata} = req.body
+        const token = req.cookies?.access_token;
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: 'No token provided'
+            });
+        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        
+        const userid = decoded.userId
+        // Validate input
+        if(!userid || !projectdata){
+            return res.status(400).json({
+                success: false,
+                message: 'userid and projectdata are required'
             })
         }
-        //---------------------  Find User --------------------------------
-        
+
+        // Validate ObjectId
+        if(!mongoose.Types.ObjectId.isValid(userid)){
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid user ID format'
+            })
+        }
+
+        // Add ID to project if not present
+        if(!projectdata.id){
+            projectdata.id = GenerateID();
+        }
+
+        // Push project to user
         const user = await User.findByIdAndUpdate(
             userid,
-            {$push:{projects:{title: projectname}}},
-            {new: true, runValidators:true}
+            { $push: { projects: projectdata } },
+            { new: true, runValidators: true }
         )
+
         if(!user){
-            console.log(`user not found`)
             return res.status(404).json({
                 success: false,
-                message: `user not found`
+                message: 'User not found'
             })
         }
-        res.status(201).json({message:`Project successfully added`, data: {id: `---`}})
 
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Error fetching user profile'
-    });
-    console.error(error.message)
-  }
+        res.status(201).json({
+            success: true,
+            message: 'Project successfully added',
+            data: {
+                project: projectdata,
+                user: user.toPublicProfile()
+            }
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Error creating project'
+        });
+        console.error('CreateProject error:', error)
+    }
 }

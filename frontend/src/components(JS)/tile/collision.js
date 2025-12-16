@@ -7,6 +7,24 @@ export function CollisionBody(Collide){
         alpha: .6,
         vertices: [],
         Scene(){return Collide.scenes.currentLocker.currentScene},
+        getData(){
+            const data = {
+                data: {
+                    color: this.color, lineWidth: this.lineWidth,
+                    hidden: this.hidden, alpha: this.alpha,
+                    container: this.container,
+                },
+                vertices: [...this.vertices.map(v=>({x: v.x, y: v.y, ratio: v.ratio}))],
+            }
+            return data
+        },
+        revertData({vertices, data}){
+            console.log(vertices, data, `kook`)
+            for(let x in data){
+                this[x] = data[x]
+            }
+            this.vertices = vertices
+        },
         getexportdata(){
             return {container: this.container, type: `relative`, vertices: this.vertices}
         },

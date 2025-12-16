@@ -15,15 +15,17 @@ export async function Register(req, res){
             message: 'User with this email or username already exists' 
         });
         }
-
-        const user = await User.create({
+        
+        const user = await User.create({    
             username,
             email,
             password,
         })
+        user.createdAt = new Date() 
+        await user.save()
+        console.log(`regiseref sycceddfully`)
         res.status(201).json({
             success: true,
-            data: user.toPublicProfile(),
             message: 'User created but could not send verification email'
         });
     }catch(err){

@@ -172,8 +172,9 @@ export function SideBarImage({setmergedatas, dragelement, setupdatedrag,collide,
             <div className="w-[10rem] max-h-[10rem] p-2 max-h-[50px] overflow-y-auto scrolly flex-col gap-2   rounded-sm bg-white/20">
             {
                 c.images.array.map((imgobj, key)=>{
-                    if(!imgobj.loaded)return (<></>)
+                    if(!imgobj.loaded && imgobj?.info)return (<></>)
                     else return (
+                        <>
                         <motion.div 
                         key={key}
                         whileHover={{color: `#11012d`}}
@@ -205,11 +206,12 @@ export function SideBarImage({setmergedatas, dragelement, setupdatedrag,collide,
                                 }))
                             }
                         }}
-                        title={`${imgobj.info.name} MB: ${imgobj.info.size} Size: ${imgobj?.imgw}px x  ${imgobj?.imgh}px `}
+                        title={`${imgobj?.info?.name} MB: ${imgobj?.info?.size} Size: ${imgobj?.imgw}px x  ${imgobj?.imgh}px `}
                         className="cursor-pointer text-[.6rem] justify-start  w-full overflow-hidden flex mb-2 items-center">
                             <FaFileImage />
-                            <div className="ml-1">{imgobj.info.name}</div>
+                            <div className="ml-1">{imgobj?.info?.name}</div>
                         </motion.div>
+                    </>
                     )
                 })
             }
@@ -226,7 +228,7 @@ export function SideBarImage({setmergedatas, dragelement, setupdatedrag,collide,
                         left: `calc(100% + 20px)`,
                     }}
                     className={`absolute w-[10rem] h-[10rem]  text-[.7rem] t rounded-sm backdrop-blur-[3px] bg-white/20 border-2 border-amber-50/10`}>
-                        <img src={imageObjectInfo.image.src} alt="" className="w-full h-full rounded-sm" />
+                        <img src={imageObjectInfo?.image?.src} alt="" className="w-full h-full rounded-sm" />
                         <div className="arr w-5 h-5 absolute top-1/2 translate-y-[-50%] left-[-40px] ">
                         <BiSolidLeftArrow color="#fff" size={25}  />
                         </div>

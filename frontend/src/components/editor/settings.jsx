@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { BsFiletypeJs, BsFiletypeJson } from "react-icons/bs";
 import { useState } from "react";
 import { DownloadWorldData } from "../../utils/downloadworlddata";
+import { SelectJSONFile } from "../../utils/selectjsonfile";
 export function Settings({showsettings,collide, setshowsettings}){
     const [showjsjsonbtn, setshowjsjson] = useState(false)
     return (
@@ -26,7 +27,23 @@ export function Settings({showsettings,collide, setshowsettings}){
                 <div className="">Using PlanckJS</div>
                 <GiMaterialsScience color="#fff" /> Library
             </div>
-            <div className="content w-full mt-4 mb-3 rounded-lg overflow-y-auto scrolly bg-white/20 p-2"></div>
+            <div className="content text-[.7rem] flex flex-col justify-start items-start gap-2 capitalize w-full mt-4 mb-3 rounded-lg overflow-y-auto scrolly bg-white/20 p-2">
+            
+            <div 
+            className=""
+            onClick={()=>{collide.current.state.download()}}
+            >download state</div>
+            <div 
+            className=""
+            onClick={()=>{
+                SelectJSONFile((data)=>{
+                    collide.current.state.clear()
+                    collide.current.state.revert(data)
+                    collide.current.state.save()
+                })
+            }}
+            >load state</div>
+            </div>
             <motion.div 
             initial={{opacity: 0, bottom:`0`, display: `none`}}
             animate={showjsjsonbtn?{opacity: 1, bottom:`2.5rem`, display: `flex`}:{display: `none`,opacity: 0, bottom:`0`}}

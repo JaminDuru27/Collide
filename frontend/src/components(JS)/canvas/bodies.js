@@ -1,14 +1,24 @@
 import { genId } from "../../utils/genid"
 import { getRandomHexColor } from "../../utils/randomcolor"
+import { CollisionBody } from "../tile/collision"
 
-export function BodyLayers(){
+export function BodyLayers(Collide){
     const res = {
         layers:[],
         addLayer(){
-            const layer = BodyLayer(`Body Layer ${this.layers.length + 1}`)
+            const layer = BodyLayer(`Body Layer ${this.layers.length + 1}`, Collide)
             this.layers.push(layer)
             this.currentLayer = layer   
             return layer
+        },
+        getData(){return[...this.layers.map(layer=>layer.getData())]},
+        revertData(data){
+            this.layers= []
+            this.currentLayer= undefined
+            data.forEach(d=>{
+                const lys = this.addLayer()
+                lys.revertData(d)
+            })
         },
         getallbodies(){
             const bodies = []
@@ -39,7 +49,7 @@ export function BodyLayers(){
     return res
 }
 
-export function BodyLayer(name){
+export function BodyLayer(name, Collide){
     const res = {
         name,
         hidden: false,
@@ -51,6 +61,26 @@ export function BodyLayer(name){
         addBody(body){
             const b = {...body, color: this.color}
             this.bodies.push(b)
+        },
+        getData(){
+            const data = {
+                data: {
+                    id: this.id, name: this.name, hidden:this.hidden,
+                    color: this.color,
+                },
+                bodies: [...this.bodies.map(body=>body.getData())],
+            }
+            return data
+        },
+        revertData({data, bodies }){
+            for(let x in data){
+                this[x] = data[x]
+            }
+            this.bodies = []
+            bodies.map(({data, vertices})=>{
+                const body = CollisionBody(Collide)
+                body.revertData({data, vertices})
+            })
         },
         load(){},
         update(p){

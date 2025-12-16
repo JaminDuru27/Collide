@@ -1,3 +1,5 @@
+import { Sprite } from "./Sprite"
+
 export function Tile(Scene,Collide){
     const res = {
         indx: Collide.highlight?.target?.indx, 
@@ -6,6 +8,7 @@ export function Tile(Scene,Collide){
         sprite: undefined,
         bodies:[], eliminateDuplicate:true,
         load(){
+            console.log(Scene)
             Scene.imageLayers.currentLayer.tiles.push(this)
         },
         updateEliminateDuplicate(){
@@ -17,7 +20,23 @@ export function Tile(Scene,Collide){
                 })
             }
         },
-        count: 0,
+        getData(){
+            const data = {
+                data: {
+                    indx: this.indx, indy: this.indy,
+                    indw: this.indw, indh: this.indh
+                },  
+                sprite:this.sprite.getData(),
+                bodies:null,
+            }
+            return data
+        },
+        revertData(tiledata){
+            this.indx = tiledata.indx ;this.indy = tiledata.indy 
+            this.indw = tiledata.indw ;this.indh = tiledata.indh 
+            this.sprite = Sprite(this, Collide, Scene)
+            this.sprite.revertData(tiledata.sprite) 
+        },
         update(p){
             if(this.indx > Scene.grid.nx -1 || this.indy > Scene.grid.ny-1){
                 return

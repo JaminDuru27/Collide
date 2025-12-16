@@ -1,14 +1,14 @@
 import { ImageLayer } from "../tile/layer"
 
-export function ImageLayers(select, grid, selectoperations){
+export function ImageLayers(Scene, Collide,select, grid, selectoperations){
     const res = {
         layers: [],
         currentLayer:undefined,
         add(name){
-            const layer = ImageLayer({select, grid, selectoperations,Layers:this,name: name??`Layer ${this.layers.length + 1}`, })
+            const layer = ImageLayer({Scene, Collide,select, grid, selectoperations,Layers:this,name: name??`Layer ${this.layers.length + 1}`, })
             this.layers.push(layer)
             this.currentLayer = layer
-            // console.log(layer)
+            return layer
         },
         
         load(){

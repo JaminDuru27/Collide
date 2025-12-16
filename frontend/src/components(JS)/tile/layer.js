@@ -1,6 +1,7 @@
 import { getRandomHexColor } from "../../utils/randomcolor"
+import { Tile } from "./Tile";
 
-export function ImageLayer({select, grid, selectoperations,Layers,name}){
+export function ImageLayer({Scene, Collide,select, grid, selectoperations,Layers,name}){
     const res = {
         name,
         hidden: false,
@@ -11,6 +12,19 @@ export function ImageLayer({select, grid, selectoperations,Layers,name}){
         rename(name){this.name = name},
         moveup(){},
         movedown(){},
+        getData(){return {data:{id: this?.id, name: this.name, color: this.color, hidden: this.hidden}, tiles: [...this.tiles.map(tile=>tile.getData())]}},
+        revertData(layerdata){
+            this.color = layerdata.color; this.id = layerdata?.id
+            this.hidden = layerdata?.hidden; this.name = layerdata.name
+
+            this.tiles = []
+            this.target = undefined
+            layerdata.tiles.forEach(tiledata=>{
+                const tile = Tile(Scene, Collide)
+                tile.revertData(tiledata)
+                this.tiles.push(tile)
+            })
+        },
         consolidate(){
             Layers.currentLayer = this
             select.all()

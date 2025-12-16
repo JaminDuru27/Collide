@@ -4,13 +4,18 @@ import dotenv from 'dotenv'
 dotenv.config()
 import cors from 'cors'
 import { userRouter } from './Routes/user.js'
-
+import cookieParser from 'cookie-parser'
 const app = express()
 
 //middle wares
-app.use(cors())
+app.use(cookieParser())
+
+app.use(cors({
+    origin: `http://localhost:5173`,
+    credentials: true
+}))
 app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+app.use(express.urlencoded({extended:true, limit: "50mb"}))
 app.use(express.static(`/frontend`))
 app.use('/api/users', userRouter)
 

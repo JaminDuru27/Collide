@@ -18,12 +18,11 @@ export function Register(){
             const res = await fetch(`${url}/api/users/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, email, password })
+                body: JSON.stringify({ username, email, password }),
+                credentials: 'include'
             })
             const d= await res.json()
-            const data  = d.data
-            console.log(data)
-            nav(`/menu?username='${data.username}'&id='${data.id}' `)
+            nav(`/login`)
             setmessage(data.message)
         }catch(err){
             setmessage(err)
@@ -37,6 +36,8 @@ export function Register(){
             <img src="/auth/design3.png" className="absolute top-[10%] left-[10%] w-[15rem] h-[15rem]" alt="" />
             <img src="/auth/design5.png" className="absolute top-[40%] left-[60%] w-[15rem] h-[15rem]" alt="" />
             <div className="w-[75%]  sm:w-[40%] p-4  lg:w-[25%] h-[70%] rounded backdrop-blur-2xl  rounded-2xl">
+            <div className="w-fill my-2 text-center capitalize text-[2rem]">Register</div>
+
                 <div className="w-full p-2 px-4 bg-[#eb54548d] text-black rounded-2xl mb-4">{message}</div>
 
                 <div className="form" >

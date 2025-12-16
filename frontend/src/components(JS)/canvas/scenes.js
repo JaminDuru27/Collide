@@ -25,6 +25,20 @@ export function Scenes(Collide, sets,gets){
 
             
         },
+        getLockersDatas(){return {data:{currentLockerId: this.currentLocker.id},lockers:[...this.lockers.map(locker=>locker.getData())]}},
+        revertData(LockersDatas){
+            this.lockers.map(locker =>locker.delete = true)
+            this.currentLocker = undefined
+            this.lockers = []
+
+            LockersDatas.lockers.map(lockerdata=>{
+                const sceneLocker  = SceneLocker(`Locker ${this.lockers.length + 1}` , Collide, this, sets,gets)
+                sceneLocker.revertData(lockerdata)
+                this.lockers.push(sceneLocker)
+            })
+            this.targetLocker(LockersDatas.data.currentLockerId)
+            // console.log(`this`)
+        },
         update(p){
             if(this.currentLocker){
                 this.currentLocker.update(p)

@@ -16,6 +16,18 @@ export function Images(){
             this.array.push(imgobj)
             return imgobj
         },
+        revertData(imgsdatas){
+            this.array = []
+            imgsdatas.forEach(data=>{
+                const obj = ImageObject(this, data.$dataurl)
+                for(let x in data){
+                    if(x === `info`)continue
+                    obj[x] = data[x]
+                }
+                obj.setinfo(data.info)
+                this.array.push(obj)
+            })
+        },
         deleteImage(imgobj){
             const temp = imgobj
             this.array.splice(this.array.indexOf(imgobj), 1)

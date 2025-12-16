@@ -7,7 +7,7 @@ export function Highlight(mouse, collide, scene){
         draw(ctx){
             if(!this.target)return
             ctx.save()
-            ctx.translate(this.scene().grid.x, this.scene().grid.y)
+            ctx.translate(this.scene()?.grid.x, this.scene()?.grid.y)
             ctx.setLineDash([2,2])
             
             ctx.globalAlpha = (this.alpha !== (0 || `0`))?1:0
@@ -30,9 +30,9 @@ export function Highlight(mouse, collide, scene){
         detTarget(){
             const mx = mouse.x
             const my = mouse.y
-            this.scene().grid.boxes.forEach(box=>{
-                const bx = this.scene().grid.x + box.indx * box.cw
-                const by = this.scene().grid.y + box.indy * box.ch
+            this.scene()?.grid?.boxes?.forEach(box=>{
+                const bx = this.scene()?.grid.x + box.indx * box.cw
+                const by = this.scene()?.grid.y + box.indy * box.ch
                 if(this.checkboxcollide(mx, my, {x: bx, y: by, w: box.cw, h: box.ch})){
                     this.target = box
                 }

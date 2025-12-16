@@ -9,8 +9,20 @@ export function ImageObject(Images,url){
         $ch: 0,
         $w: 0,
         $h: 0,
+        $dataurl: url,
         id: Math.random().toString(36).substring(2,9),
         setinfo(obj){this.info = obj;return this},
+        getData(){
+            const data  = {}
+            for(let x in this){
+                const v = this[x]
+                if(typeof v === `number`)data[x] = v
+                if(typeof v === `string`)data[x] = v
+                if(typeof v === `boolean`)data[x] = v
+            }
+            data.info = this.info
+            return data
+        },
         reassign(){
             Images.grid.nx = this.$nx
             Images.grid.ny = this.$ny

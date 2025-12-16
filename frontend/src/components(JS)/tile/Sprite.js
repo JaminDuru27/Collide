@@ -1,3 +1,5 @@
+import { ImageObject } from "../canvas/image";
+
 export function Sprite(Tile,Collide, Scene){
     const res = {
         indx: 0, indy: 0, 
@@ -19,6 +21,33 @@ export function Sprite(Tile,Collide, Scene){
             this.sw = this.imageobj.$sw
             this.sh = this.imageobj.$sh
             this.loaded= true
+        },
+        getData(){
+            const data = {
+                data: {
+                    sx: this.sx, sy: this.sy, sw: this.sw, sh: this.sh,
+                    sindx: this.sindx, sindy: this.sindy, indx: this.indx,
+                    indy: this.indy, indw: this.indw, indh: this.indh,
+                },
+                imgobjref: this.imageobj.getData(),
+            }
+            
+            return data
+        },
+        revertData({data, imgobjref}){
+            console.log(data, imgobjref, `sprite data`)
+            
+            for(let x in data){
+                this[x] = data[x]
+            }
+
+            const obj = ImageObject(Collide.images, imgobjref.$dataurl)
+            for(let x in imgobjref){
+                if(x === `info`)continue
+                obj[x] = imgobjref[x]
+            }
+            obj.setinfo(imgobjref.info)
+            this.imageobj = obj
         },
         update(props){
             if(!this?.imageobj?.loaded)return

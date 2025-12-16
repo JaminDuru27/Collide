@@ -12,7 +12,11 @@ import { Feed } from "../components/feed";
 
 export function Editor(){
     const editorref  = useRef(null)
-    const [isModified, setisModified]= useState(false   )
+    const  [search] = useSearchParams()
+    const projectname = search.get(`projectName`) 
+    const projecttemplate = search.get(`templateId`)
+
+    const [isModified, setisModified]= useState(false)
     const [mode, setMode] = useState(`draw`) 
     const [play, setPlay] = useState(false)
     const [fullscreen,setFullscreen] = useState(false)
@@ -34,10 +38,11 @@ export function Editor(){
     const [mergedatas, setmergedatas] = useState([]) 
     const [showsettings, setshowsettings] = useState(false) 
     const [renderlockerscenes, setrenderlockerscenes] = useState(false)
+    const [updateAll, setupdateAll] = useState(false)
     let handlefeed = ()=>{}
     const canvasoptions = (e, info)=>{
         setcontextobject({
-            pos:{x: e?.clientX + 2?? 0, y: e?.clientY + 2??0},
+            pos:{x: e?.clientX + 2 , y: (e?.clientY + 2 )},
             [`scene`]:[
                 {   
                     element: BsLock,
@@ -58,25 +63,30 @@ export function Editor(){
     
     
     useEffect(()=>{hideside===true?sethead(``):null},[hideside])
+    const [toggle, setToggle] = useState(true)
+    const [progresslist, setprogresslist] = useState([])
+    
     return (
         <>
         <div 
         ref={editorref}
         className="w-full text-[#fff] h-screen bg-[#0f012d] "
         >
+            <Intro setToggle={setToggle} toggle= {toggle} progreslist={progresslist}/>
+
             <Canvas
             onmousedown = {(e, info)=>{canvasoptions(e, info)}}
-            onClick={()=>{
-                sethidside(true)
-            }} collideref={collide} 
+            onClick={()=>{sethidside(true)}} 
+            collideref={collide}
+            info = {{projectname, projecttemplate}} 
             gets={{
                 feedvalueref, isModified, setisModified, imagecanvas,
-                feedinfo, fullscreen, url, selectoptions, mode, play,
-                hideside, head, tile, bodyfactory, updatetools
+                feedinfo, fullscreen, url, selectoptions, mode, play, progresslist,
+                hideside, head, tile, bodyfactory, updatetools, updateAll, toggle
             }}
             sets={{
-                setFeedInfo, setFullscreen, seturl, setPlay, setupdatetools,setupdatestats,
-                 setMode, setselectoptions, setTile, setbodyfactory,
+                setFeedInfo, setFullscreen, seturl, setPlay, setupdatetools,setupdatestats, setprogresslist,
+                 setMode, setselectoptions, setTile, setbodyfactory, setupdateAll, setToggle
             }} />
             <Title fullscreen={fullscreen} isModified={isModified}/>
             <DevTools
@@ -96,6 +106,7 @@ export function Editor(){
                 {(head ===`layers`) && <SideBarLayers  setcontextobject={setcontextobject} setfeedback={setFeedInfo} collide={collide} fullscreen={fullscreen} />}
                 {(head ===`addimage`) && <SideBarImage setmergedatas={setmergedatas} dragelement={dragelement} setupdatedrag={setupdatedrag} setcontext={setcontextobject} setfeedback={setFeedInfo}  collide={collide} fullscreen={fullscreen} />}
                 {(head ===`scenes`) && <SideBarScenes renderlockerscenes = {renderlockerscenes} setrenderlockerscenes={setrenderlockerscenes}  setmergedatas={setmergedatas} dragelement={dragelement} setupdatedrag={setupdatedrag} setcontext={setcontextobject} setfeedback={setFeedInfo}  collide={collide} fullscreen={fullscreen} />}
+                {(head ===`plugins`) && <SidebarPlugin   setcontext={setcontextobject} setfeedback={setFeedInfo}  collide={collide} fullscreen={fullscreen} />}
             </Sidebar>
             <Tools collide={collide} mode={mode} updatetools={updatetools} setMode={setMode} fullscreen={fullscreen}/>
             <SettingsController setshowsettings={setshowsettings} mode={mode} setMode={setMode} fullscreen={fullscreen}/>
@@ -133,4 +144,7 @@ import { Settings } from "../components/editor/settings";
 import { SideBarScenes } from "../components/sidebar/sidebarscene";
 import { LockerScenes } from "../components/editor/lockerscenes";
 import { BsLock, BsUnlock } from "react-icons/bs";
+import { SidebarPlugin } from "../components/sidebar/sidebarplugin";
+import { useSearchParams } from "react-router-dom";
+import { Intro } from "../components/intro";
 

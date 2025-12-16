@@ -39,7 +39,7 @@ export function SelectOperations({collide,selectoptions, mode, setMode, fullscre
 
         className="controlpanel rounded-l-2xl gap-y-4 bg-[#060014] p-2 flex flex-col min-w-5 max-h20  absolute top-96  right-0">
             {
-                Object.keys(Scene().selectoperations?.operations)?.map((name, x)=>{
+                Object?.keys(Scene()?.selectoperations?.operations??{})?.map((name, x)=>{
                     return operationIndex[name].element({
                         onClick:()=>{   
                             collide[`current`].scenes?.currentLocker?.currentScene?.selectoperations?.performOperation(name)
