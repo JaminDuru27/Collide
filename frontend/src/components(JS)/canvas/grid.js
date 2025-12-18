@@ -2,7 +2,7 @@ export function Grid(canvas){
     const res  = {
         x: 0, y: 0,
         w: 100, h: 100,
-        nx: 10, ny: 10,
+        nx: 1, ny: 1,
         cw: 20, ch:20,
         alpha: 0.1, color: `#fff`,
         boxes2d: [], boxes:[],
@@ -63,7 +63,20 @@ export function Grid(canvas){
             for(let y =0; y< this.ny; y++){
                 const arr= []
                 for(let x =0; x< this.nx; x++){
-                    const box = {indx: x, indy: y, cw, ch,}
+                    const box = {
+                        indx: x, indy: y, cw, ch,
+                        inveiw:()=>{
+                            const px = this.x + (x * cw)
+                            const py = this.y + (y * ch)
+                            return(
+                                (px + cw > 0 &&
+                                py + ch > 0) &&
+                                (py + ch < window.innerHeight &&
+                                px + cw < window.innerWidth
+                                )
+                            )
+                        },
+                    }
                     arr.push(box)
                 }
                 if(arr.length > 0)this.boxes2d.push(arr)
@@ -81,7 +94,19 @@ export function Grid(canvas){
             for(let y =0; y< this.ny; y++){
                 const arr= []
                 for(let x =0; x< this.nx; x++){
-                    const box = {indx: x, indy: y, cw, ch,}
+                    const box = {indx: x, indy: y, cw, ch,
+                        inveiw:()=>{
+                            const px = this.x + (x * cw)
+                            const py = this.y + (y * ch)
+                            return(
+                                (px + cw > 0 &&
+                                py + ch > 0) &&
+                                (py + ch < window.innerHeight &&
+                                px + cw < window.innerWidth
+                                )
+                            )
+                        },
+                    }
                     arr.push(box)
                 }
                 if(arr.length > 0)this.boxes2d.push(arr)
@@ -100,9 +125,12 @@ export function Grid(canvas){
 
             ctx.save()
             ctx.translate(this.x, this.y)
-            this.boxes.forEach(box=>{
+            this.boxes.map(box=>{
+                // console.log(box.inveiw())
+                if(!box.inveiw()){box.hidden = true;return}
+                else box.hidden = false
                 ctx.globalAlpha = this.alpha
-                ctx.strokeStyle = this.color
+                ctx.strokeStyle =this.color
                 ctx.strokeRect(box.indx * box.cw, box.indy * box.ch, box.cw, box.ch)
 
             })

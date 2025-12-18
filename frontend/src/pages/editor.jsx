@@ -15,6 +15,7 @@ export function Editor(){
     const  [search] = useSearchParams()
     const projectname = search.get(`projectName`) 
     const projecttemplate = search.get(`templateId`)
+    const projectid = search.get(`projectId`)
 
     const [isModified, setisModified]= useState(false)
     const [mode, setMode] = useState(`draw`) 
@@ -78,7 +79,7 @@ export function Editor(){
             onmousedown = {(e, info)=>{canvasoptions(e, info)}}
             onClick={()=>{sethidside(true)}} 
             collideref={collide}
-            info = {{projectname, projecttemplate}} 
+            info = {{projectname, projecttemplate, projectid}} 
             gets={{
                 feedvalueref, isModified, setisModified, imagecanvas,
                 feedinfo, fullscreen, url, selectoptions, mode, play, progresslist,
@@ -88,7 +89,7 @@ export function Editor(){
                 setFeedInfo, setFullscreen, seturl, setPlay, setupdatetools,setupdatestats, setprogresslist,
                  setMode, setselectoptions, setTile, setbodyfactory, setupdateAll, setToggle
             }} />
-            <Title fullscreen={fullscreen} isModified={isModified}/>
+            <Title collide={collide} fullscreen={fullscreen} isModified={isModified}/>
             <DevTools
             showsettings={showsettings} 
             setshowsettings={setshowsettings} 

@@ -11,9 +11,20 @@ export function Images(){
         array:[],
         updates: [],
         image: undefined,
-        add(dataurl){
-            const imgobj= ImageObject(this, dataurl)
+        add({url, formdata}){
+            const imgobj= ImageObject(this, url)
             this.array.push(imgobj)
+
+            const image = new Image()
+            image.onload = ()=>{
+                const api = `http://localhost:5000`
+                fetch(`${api}/api/users/uploadimage`,{
+                    method: "POST",
+                    body: formdata,
+                    credentials: `include`
+                })
+            }
+            image.src = url
             return imgobj
         },
         revertData(imgsdatas){

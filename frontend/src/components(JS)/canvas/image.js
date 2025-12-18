@@ -16,11 +16,14 @@ export function ImageObject(Images,url){
             const data  = {}
             for(let x in this){
                 const v = this[x]
+                if(x === `dataurl` || x === `$dataurl` || x === `url` ||  x === `formdata` )continue 
                 if(typeof v === `number`)data[x] = v
                 if(typeof v === `string`)data[x] = v
                 if(typeof v === `boolean`)data[x] = v
             }
-            data.info = this.info
+            data.info = {...this.info, dataurl: null, url: null, formdata: null, $dataurl: null}
+
+            console.log(data, `imgdata`)
             return data
         },
         reassign(){

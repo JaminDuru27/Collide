@@ -3,6 +3,7 @@ import {User} from '../Models/user.js'
 export async function Register(req, res){
     try{
         const {username, email, password} = req.body
+        
         // Check if user already exists
         const userExists = await User.findOne({ 
         $or: [{ email }, { username }] 
@@ -29,6 +30,10 @@ export async function Register(req, res){
             message: 'User created but could not send verification email'
         });
     }catch(err){
-        console.error(err)
+        res.status(400).json({
+            message: err.message,
+            success: false
+        })
+        console.log(err.message)
     }
 }

@@ -20,10 +20,10 @@ export function Login(){
                 body: JSON.stringify({email, password }),
                 credentials: 'include'
             })
-            const d= await res.json()
-            const data  = d.data
-            nav(`/menu`)
-            setmessage(data.message)
+            const data= await res.json()
+            if(data.success)
+            setTimeout(()=>{nav(`/menu`)}, 1000)
+            setmessage({text:data.message, success: data.success})
         }catch(err){
             setmessage(err)
         }
@@ -37,7 +37,9 @@ export function Login(){
             <img src="/auth/design5.png" className="absolute top-[40%] left-[60%] w-[15rem] h-[15rem]" alt="" />
             <div className="w-[75%]  sm:w-[40%] p-4  lg:w-[25%] h-[70%] rounded backdrop-blur-2xl  rounded-2xl">
             <div className="w-fill my-2 text-center capitalize text-[2rem]">Login</div>
-                <div className="w-full p-2 px-4 bg-[#eb54548d] text-black rounded-2xl mb-4">{message}</div>
+                <div 
+                style={{background: `${(message?.success)?`green`: `#eb54548d`}`}}
+                className="w-full p-2 px-4 bg-[#eb54548d] text-black rounded-2xl mb-4">{message?.text}</div>
 
                 <div className="form" >
                     <Input title='email' setvalue={setemail} getvalue={email} type='email'/>
@@ -45,7 +47,7 @@ export function Login(){
                 </div>
                 <div className="btns mt-4 flex justify-start gap-4 items-center">
                     <div 
-                    onClick={()=>{console.log(`remove`)}}
+                    onClick={()=>{nav(`/`)}}
                     className="cancel p-1 px-4 rounded-2xl border-2 cursor-ponter border-[#fff] text-[#fff] rounded-2xl">cancel</div>
                     <div 
                     onClick={async()=>{HandleReg()}}

@@ -37,17 +37,13 @@ export function Tile(Scene,Collide){
             this.sprite = Sprite(this, Collide, Scene)
             this.sprite.revertData(tiledata.sprite) 
         },
+        
         update(p){
             if(this.indx > Scene.grid.nx -1 || this.indy > Scene.grid.ny-1){
                 return
             }
-            // if(this.count >2){
-                if(this?.sprite?.delete)this.sprite = undefined
-                this?.sprite?.update(p)
-            // }
-            if(this.count <3)
-            this.count ++
-
+            if(this?.sprite?.delete)this.sprite = undefined
+            this?.sprite?.update(p)
         }
     }
     res.load()

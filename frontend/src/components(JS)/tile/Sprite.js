@@ -4,8 +4,14 @@ export function Sprite(Tile,Collide, Scene){
     const res = {
         indx: 0, indy: 0, 
         indw: 1, indh: 1, 
+        targetimg:undefined,
         load(){
-            this.imageobj = {...Collide.images.image, altered :true}
+            const img  = Collide.images.image
+            this.imageobj = {
+                sx: img.sx, sy: img.sy,sw: img.$sw,
+                sh: img.$sh, sindx: img.sindx,sindy: img.sindy,
+                loaded: img.loaded, image: img.image, id: img.id,
+            }
             if(!this.imageobj) {this.delete = true;Tile.delete = true;return}
             // if(!devmode)Tile.delete = true
             this.indx = Tile.indx
@@ -18,8 +24,8 @@ export function Sprite(Tile,Collide, Scene){
             this.sindy = this.imageobj.sindy
 
             if(!this.sx && !this.sy && this.sx !== 0 && this.sy !== 0 ){this.delete = true;Tile.delete = true;return}
-            this.sw = this.imageobj.$sw
-            this.sh = this.imageobj.$sh
+            this.sw = this.imageobj.sw
+            this.sh = this.imageobj.sh
             this.loaded= true
         },
         getData(){
@@ -29,19 +35,17 @@ export function Sprite(Tile,Collide, Scene){
                     sindx: this.sindx, sindy: this.sindy, indx: this.indx,
                     indy: this.indy, indw: this.indw, indh: this.indh,
                 },
-                imgobjref: this.imageobj.getData(),
+                imgobjref: {...this.imageobj, image:undefined, loaded: false},
             }
             
             return data
         },
         revertData({data, imgobjref}){
-            console.log(data, imgobjref, `sprite data`)
-            
             for(let x in data){
                 this[x] = data[x]
             }
-
-            const obj = ImageObject(Collide.images, imgobjref.$dataurl)
+            const img = Collide.images.array.find(img=>img.id === imgobjref.id )
+            const obj = ImageObject(Collide.images, img.dataurl)
             for(let x in imgobjref){
                 if(x === `info`)continue
                 obj[x] = imgobjref[x]
@@ -59,7 +63,12 @@ export function Sprite(Tile,Collide, Scene){
             const ch = Scene.grid.ch
             ctx.save()
             ctx.translate(x, y)
-            ctx.drawImage(this.imageobj.image,
+            if(!this.targetimg){
+                const img = Collide.images.array.find(img=>img.id === this.imageobj.id )
+                this.targetimg = img 
+            }
+            if(this.targetimg && this.targetimg.loaded)
+            ctx.drawImage(this.targetimg.image,
                 this.sx, this.sy, 
                 this.sw, this.sh,                
                 this.indx * cw, 

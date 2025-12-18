@@ -10,7 +10,8 @@ export async function CreateProject(req, res){
         if (!token) {
             return res.status(401).json({
                 success: false,
-                message: 'No token provided'
+                message: 'No token provided',
+                newproject: false,
             });
         }
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
@@ -20,7 +21,8 @@ export async function CreateProject(req, res){
         if(!userid || !projectdata){
             return res.status(400).json({
                 success: false,
-                message: 'userid and projectdata are required'
+                message: 'userid and projectdata are required',
+                newproject: false,
             })
         }
 
@@ -28,17 +30,43 @@ export async function CreateProject(req, res){
         if(!mongoose.Types.ObjectId.isValid(userid)){
             return res.status(400).json({
                 success: false,
-                message: 'Invalid user ID format'
+                message: 'Invalid user ID format',
+                newproject: false,
             })
         }
 
-        // Add ID to project if not present
-        if(!projectdata.id){
-            projectdata.id = GenerateID();
-        }
+        //check if project exists
+        //find user
+        const user = await User.findById(userid)
+        let exist, newprojectdata
+        user.projects.forEach(project=>{
+            if(project.meta.Id === projectdata.meta.Id) {exist = true; newprojectdata = project}
+        }) 
 
-        // Push project to user
-        const user = await User.findByIdAndUpdate(
+        if(exist){
+            return res.status(201).json({
+                data: {
+                    projectdata: newprojectdata,
+                    user: user.toPublicProfile(),
+                },
+                message: `Project Already Exists`,
+                success: true,
+                newproject: false,
+            })
+        }
+        
+            // Enforce project count limit for non-premium users
+            const currentCount = (user.projects || []).length
+            if(!user.premium && currentCount >= 2){
+                return res.status(403).json({
+                    success: false,
+                    message: 'Project limit reached: upgrade to premium to add more projects',
+                    newproject: false,
+                })
+            }
+
+            // Push project to user
+        await User.findByIdAndUpdate(
             userid,
             { $push: { projects: projectdata } },
             { new: true, runValidators: true }
@@ -47,7 +75,8 @@ export async function CreateProject(req, res){
         if(!user){
             return res.status(404).json({
                 success: false,
-                message: 'User not found'
+                message: 'User not found',
+                newproject: false,
             })
         }
 
@@ -55,9 +84,10 @@ export async function CreateProject(req, res){
             success: true,
             message: 'Project successfully added',
             data: {
-                project: projectdata,
+                projectdata: projectdata,
                 user: user.toPublicProfile()
-            }
+            },
+            newproject: true,
         })
 
     } catch (error) {
@@ -65,6 +95,6 @@ export async function CreateProject(req, res){
             success: false,
             message: error.message || 'Error creating project'
         });
-        console.error('CreateProject error:', error)
+        console.error('CreateProject error:', error.message)
     }
 }

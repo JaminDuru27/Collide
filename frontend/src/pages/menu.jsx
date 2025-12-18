@@ -9,11 +9,13 @@ import { motion } from "framer-motion";
 export function Menu(){
     const [userData, setUserData] = useState(null)
     const [news, setNews] = useState([])
+    const [message, setMessage] = useState(``)
     const [shownewprojectform, setshownewprojectform] = useState(false)
     useEffect(()=>{
         const time = setTimeout(async()=>{
             console.log(`...fetching`)
             getProfile((data)=>{
+                if(!data)setMessage(`Something went wrong please login`)
                 setUserData(data)
                 setNews([
                     {text:`Welcome Jamin`},
@@ -44,6 +46,7 @@ export function Menu(){
                     <div className="shrink-0 flex justify-center items-center rounded-sm bg-blue-400 p-2 px-4 uppercase">{userData?.username[0]}</div>
                 </div>
             </div>
+            <div className="text-white px-4 color text-[.7rem]">{message}</div>
             <div className="text flex w-full h-fit p-8 px-10">
                 <div className="w-1/2">
                     <div 

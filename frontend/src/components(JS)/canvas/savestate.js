@@ -6,7 +6,7 @@ export function State(Collide, sets){
             Collide.shortcuts.add(`1`).cb(()=>{
                 const save =this.save()
                 updateProject(save, ()=>{})
-                console.log(`saved`, save)
+                console.log(`saved`)
             })
             Collide.shortcuts.add(`control`, `z`).cb(()=>{
                 this.undo()
@@ -37,7 +37,7 @@ export function State(Collide, sets){
         getLockersDatas(){return Collide.scenes.getLockersDatas()},
         getimagesdatas(){return [...Collide.images.array.map(image=>image.getData())]},
         getprojectmeta(){return {
-            EngineId: Collide.id,
+            EngineId: Collide.engineid,
             Id: Collide.id,
             ProjectName: this.getprojectname(),//project name
             Index: this.stages.length,
@@ -69,7 +69,7 @@ export function State(Collide, sets){
         },
         checkMeta(meta){
             if(!meta)return false
-            return meta?.EngineId === Collide.id
+            return meta?.EngineId === Collide.engineid
         },
         revert({meta, Genre, CurrentTool, Lockers, ImagesDatas}){
             const metacheck = this.checkMeta(meta)

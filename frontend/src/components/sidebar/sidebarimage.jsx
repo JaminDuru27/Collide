@@ -45,8 +45,7 @@ export function SideBarImage({setmergedatas, dragelement, setupdatedrag,collide,
     }
     function addImage(){
         SelectImageFile((data)=>{
-            console.log(data)
-            const imgobj= collide[`current`].images.add(data.url)
+            const imgobj= collide[`current`].images.add(data)
             .setinfo(data)
             setC({...collide[`current`]})
         })

@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom"
 import { createProject } from "../utils/addProject"
 import { DisposableCanvas } from "../utils/disposablecanvas"
 import { genId } from "../utils/genid"
@@ -22,42 +23,39 @@ import { Tools } from "./canvas/tools"
 
 export function Collide(canvasRef,gets, info, sets){
     const res= {
-        projectName: `project-${genId()}`,
-        id: `Collide-283ibdb83=@#899dh#0`,
+        projectName: info.projectname,
+        engineid: `Collide-1122334455`,
+        id: `Collide-${info.projectid}`,
         updates:[],
         load(){
             this.loadElements()
             this.loadPlugins()
             this.state = State(this, sets)
-            getProfile((data)=>{
-                if(!data){
-                    sets.setToggle(false)
-                }else{
-                    this.projectName = info.projectname
-                    sets.setprogresslist(p=>([...p, {title:`initalizing...`, complete:false}]))
-                    if(info.projecttemplate !== `0`){
-                        sets.setprogresslist(p=>([...p, {title:`Getting templates...`, complete:false}]))
+            
+            const data = this.state.save(false)
+            sets.setprogresslist(p=>([...p, {title:`initalizing...`, complete:false}]))
+            getProfile((userdata)=>{
+                if(!userdata){sets.setprogresslist(p=>([...p, {title:`Failed To Find User...`, complete:false}]));return}
+                sets.setprogresslist(p=>([...p, {title:`Created Project...`, complete:true}]))
 
-                        console.log(`getting yemplate`)
-                        // createProject(this.state.save(false), ()=>{
-                        //     console.log(`sycceddfully created`)
-                        // })
-                    }else{
-
-                        const data = this.state.save(false)
-                        createProject(data, ()=>{
-                            sets.setprogresslist(p=>([...p, {title:`Created Project...`, complete:true}]))
-                            sets.setToggle(false)
-                        }) 
+                createProject(data, (d)=>{
+                    if(d.success === false){
+                        sets.setprogresslist(p=>([...p, {title:d.message, complete:false}]))
+                        return
                     }
-
-                }
+                    if(d.success){
+                        const pdata =d.data.projectdata
+                        this.state.revert(pdata)
+                        sets.setprogresslist(p=>([...p, {title:`Updating Project...`, complete:false}]))
+                        updateProject(pdata, ()=>{
+                            sets.setprogresslist(p=>([...p, {title:`Updated Project Successfully`, complete:true}]))
+                            sets.setprogresslist(p=>([...p, {title:`Done`, complete:true}]))
+                            sets.setToggle(false)
+                            
+                        })
+                    }
+                })
             })
-            // setTimeout(()=>{
-            //     const save = this.state.save()
-            //     this.state.revert(save)
-            //     console.log(`revert succesfull`)
-            // }, 25200)
         },
         loadPlugins(genre = `All`){
             this.pluginsmodshandler = pluginsModsFinder().loadplugins(genre) 

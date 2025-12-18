@@ -11,17 +11,19 @@ export function SelectImageFile(cb){
             const data = {name: file.name, size: file.size, type: file.type}
             
             if(file?.type?.startsWith(`image/`)){
-                // const promise = new Promise((res, rej)=>{
+                const formdata  = new FormData()
+                formdata.append(`image`, file)
+                data.formdata  = formdata
+                const promise = new Promise((res, rej)=>{
                     const reader = new FileReader()
                     reader.onload = ()=>{
                         data.url = reader.result
                         filesDatas.push(data)
-
                         cb(data)
                     }
                     reader.readAsDataURL(file)
-                // })
-                // promiselist.push(promise)
+                })
+                promiselist.push(promise)
             }
 
         }

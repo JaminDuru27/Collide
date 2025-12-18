@@ -33,8 +33,8 @@ export async function updateProject(req, res){
             })
         }
 
+        
         // Find user and update specific project by meta.id
-        console.log(`projectId`, projectId)
         const user = await User.findByIdAndUpdate(
             userid,
             { 

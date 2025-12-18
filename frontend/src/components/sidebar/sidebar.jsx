@@ -16,7 +16,7 @@ export function Sidebar({dir = `left`,hide, setHide, children, ref}){
             }, 10000)
         }}
         style={{zIndex:10}}
-        className={` w-[30%] sm:w-[30%] md:w-[18%]  overflow-x-visible scrolly p-2 z-10 border-2 bg-[#0f012d] border-amber-50/20 rounded-r-2xl h-screen absolute top-0 ${(dir === `left`?` left-0`:`right-0`)}`}
+        className={` w-[30%] sm:w-[30%] md:w-[20%]  overflow-x-visible scrolly p-2 z-10 border-2 bg-[#0f012d] border-amber-50/20 rounded-r-2xl h-screen absolute top-0 ${(dir === `left`?` left-0`:`right-0`)}`}
         >{children}</motion.div>
     )
 }

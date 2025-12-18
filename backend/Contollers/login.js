@@ -7,7 +7,7 @@ export async function Login(req, res){
         const { email, password } = req.body;
         
         // Validate input
-        if (!email || !password) {
+        if (!email  || !password || email === '' || password ==='') {
             return res.status(400).json({ 
                 success: false, 
                 message: 'Email and password are required' 
@@ -57,7 +57,7 @@ export async function Login(req, res){
         });
     
     } catch(err){
-        console.error('Login error:', err);
+        console.error('Login error:', err.message);
         res.status(500).json({
             success: false,
             message: err.message || 'Internal server error'

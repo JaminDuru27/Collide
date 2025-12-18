@@ -1,6 +1,6 @@
 import { motion } from "framer-motion"
 import { IoIosCheckmarkCircle } from "react-icons/io";
-export function Intro({toggle, setToggle, progreslist = []}){
+export function Intro({toggle, setToggle, progreslist}){
 
     return (
         <>
@@ -26,10 +26,10 @@ export function Intro({toggle, setToggle, progreslist = []}){
         
         <div className="text-[#fff] text-2xl font-bold opacity-[.7]">Build Great Pixel Games </div>
         
-        <motion.div 
-        initial = {{height: 0 , margin: `0`}}
+        {progreslist && (<motion.div 
+        // initial = {{height: 0 , margin: `0`}}
         initial = {{height: `fit-content` , margin: `20px 0`}}
-        className="border-2 h-1/4 w-1/2 ">
+        className="h-1/4 w-1/2 ">
             {progreslist.map((prog, x)=>(
                 <div key={`[prg]-${x}`} className="w-full p-4 text-center flex justify-start items-center gap-2">
                     {!prog.complete?(<Loader />):(<IoIosCheckmarkCircle color="green" size={20}/>)}
@@ -37,7 +37,7 @@ export function Intro({toggle, setToggle, progreslist = []}){
                 </div>
 
             ))}
-        </motion.div>
+        </motion.div>)}
         
         </motion.div>
 

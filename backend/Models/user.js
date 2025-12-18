@@ -29,7 +29,23 @@ const userSchema = new mongoose.Schema({
     },
     projects:{
         type: mongoose.Schema.Types.Mixed,
-        default: []
+        default: [],
+        validate: {
+            validator: function(v){
+                // Mongoose runs validators differently on updates using operators
+                // (e.g. $push). In that case the validator may receive a single
+                // element (the pushed project) instead of the whole array.
+                // Allow non-array input here (it will be validated at controller
+                // level and won't falsely fail the schema validator).
+                if (!Array.isArray(v)) return true
+
+                // If user is premium, allow any length
+                if (this && this.premium) return true
+                // Non-premium users: limit to 2 projects
+                return v.length <= 2 || v.length == 0
+            },
+            message: props => 'Non-premium users can have up to 2 projects'
+        }
     },
     premium: {
         type: Boolean,

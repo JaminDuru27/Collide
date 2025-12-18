@@ -1,18 +1,28 @@
 import {motion} from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { getProfile } from '../utils/getProfile'
+import { genId } from '../utils/genid'
 
 export function NewProjectScreen({setshow}){
     const [title, settitle]= useState('')
+    const [userdata, setuserdata]= useState(null)
     const [message, setMessage]= useState('')
     const nav = useNavigate()
     const templateId = useRef(0)
+    
+    useEffect(()=>{
+        const t = setTimeout(()=>{
+            getProfile((data)=>{
+                if(!data){setMessage(`something went wrong`)}
+                else setuserdata(data)
+            })
+        }, 100)
+        return ()=>clearTimeout(t)
+    }, [])
     async function createProject(){
-        try{
-            nav(`/editor?templateId=${templateId[`current`]}&projectName=${title}`)
-        }catch(err){
-            setMessage(err)
-        }
+        if(!userdata)return
+        nav(`/editor?templateId=${templateId[`current`]}&projectName=${title}&projectId=${genId()}`)
     }
     return (
         <>
@@ -48,6 +58,7 @@ export function NewProjectScreen({setshow}){
                     }}
                     className="text-black cursor-pointer bg-white rounded-2xl capitalize border-2 border-white p-2 ">create</button>
                 </div>                
+                <div className="">{message}</div>
             </motion.div>
             
             </motion.div>
