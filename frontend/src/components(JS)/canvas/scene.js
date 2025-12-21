@@ -108,6 +108,7 @@ export function Scene(name, Collide, sets,gets){
             this.imageLayers.array = []
             this.imageLayers.currentLayer = []
             sceneData.layers.forEach(layerdata=>{
+                if(Object.keys(layerdata.data).length === 0)return
                 const layer  = this.imageLayers.add(`test`)
                 layer.revertData(layerdata)
             })

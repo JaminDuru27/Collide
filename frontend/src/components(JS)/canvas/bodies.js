@@ -61,6 +61,8 @@ export function BodyLayer(name, Collide){
         addBody(body){
             const b = {...body, color: this.color}
             this.bodies.push(b)
+            console.log(b, `bodies`)
+
         },
         getData(){
             const data = {

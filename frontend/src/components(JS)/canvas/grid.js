@@ -2,7 +2,7 @@ export function Grid(canvas){
     const res  = {
         x: 0, y: 0,
         w: 100, h: 100,
-        nx: 1, ny: 1,
+        nx: 20, ny: 20,
         cw: 20, ch:20,
         alpha: 0.1, color: `#fff`,
         boxes2d: [], boxes:[],

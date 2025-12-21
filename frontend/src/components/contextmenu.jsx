@@ -3,12 +3,17 @@ import { useEffect, useState } from "react"
 
 export function ContextMenu({contextobject, setcontextobject, }){
     useEffect(()=>{
-        const yt= setTimeout(()=>{
+        let mounted = true
+        const yt = setTimeout(()=>{
+            if (!mounted) return
             window.addEventListener(`dblclick`,()=>{
                 setcontextobject(null)
             })
         }, 100)
-        return ()=> clearTimeout(yt) 
+        return ()=>{ 
+            mounted = false
+            clearTimeout(yt)
+        }
     },[])
 
     if(!contextobject)return (<></>)

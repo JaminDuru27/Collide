@@ -12,7 +12,9 @@ export function Feed({collide, infoobj, setinfoobj, valueRef, fullscreen}){
         cb[`current`] = infoobj?.cb
     }, [infoobj])
     useEffect(()=>{
+        let mounted = true
         const time = setTimeout(()=>{
+            if (!mounted) return
             valueRef[`current`] = ``
             if(infoobj.type === `message`){
                 infoobj.value = ''
@@ -24,7 +26,10 @@ export function Feed({collide, infoobj, setinfoobj, valueRef, fullscreen}){
                 setinfoobj(null)
             })
         },100)
-        return ()=>{clearTimeout(time)}
+        return ()=>{
+            mounted = false
+            clearTimeout(time)
+        }
     }, [])
     return(
         <motion.div

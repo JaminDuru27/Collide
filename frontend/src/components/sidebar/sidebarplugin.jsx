@@ -5,10 +5,14 @@ export function SidebarPlugin({collide}){
     const [c, setC] = useState({...collide[`current`]})
     const [currentinfo, setcurrentinfo] = useState(null)
     useEffect(()=>{
+        let mounted = true
         const time = setTimeout(()=>{
-            setC({...collide[`current`]})
+            if (mounted) setC({...collide[`current`]})
         }, 100)
-        return ()=>clearTimeout(time)
+        return ()=>{
+            mounted = false
+            clearTimeout(time)
+        }
     }, [])
     if(!c)return <></>
     else return (
@@ -21,6 +25,12 @@ export function SidebarPlugin({collide}){
                 {c?.pluginsmodshandler?.genresInfos.map((info)=>
                 <>
                     <div 
+                    onClick={()=>{
+                        if(info.type === `environment`){
+                            collide[`current`].addPlugin(info)
+                            setC({...collide[`current`]})
+                        }
+                    }}
                     onMouseEnter={()=>setcurrentinfo({...info})}
                     className="w-full shrink-0 h-[10rem] rounded-sm border-2 overflow-hidden cursor-pointer relative border-white/30 "
                     >

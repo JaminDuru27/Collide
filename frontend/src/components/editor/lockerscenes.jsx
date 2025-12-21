@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Scene } from "../../components(JS)/canvas/scene"
 import { motion } from "framer-motion"
 import { MdDelete } from "react-icons/md"
@@ -7,12 +7,17 @@ export function LockerScenes({collide, renderlockerscenes}){
     const [c, setC] = useState(collide[`current`])
     const [show, setShow] = useState(false)
     if(!collide[`current`])return<></>
-    useState(()=>{
+    useEffect(()=>{
+        let mounted = true
         const t = setTimeout(()=>{
+            if (!mounted) return
             setC({...collide[`current`]})
             console.log(c, collide[`current`])
         }, 100)
-        return ()=>{clearTimeout(t)}
+        return ()=>{
+            mounted = false
+            clearTimeout(t)
+        }
     },[])
     if(!c)return <></>
     else return (

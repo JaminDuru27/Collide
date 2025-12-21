@@ -6,6 +6,7 @@ import { Register } from './pages/register'
 import { Editor } from './pages/editor'
 import { Home } from './pages/home'
 import { Login } from './pages/login'
+import { NewProjectScreen } from './pages/newProjectScreen'
 
 function App() {
   return (
@@ -30,6 +31,11 @@ function App() {
         <Route path='/menu' element={
           <>
           <Menu/>
+          </>
+        }></Route>
+        <Route path='/newproject' element={
+          <>
+          <NewProjectScreen/>
           </>
         }></Route>
         <Route path='/editor' element={

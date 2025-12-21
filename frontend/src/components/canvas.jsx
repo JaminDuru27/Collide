@@ -4,7 +4,9 @@ import { Collide } from "../components(JS)/editor"
 export function Canvas({onClick =()=>{},info, onDoubleClick=()=>{}, onmousedown= ()=>{},collideref, gets, sets }){
     const canvas = useRef(null)
     useEffect(()=>{
-        const timeout =setTimeout(()=>{
+        let mounted = true
+        const timeout = setTimeout(()=>{
+            if (!mounted) return
             const collide = Collide(canvas,gets,info, sets)
             // editor.parseData()
             collide.start()
@@ -15,7 +17,10 @@ export function Canvas({onClick =()=>{},info, onDoubleClick=()=>{}, onmousedown=
                 }
              })
         }, 100) 
-        return ()=>{clearTimeout(timeout)}
+        return ()=>{
+            mounted = false
+            clearTimeout(timeout)
+        }
     },[])
     return (
         <canvas onDoubleClick={onDoubleClick} onClick={onClick} ref={canvas} className="w-full h-screen absolute top-0 left-0 "></canvas>

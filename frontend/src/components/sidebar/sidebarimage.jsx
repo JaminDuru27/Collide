@@ -48,7 +48,7 @@ export function SideBarImage({setmergedatas, dragelement, setupdatedrag,collide,
             const imgobj= collide[`current`].images.add(data)
             .setinfo(data)
             setC({...collide[`current`]})
-        })
+        }, collide[`current`])
     }
     return (
         <div className="flex gap-y-4 flex-col h-full overflow-y-auto justify-between items-center overflow-x-visible">

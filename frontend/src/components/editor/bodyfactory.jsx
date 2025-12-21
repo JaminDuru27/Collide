@@ -13,11 +13,16 @@ export function BodyFactory({collide, setbodyfactory, bodyfactory}){
     const [c, setC] = useState(collide[`current`])
     const canvasref = useRef(null) 
     useEffect(()=>{
-        const time =setTimeout(()=>{
+        let mounted = true
+        const time = setTimeout(()=>{
+            if (!mounted) return
             collide[`current`].collisionbodyfactory.setupcanvas(canvasref.current)
             setC({...collide[`current`]})
         }, 100)
-        return ()=>clearTimeout(time)
+        return ()=>{
+            mounted = false
+            clearTimeout(time)
+        }
     }, [])
     const tools  = [
         {element: IoReload, title: `Reload if not showing properly`, cb:()=>{collide[`current`].collisionbodyfactory.resizeOp()}},

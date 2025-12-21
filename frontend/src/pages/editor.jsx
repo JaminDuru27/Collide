@@ -16,6 +16,7 @@ export function Editor(){
     const projectname = search.get(`projectName`) 
     const projecttemplate = search.get(`templateId`)
     const projectid = search.get(`projectId`)
+    const usermode = search.get(`mode`)
 
     const [isModified, setisModified]= useState(false)
     const [mode, setMode] = useState(`draw`) 
@@ -79,7 +80,7 @@ export function Editor(){
             onmousedown = {(e, info)=>{canvasoptions(e, info)}}
             onClick={()=>{sethidside(true)}} 
             collideref={collide}
-            info = {{projectname, projecttemplate, projectid}} 
+            info = {{projectname, projecttemplate, projectid, usermode}} 
             gets={{
                 feedvalueref, isModified, setisModified, imagecanvas,
                 feedinfo, fullscreen, url, selectoptions, mode, play, progresslist,
@@ -121,6 +122,7 @@ export function Editor(){
             <SpriteMerger mergedatas={mergedatas} collide={collide} setmergedatas={setmergedatas} />
             <Settings collide={collide} fullscreen={fullscreen} showsettings={showsettings} setshowsettings={setshowsettings}/>
             <LockerScenes collide={collide} fullscreen={fullscreen} renderlockerscenes={renderlockerscenes}/>
+            <PluginModWindow collide={collide}/>
         </div>
 
         </>
@@ -148,4 +150,5 @@ import { BsLock, BsUnlock } from "react-icons/bs";
 import { SidebarPlugin } from "../components/sidebar/sidebarplugin";
 import { useSearchParams } from "react-router-dom";
 import { Intro } from "../components/intro";
+import { PluginModWindow } from "../components/editor/pluginmodwindow";
 

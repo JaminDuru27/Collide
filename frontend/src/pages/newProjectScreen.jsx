@@ -8,21 +8,27 @@ export function NewProjectScreen({setshow}){
     const [title, settitle]= useState('')
     const [userdata, setuserdata]= useState(null)
     const [message, setMessage]= useState('')
+    const [search] = useSearchParams()
+    const mode = search.get(`mode`)
     const nav = useNavigate()
     const templateId = useRef(0)
     
     useEffect(()=>{
         const t = setTimeout(()=>{
+            if(mode !== `visit`)
             getProfile((data)=>{
                 if(!data){setMessage(`something went wrong`)}
                 else setuserdata(data)
             })
         }, 100)
+        if(mode === `visit`)setMessage(`On Visiting Mode, Register To Never Loose Progress`)
         return ()=>clearTimeout(t)
     }, [])
     async function createProject(){
-        if(!userdata)return
-        nav(`/editor?templateId=${templateId[`current`]}&projectName=${title}&projectId=${genId()}`)
+        if(!userdata && mode !== `visit`)return
+        const visitmode = `/editor?mode=${mode}&projectName=${title}&projectId=${genId()}` 
+        const normalmode = `/editor?mode=${mode}&templateId=${templateId[`current`]}&projectName=${title}&projectId=${genId()}`
+        nav(`${mode !== `visit`?normalmode: visitmode}`)
     }
     return (
         <>

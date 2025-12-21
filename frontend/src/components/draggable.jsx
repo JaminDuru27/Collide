@@ -10,7 +10,9 @@ export function Draggable({dragelement}){
     const p = useRef({x: 0,y: 0})
     const d = useRef({x: 0,y: 0})
     useEffect(()=>{
+        let mounted = true
         const time = setTimeout(()=>{
+            if (!mounted) return
             dragpoint[`current`].addEventListener(`mousedown`, (e)=>{
                 if(!dragelement[`current`])return
                 const b = dragpoint[`current`].getBoundingClientRect()
@@ -33,7 +35,10 @@ export function Draggable({dragelement}){
                 d[`current`] = {x: 0 , y:0}  
             })
         }, 100)
-        return ()=>clearTimeout(time)
+        return ()=>{
+            mounted = false
+            clearTimeout(time)
+        }
     }, [])
 
     if(contentref[`current`] && dragelement[`current`]){

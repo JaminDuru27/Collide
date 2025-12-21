@@ -1,4 +1,4 @@
-export function SelectImageFile(cb){
+export function SelectImageFile(cb, collide){
     const a = document.createElement(`input`)
     a.type = `file`
     a.accept  = `images/*`
@@ -13,6 +13,7 @@ export function SelectImageFile(cb){
             if(file?.type?.startsWith(`image/`)){
                 const formdata  = new FormData()
                 formdata.append(`image`, file)
+                formdata.append(`publicPath`, `/project-${collide.id}/images`)
                 data.formdata  = formdata
                 const promise = new Promise((res, rej)=>{
                     const reader = new FileReader()

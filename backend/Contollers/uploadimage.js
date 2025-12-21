@@ -7,12 +7,18 @@ export async function UploadImage(req,res){
         if(!req.user){
             return res.status(401).json({message: `User not Authenticated`})
         }
+        // multer parses multipart/form-data. other fields are available on req.body
+        const publicPath = req.body?.publicPath || req.body?.path || null
         if(!req.file){
-            return res.status(400).json({message: `no image uploaed`})
+            return res.status(400).json({message: `no image uploaded`})
         }
-        const result = await cloudinary.uploader.upload(req.file.path,{
-            folder: `users/${req.user.userId}/images`
-        })
+
+        // use provided publicPath if available, otherwise default to per-user images
+        const uploadOptions = {
+            folder: publicPath ? publicPath : `users/${req.user.userId}/images`
+        }
+
+        // const result = await cloudinary.uploader.upload(req.file.path, uploadOptions)
         fs.unlinkSync(req.file.path)
         req.user.uploadimage = {
             url: result.secure_url,

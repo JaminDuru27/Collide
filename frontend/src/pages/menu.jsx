@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 // import { FeedBack } from "../components(JS)/feedback";
 import { NewProjectScreen } from "./newProjectScreen";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { BiFile, BiFolder, BiLoader } from "react-icons/bi";
 import { BsSave } from "react-icons/bs";
 import { getProfile } from "../utils/getProfile";
@@ -11,9 +11,12 @@ export function Menu(){
     const [news, setNews] = useState([])
     const [message, setMessage] = useState(``)
     const [shownewprojectform, setshownewprojectform] = useState(false)
+    const nav = useNavigate()
+    const [search] = useSearchParams()
+    const mode = search.get(`mode`)
     useEffect(()=>{
         const time = setTimeout(async()=>{
-            console.log(`...fetching`)
+            if(mode !== `visit`)
             getProfile((data)=>{
                 if(!data)setMessage(`Something went wrong please login`)
                 setUserData(data)
@@ -27,6 +30,7 @@ export function Menu(){
                     },
                 ])
             })
+            else setMessage(`On Visiting Mode, Register To Never Loose Progress`)
 
         }, 100)
         return ()=>clearTimeout(time)
@@ -51,7 +55,7 @@ export function Menu(){
                 <div className="w-1/2">
                     <div 
                 onClick={()=>{
-                    setshownewprojectform(true)
+                    nav(`/newproject?mode=${mode}`)
                 }}
                 style={{width: `clamp(100px , calc(30vw + 1rem), 300px)`, fontSize:`calc(1vw + .5rem)`, height: `calc(20vw + 1rem)`}}
                 className="h-[5rem] flex flex-col gap-4 text-[.5rem] opacity-[.5] items-center justify-center rounded border-2 text-[#fff] my-2 cursor-pointer">
@@ -86,7 +90,6 @@ export function Menu(){
                 </div>
 
                 {/* <FeedBack placeholder='Title Project: ' /> */}
-                {shownewprojectform && (<NewProjectScreen setshow = {setshownewprojectform} />)}
             </div>
         </div>
         </>

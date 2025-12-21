@@ -13,10 +13,14 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
     const [c, setC] = useState({...collide[`current`]})
     const Scene = ()=>c.scenes?.currentLocker?.currentScene
     useEffect(()=>{
+        let mounted = true
         const time = setTimeout(()=>{
-            setC({...collide[`current`]})
+            if (mounted) setC({...collide[`current`]})
         }, 100)
-        return ()=>clearTimeout(time)
+        return ()=>{
+            mounted = false
+            clearTimeout(time)
+        }
     }, [])
     function handlebodieslayermousedown(e, layer){
         if(e.button === 2){
@@ -309,7 +313,7 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
         <div className="nav w-full p-1 mb-2 flex gap-2 items-center justify-end">
             <div 
             onClick={()=>{
-                collide[`current`].positions.deleteAll()
+                Scene().positions.deleteAll()
                 setC({...collide[`current`]})
             }}
             className={`text-[.6rem] bg-white/10 rounded-[.2rem] p-1`}>clear</div>
@@ -317,10 +321,10 @@ export function SideBarLayers({collide, setfeedback, setcontextobject}){
             
             <div 
             onClick={()=>{
-                if(!collide[`current`].positions.hidden){
-                    collide[`current`].positions.hide()
+                if(!Scene().positions.hidden){
+                    Scene().positions.hide()
                 }else 
-                collide[`current`].positions.unhide()
+                Scene().positions.unhide()
                 setC({...collide[`current`]})
             }}
             className={`text-[.6rem] bg-white/10 rounded-[.2rem] p-1`}>{`${(collide[`current`].scenes.currentLocker.currentScene.positions.hidden)?`show`:`hide`}`}</div>
