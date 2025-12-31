@@ -13,7 +13,7 @@ export function DisposableCanvas(object, canvasRef){
             })
             object.clear = this.clear.bind(this)
             object.dispose = this.dispose.bind(this)
-            object.update = this.update.bind(this)
+            object.updatedisposablecanvas = this.update.bind(this)
         },
         clear(){object.ctx.clearRect(0, 0, canvasRef[`current`]?.width, canvasRef[`current`]?.height); return this},
         hardimage(){object.ctx.imageSmoothingEnabled = false},
@@ -22,10 +22,11 @@ export function DisposableCanvas(object, canvasRef){
         update(intervaltime = 1000/60){
             object.ctx = canvasRef[`current`]?.getContext(`2d`)
             if(!object.ctx)return 
-            canvasRef[`current`].width = canvasRef[`current`].clientWidth 
-            canvasRef[`current`].height = canvasRef[`current`].clientHeight 
             this.animate = ()=>{
                 if(object.ctx){
+                    object.ctx.canvas.width = canvasRef[`current`]?.clientWidth  ||  0
+                    object.ctx.canvas.height = canvasRef[`current`]?.clientHeight || 0
+                    
                     this.clear()
                     this.hardimage()
                     const props = {ctx: object.ctx}

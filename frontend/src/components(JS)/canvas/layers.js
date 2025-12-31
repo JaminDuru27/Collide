@@ -4,12 +4,14 @@ export function ImageLayers(Scene, Collide,select, grid, selectoperations){
     const res = {
         layers: [],
         currentLayer:undefined,
+        
+        
         add(name){
             const layer = ImageLayer({Scene, Collide,select, grid, selectoperations,Layers:this,name: name??`Layer ${this.layers.length + 1}`, })
             this.layers.push(layer)
             this.currentLayer = layer
             return layer
-        },
+            },
         
         load(){
             this.add()

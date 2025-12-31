@@ -53,32 +53,57 @@ export function Sprite(Tile,Collide, Scene){
             obj.setinfo(imgobjref.info)
             this.imageobj = obj
         },
-        update(props){
-            if(!this?.imageobj?.loaded)return
-            if(!this.loaded)return
-            const ctx = props.ctx
+        drawbib({ctx}, x, y, w, h){
+            ctx.save()
+            ctx.translate(x, y)
+            ctx.rotate = this.angle
+            if(this.targetimg && this.targetimg.loaded)
+            ctx.drawImage(
+                this.targetimg.image,
+                this.sx, this.sy, 
+                this.sw, this.sh,                
+                0, 0, w,h,
+            )
+            ctx.restore()
+        },
+        angle :0,
+        degtorag(deg){return deg * Math.PI * 180},
+        draw({ctx}){
             const x = Scene.grid.x
             const y = Scene.grid.y
             const cw = Scene.grid.cw
             const ch = Scene.grid.ch
             ctx.save()
-            ctx.translate(x, y)
+            ctx.translate(x + Tile.x, y + Tile.y)
+            ctx.translate(Tile.w/2, Tile.h/2)//centering
+            
             if(!this.targetimg){
                 const img = Collide.images.array.find(img=>img.id === this.imageobj.id )
                 this.targetimg = img 
             }
+            ctx.rotate(this.degtorag(this.angle))
+            this.angle += 0.01
+
             if(this.targetimg && this.targetimg.loaded)
             ctx.drawImage(this.targetimg.image,
                 this.sx, this.sy, 
                 this.sw, this.sh,                
-                this.indx * cw, 
-                this.indy * ch, 
-                cw * this.indw,
-                ch * this.indh,
- 
+                -Tile.w/2, 
+                -Tile.h/2, 
+                Tile.w,
+                Tile.h
             )
             ctx.restore()
-        }
+        },
+        update(props){
+            if(!this?.imageobj?.loaded)return
+            if(!this.loaded)return
+            this.draw(props)
+        },
+        select(){
+        },
+        unselect(){
+        },
     }
     res.load()
     return res

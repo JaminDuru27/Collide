@@ -23,7 +23,8 @@ export function Pencil(Collide){
                 tile.sprite.sy = box.indy * imageobj.$sh
                 tile.sprite.sindx += box.rindx 
                 tile.sprite.sindy += box.rindy
-                tile.updateEliminateDuplicate()
+                // tile.updateEliminateDuplicate()
+                tile.select()
             })
         },
         off(){},

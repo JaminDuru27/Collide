@@ -9,6 +9,7 @@ import { HiDuplicate } from "react-icons/hi";
 import { GiStoneBlock } from "react-icons/gi";
 
 import { useState, useEffect } from "react";
+import { CgAdd } from "react-icons/cg";
 export function SelectOperations({collide,selectoptions, mode, setMode, fullscreen}){
     const [c, setC] = useState({...collide})
     useEffect(()=>{
@@ -20,7 +21,7 @@ export function SelectOperations({collide,selectoptions, mode, setMode, fullscre
     }, [])
     const Scene = ()=>c.scenes?.currentLocker?.currentScene
     const operationIndex = {
-        'delete':{element: MdDeleteSweep, title: `Delete Selection (Del)`, name: `delete`},
+        'add tile':{element: CgAdd, title: `Add Tile (Shift + T)`, name: `add tile`},
         'copy':{element: FaCopy, title: `Copy Selection (C)`, name: `copy`},
         'cut':{element: IoMdCut, title: `Cut Selection (X)`, name: `cut`},
         'paste':{element: FaPaste, title: `Paste Selection (V)`, name: `paste`},
@@ -28,6 +29,8 @@ export function SelectOperations({collide,selectoptions, mode, setMode, fullscre
         'spread to':{element: ImEnlarge, title: `Spread Selection (Alt W)`, name: `spread`},
         'craft':{element: GiStoneBlock, title: `Craft World Collision`, name: `craft`},
         'duplicate':{element: HiDuplicate, title: `Duplicate Selection. Alt + (> for lft, < right / up 'down )`, name: `duplicate`},
+        'delete':{element: MdDeleteSweep, title: `Delete Selection (Del)`, name: `delete`},
+
     }
     if(Object.keys(collide[`current`]).length <=0)return null
     else

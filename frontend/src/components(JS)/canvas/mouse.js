@@ -1,19 +1,20 @@
-export function Mouse(canvas){
+export function Mouse(canvas, Collide){
     const res = {
         color: `#fff`,
         size: 10,
         x:0, y: 0,
+        tx:0, ty: 0,
         updatex: true, updatey: true,
         load(){
             canvas.addEventListener(`pointerdown`,(e)=>{
                 const b =canvas.getBoundingClientRect()
-                if(this.updatey)this.x = e.x - b.x
-                if(this.updatey)this.y = e.y - b.y
+                if(this.updatey)this.x = e.x - b.x - (Collide?.tx || 0)
+                if(this.updatey)this.y = e.y - b.y - (Collide?.ty || 0)
             })
             canvas.addEventListener(`pointermove`,(e)=>{
                 const b =canvas.getBoundingClientRect()
-                if(this.updatex)this.x = e.x - b.x
-                if(this.updatey)this.y = e.y - b.y
+                if(this.updatex)this.x = e.x - b.x - (Collide?.tx || 0)
+                if(this.updatey)this.y = e.y - b.y - (Collide?.ty || 0)
             })
             canvas.addEventListener(`pointerup`,()=>{
             })

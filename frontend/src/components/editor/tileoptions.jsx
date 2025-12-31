@@ -25,10 +25,10 @@ export function TileOptions({collide,tile, setTile}){
 
     useEffect(()=>{
         if(!tile)return
-        const w = (scene().grid.cw * tile.sprite.indw)
-        const h = (scene().grid.ch * tile.sprite.indh)
-        const x= tile.indx * w + scene().grid.x
-        const y= tile.indy * h + scene().grid.y
+        const w = tile.w
+        const h = tile.h
+        const x= tile.x  + collide[`current`].tx
+        const y= tile.y + collide[`current`].ty
         const b = element[`current`].getBoundingClientRect()
         setpos({top:y-b.height - 5, left:x - b.width/2 + w/2 })
     }, [tile])

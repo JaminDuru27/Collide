@@ -8,11 +8,15 @@ export function Eraser(Collide){
         on(){
             const  Scene = ()=>Collide.scenes?.currentLocker?.currentScene
             const target = Collide.highlight?.target
-            const tiles = Scene().imageLayers?.currentLayer?.tiles
-            if(tiles && target){
-                tiles.forEach(tile=>{
-                    if(tile.indx === target.indx && tile.indy === target.indy){
-                        tile.delete = true
+            const layer = Scene().imageLayers?.currentLayer
+            if(layer && target){
+                const m = Collide.mouse
+                layer[`tiles`].map(tile=>{
+                    if(
+                        tile.onHover()
+                    ){
+                        tile.remove() 
+                        layer.target = undefined
                     }
                 })
             }

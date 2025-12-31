@@ -6,11 +6,13 @@ import { PiSelectionDuotone } from "react-icons/pi";
 import { FaMapMarkerAlt  } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useState , useEffect} from "react";
+import { BiMove } from "react-icons/bi";
 export function Tools({mode, collide, setMode, updatetools, fullscreen}){
     const [c, setC] = useState({...collide})
     const [currenttool, setcurrenttool] = useState(`Pencil`)
     const [render, setRender]= useState(false)
     const tools = {
+        Move:{element: BiMove, title: `Move (D)`, name: `Move`},
         Pencil:{element: FaPencilAlt, title: `Pencil (B)`, name: `Pencil`},
         Eraser:{element: FaEraser, title: `Eraser (E)`, name: `Eraser`},
         Fill:{element: FaFillDrip, title: `Fill (G)`, name: `Fill`},

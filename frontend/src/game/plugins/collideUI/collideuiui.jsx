@@ -8,7 +8,7 @@ import { SideBank } from "./components/sidebank"
 import { RendererWindow } from "./components/rendererwindow"
 
 
-export function CollideUIUI({object, window}){
+export function CollideUIUI({object}){
     const [toggle, settoggle] = useState(true)
     const [refresh, setrefresh] = useState(false)
     const [showsidebank, setshowsidebank] = useState(false)
@@ -47,7 +47,7 @@ export function CollideUIUI({object, window}){
             </div>
             </motion.div>
             <SideBank object={object.targetBank} showsidebank={showsidebank} setshowsidebank={setshowsidebank} showrender={setrefresh}/>
-            <RendererWindow object={object} setshowrender={setshowrender} showrender={showrender} window={window}/>
+            <RendererWindow object={object} setshowrender={setshowrender} showrender={showrender}/>
             <div className="title">
                 <div className="px-2 py-1 text-[1.5rem] opacity-[.5]">Collide UI</div>
             </div>

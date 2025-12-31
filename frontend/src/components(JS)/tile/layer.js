@@ -35,21 +35,50 @@ export function ImageLayer({Scene, Collide,select, grid, selectoperations,Layers
             const grid = getRandomHexColor()
             const x = (this.target.indx * grid.cw) + grid.x  
             const y = (this.target.indy * grid.ch) + grid.y  
-            const w = (this.target.sprite.indw * grid.cw) 
-            const h = (this.target.sprite.indh * grid.ch) 
+            const w = (this.target.indw * grid.cw) 
+            const h = (this.target.indh * grid.ch) 
             ctx.save()
             ctx.strokeStyle = `blue`
             ctx.lineWidth = 2
             ctx.strokeRect(x, y, w, h)
             ctx.restore()
         },
+        higlightCurrentTile({ctx}){
+            this.tiles.forEach(t=>{
+                
+                if(t.onHover()){
+                    if(this.target !== t){this.target = t;Collide.ontileswitchcb(t)}
+                    this.target = t
+
+
+                    if(!t.lock)
+                    t.indication = true
+                    
+                    if(t.indication){
+                        ctx.save()
+                        ctx.strokeStyle = `orange`
+                        ctx.fillStyle = `#ffa50033`
+                        ctx.lineWidth = 1
+                        const p = 5
+                        ctx.strokeRect(t.x - p, t.y - p, t.w + p*2, t.h + p* 2)
+                        ctx.fillRect(t.x - p, t.y - p, t.w + p*2, t.h + p* 2)
+                        ctx.restore()
+                    }
+                }else Collide.ontileswitchcb(null)
+            })
+        },
         update(props){
             if(this.hidden)return
             this.tiles.forEach((t,x)=>{
-                if(t.delete)this.tiles.splice(x, 1)
-                t.update(props)
+                if(t.delete){
+                    this.target = undefined;
+                    this.tiles = this.tiles.filter(e=>e !== t)
+                    return
+                }else t.update(props)
+
             })
             this.indicateTarget(props)
+            this.higlightCurrentTile(props)
         },
     }
     res.load()

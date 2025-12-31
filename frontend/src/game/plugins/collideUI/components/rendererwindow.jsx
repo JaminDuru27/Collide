@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Elem } from "./elementui"
 import { ElementOption } from "./options"
 
-export function RendererWindow({object, window, setshowrender, showrender}){
+export function RendererWindow({object, setshowrender, showrender}){
     const [currentHeader, setCurrentHeader] = useState(`style`)
     const [reload, setreload] = useState(false)
     const [mx, setMx] = useState(false)
@@ -67,7 +67,7 @@ function Pane(object){
     const [d, setd] = useState(`y`)
     return (
         <motion.div 
-        drag =  {d}
+        drag 
         dragElastic={0.2}
         dragMomentum={true}
 

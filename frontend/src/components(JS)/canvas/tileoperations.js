@@ -18,31 +18,42 @@ export function TileOperations(Collide, Select, sets){
         },
         events(){
             Collide.canvas.addEventListener(`mousedown`, (e)=>{
-                if(e.button !== 2)return
-                const target = Collide.highlight?.target
                 const layer = this.Scene().imageLayers?.currentLayer
-
                 if(!layer)return
-                if(!target)return
-
-                const findTile = layer.tiles.find(tile=>tile.indx === target.indx && tile.indy === target.indy)
+                const findTile = layer.tiles.filter(tile=>tile.onHover())[0]
                 if(!findTile)return
-                sets.setTile(p=>({...findTile}))
+                Collide.currentSelectedTile = findTile
+                Collide.currentSelectedTile.lock = true
                 layer.target = findTile
+                sets.setRefreshTilePluginsMods(p =>!p)
+                if(e.button === 2)
+                sets.setTile(p=>({...findTile}))
 
             })
+            
             Collide.canvas.addEventListener(`dblclick`, (e)=>{
                 sets.setTile(null)
-
+                
+                if(!Collide.currentSelectedTile)return
+                Collide.currentSelectedTile.lock = false
+                Collide.currentSelectedTile = undefined
+                const layer = this.Scene().imageLayers?.currentLayer
+                if(!layer) layer.target = undefined
+                
             })
         },
         craft(){},
-        rotate(){},
+        rotate(){
+            const layer = this.Scene().imageLayers.currentLayer
+            this.pt()    
+            const tiletarget = layer.target
+            if(tiletarget)tiletarget.rotation = 180
+        },
         selectsprite(){
             Select.boxes = []
-            console.log(this.Scene())
             const layer = this.Scene().imageLayers.currentLayer
-            Select.pushtarget()
+            if(!Collide.currentSelectedTile)return
+            this.pt()    
             const tiletarget = layer.target
             layer.tiles.forEach(tile=>{
                 if(
@@ -65,25 +76,51 @@ export function TileOperations(Collide, Select, sets){
                 }
                 sets.setselectoptions(true)
             })
+            Select.boxes = []
+            Collide.currentSelectedTile.lock = false
             
         },
 
         copy(){
-            Select.pushtarget()
-            this.Scene().selectoperations.performOperation(`copy`)
+            if(!Collide.currentSelectedTile)return
+            this.pt()    
+            Collide.selectoperations.performOperation(`copy`)
+            Select.boxes = []
+            Collide.currentSelectedTile.lock = false
+
         },
         cut(){
-            Select.pushtarget()
-            this.Scene().selectoperations.performOperation(`cut`)
+            if(!Collide.currentSelectedTile)return
+            this.pt()    
+            Collide.selectoperations.performOperation(`cut`)
+            Select.boxes = []
+            Collide.currentSelectedTile.lock = false
+
         },
         paste(){
-            Select.pushtarget()
-            this.Scene().selectoperations.performOperation(`paste`)
+            if(!Collide.currentSelectedTile)return
+            this.pt()    
+            Collide.selectoperations.performOperation(`paste`)
+            Select.boxes = []
+            Collide.currentSelectedTile.lock = false
+
+        },
+        pt(){
+            Select.boxes = []
+            Select.pushtarget({
+                indx: Collide.currentSelectedTile.indx,
+                indy: Collide.currentSelectedTile.indy,
+                indw: Collide.currentSelectedTile.indw,
+                indh: Collide.currentSelectedTile.indh,
+            })
         },
         delete(){
-            Select.pushtarget()
-            this.Scene().selectoperations.performOperation(`delete`)  
+            if(!Collide.currentSelectedTile)return
+            this.pt()    
+            Collide.selectoperations.performOperation(`delete`)  
             sets.setTile(null)
+            Select.boxes = []
+            Collide.currentSelectedTile.lock = false
         },
     }
     res.load()

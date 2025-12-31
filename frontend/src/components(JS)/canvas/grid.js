@@ -1,4 +1,4 @@
-export function Grid(canvas){
+export function Grid(canvas, Collide, gridtranslate = false){
     const res  = {
         x: 0, y: 0,
         w: 100, h: 100,
@@ -15,7 +15,8 @@ export function Grid(canvas){
             this.populate = this.populateBasedOnNumber
             this.populate()
             this.center()
-            this.events()
+            if(gridtranslate)this.events()
+            else this.events2()
         },
         basedOnNumber(){
             this.populate = this.populateBasedOnNumber
@@ -24,6 +25,30 @@ export function Grid(canvas){
         basedOnSize(){
             this.populate = this.populateBasedOnSize
             return this
+        },
+        events2(){
+            let dx=0, dy = 0
+            canvas.addEventListener(`mousedown`, (e)=>{
+                if(e.button !== 2)return
+                const b = canvas.getBoundingClientRect()
+                dx = Collide.tx - e.clientX
+                dy = Collide.ty - e.clientY
+            })
+            canvas.addEventListener(`pointermove`, (e)=>{
+                const b = canvas.getBoundingClientRect()
+                if(dx && dy){
+                    Collide.tx = e.clientX + dx
+                    Collide.ty = e.clientY + dy
+                    this.call(`ontranslate`)
+                }
+            })
+            canvas.addEventListener(`mouseup`, (e)=>{
+                if(e.button !== 2)return
+            })
+            canvas.addEventListener(`pointerup`, (e)=>{
+                dx= null
+                dy= null
+            })
         },
         events(){
             let dx=0, dy = 0
@@ -52,8 +77,13 @@ export function Grid(canvas){
             // })
         },
         center(){
-            this.x = canvas.clientWidth /   2 - this.w/2
-            this.y = canvas.clientHeight /   2 - this.h/2
+            if(!gridtranslate){
+                Collide.tx = (window.innerWidth /2) - (this.w /2)
+                Collide.ty = (window.innerHeight /2) - (this.h /2)
+            }else{
+                this.x = canvas.width/2 - this.w/2 
+                this.y = canvas.height/2 - this.h/2
+            }
         },
         populateBasedOnSize(){this.boxes2d = []
             this.boxes = []

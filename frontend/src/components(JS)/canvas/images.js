@@ -53,7 +53,7 @@ export function Images(){
             this.setupcanvas(canvasRef)
             this.mouse =  Mouse(this.canvas)
             this.mouse.size = 5
-            this.grid = Grid(this.canvas, this.mouse).basedOnSize()
+            this.grid = Grid(this.canvas,this, true).basedOnSize()
             this.grid.cw = 10
             this.grid.ch = 10
             this.grid.populate()

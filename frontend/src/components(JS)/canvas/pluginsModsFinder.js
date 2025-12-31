@@ -1,4 +1,4 @@
-import * as Genres from "../../game/plugins/export.js"
+import * as Plugins from "../../game/plugins/export.js"
 export function pluginsModsFinder(sets){
     const res = {
         genres:[`all`],
@@ -8,8 +8,8 @@ export function pluginsModsFinder(sets){
         loadplugins(genre = `All`){
             this.currentGenre = genre
             this.genresInfos = []
-            for(let key in Genres){
-                const info = Genres[key].prototype.info()
+            for(let key in Plugins){
+                const info = Plugins[key].prototype.info()
                 if(info.genre === genre)
                 this.genresInfos.push(info)
             }
@@ -18,20 +18,27 @@ export function pluginsModsFinder(sets){
         // downloadPlugin(info){
              
         // },
-        getPlugin(info){
+        getPlugin(info, type = `environment`){
+            if(info.type !== type){
+                sets.setFeedInfo({message:`This Plugin Is Not For ${type}`, type:`message`})
+                return null
+            }
             let plugin= ()=>{return null} 
-            for(let key in Genres){
-                const pinfo = Genres[key].prototype.info()
+            for(let key in Plugins){
+                const pinfo = Plugins[key].prototype.info()
                 if(pinfo.id ===  info.id)
-                plugin = Genres[key]
+                plugin = Plugins[key]
             }
             return plugin
         },
         openPlugin(plugin){
             this.currentPlugin = plugin
-            console.log(this.currentPlugin,` cp`)
             sets.setupdateAll(p=>!p)
-        
+        },
+        closePlugin(){
+            this.currentPlugin.close()
+            this.currentPlugin = undefined
+            sets.setupdateAll(p=>!p)
         },
         
     }

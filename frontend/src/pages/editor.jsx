@@ -9,7 +9,6 @@ import { SideBarLayers } from "../components/sidebar/sidebarlayers";
 import { SideBarImage } from "../components/sidebar/sidebarimage";
 import { Draggable } from "../components/draggable";
 import { Feed } from "../components/feed";
-
 export function Editor(){
     const editorref  = useRef(null)
     const  [search] = useSearchParams()
@@ -37,10 +36,12 @@ export function Editor(){
     const [bodyfactory,setbodyfactory] = useState(null)
     const [updatetools, setupdatetools] = useState(false) 
     const [updatestats, setupdatestats] = useState(false) 
+    const [refreshTilePluginsMods, setRefreshTilePluginsMods] = useState(false) 
     const [mergedatas, setmergedatas] = useState([]) 
     const [showsettings, setshowsettings] = useState(false) 
     const [renderlockerscenes, setrenderlockerscenes] = useState(false)
     const [updateAll, setupdateAll] = useState(false)
+    const [pluginmodcb, setpluginmodcb]= useState(null)
     let handlefeed = ()=>{}
     const canvasoptions = (e, info)=>{
         setcontextobject({
@@ -84,14 +85,16 @@ export function Editor(){
             gets={{
                 feedvalueref, isModified, setisModified, imagecanvas,
                 feedinfo, fullscreen, url, selectoptions, mode, play, progresslist,
-                hideside, head, tile, bodyfactory, updatetools, updateAll, toggle
+                hideside, head, tile, bodyfactory, updatetools, updateAll, toggle,
+                refreshTilePluginsMods, pluginmodcb
             }}
             sets={{
-                setFeedInfo, setFullscreen, seturl, setPlay, setupdatetools,setupdatestats, setprogresslist,
-                 setMode, setselectoptions, setTile, setbodyfactory, setupdateAll, setToggle
+                setFeedInfo, setFullscreen, seturl, setPlay, setupdatetools,setupdatestats, setprogresslist,setpluginmodcb,
+                 setMode, setselectoptions, setTile, setbodyfactory, setupdateAll, setToggle, setRefreshTilePluginsMods
             }} />
             <Title collide={collide} fullscreen={fullscreen} isModified={isModified}/>
             <DevTools
+            collide={collide}
             showsettings={showsettings} 
             setshowsettings={setshowsettings} 
             mode={mode} 
@@ -108,10 +111,9 @@ export function Editor(){
                 {(head ===`layers`) && <SideBarLayers  setcontextobject={setcontextobject} setfeedback={setFeedInfo} collide={collide} fullscreen={fullscreen} />}
                 {(head ===`addimage`) && <SideBarImage setmergedatas={setmergedatas} dragelement={dragelement} setupdatedrag={setupdatedrag} setcontext={setcontextobject} setfeedback={setFeedInfo}  collide={collide} fullscreen={fullscreen} />}
                 {(head ===`scenes`) && <SideBarScenes renderlockerscenes = {renderlockerscenes} setrenderlockerscenes={setrenderlockerscenes}  setmergedatas={setmergedatas} dragelement={dragelement} setupdatedrag={setupdatedrag} setcontext={setcontextobject} setfeedback={setFeedInfo}  collide={collide} fullscreen={fullscreen} />}
-                {(head ===`plugins`) && <SidebarPlugin   setcontext={setcontextobject} setfeedback={setFeedInfo}  collide={collide} fullscreen={fullscreen} />}
             </Sidebar>
             <Tools collide={collide} mode={mode} updatetools={updatetools} setMode={setMode} fullscreen={fullscreen}/>
-            <SettingsController setshowsettings={setshowsettings} mode={mode} setMode={setMode} fullscreen={fullscreen}/>
+            <SettingsController setshowsettings={setshowsettings} collide={collide} setMode={setMode} fullscreen={fullscreen}/>
             <ConsolidateUrl mode={mode} seturl={seturl} url={url} setMode={setMode} fullscreen={fullscreen}/>
             <SelectOperations setselectoptions={setselectoptions} selectoptions={selectoptions} collide={collide} mode={mode} setMode={setMode} fullscreen={fullscreen} />
             <Feed valueRef={feedvalueref} fullscreen={fullscreen} infoobj = {feedinfo} collide={collide} setinfoobj={setFeedInfo} />
@@ -122,7 +124,16 @@ export function Editor(){
             <SpriteMerger mergedatas={mergedatas} collide={collide} setmergedatas={setmergedatas} />
             <Settings collide={collide} fullscreen={fullscreen} showsettings={showsettings} setshowsettings={setshowsettings}/>
             <LockerScenes collide={collide} fullscreen={fullscreen} renderlockerscenes={renderlockerscenes}/>
-            <PluginModWindow collide={collide}/>
+            <PluginModWindow collide={collide} editorref={editorref}/>
+            {
+              mode === `dev`  && (
+                    <>
+                    <SideTilePluginMods collide={collide} setcontextobject={setcontextobject} fullscreen={fullscreen} refreshTilePluginsMods={refreshTilePluginsMods}/>
+                    <PluginFinder setcontext={setcontextobject} setpluginmodcb={setpluginmodcb} pluginmodcb={pluginmodcb} setfeedback={setFeedInfo}  collide={collide} fullscreen={fullscreen} />
+
+                    </>
+                )
+            }
         </div>
 
         </>
@@ -147,8 +158,9 @@ import { Settings } from "../components/editor/settings";
 import { SideBarScenes } from "../components/sidebar/sidebarscene";
 import { LockerScenes } from "../components/editor/lockerscenes";
 import { BsLock, BsUnlock } from "react-icons/bs";
-import { SidebarPlugin } from "../components/sidebar/sidebarplugin";
+import { PluginFinder } from "../components/editor/pluginfinder";
 import { useSearchParams } from "react-router-dom";
 import { Intro } from "../components/intro";
 import { PluginModWindow } from "../components/editor/pluginmodwindow";
+import { SideTilePluginMods } from "../components/editor/sidetilepluginmods";
 

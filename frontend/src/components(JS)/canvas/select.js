@@ -140,14 +140,14 @@ export function Select(Collide, canvas, shortcuts, sets, ){
                 }
             })
         },
-        pushtarget(){
+        pushtarget({indx, indy, indw = 1, indh = 1}){
             const box  = {
-                x: this.Scene().grid.x + Collide.highlight.target.indx * Collide.highlight.target.cw,
-                y: this.Scene().grid.y + Collide.highlight.target.indy * Collide.highlight.target.ch,
-                w: Collide.highlight.target.cw,
-                h: Collide.highlight.target.ch,
-                indx: Collide.highlight.target.indx,
-                indy: Collide.highlight.target.indy,
+                x: this.Scene().grid.x + (indx || Collide.highlight.target.indx) * Collide.highlight.target.cw,
+                y: this.Scene().grid.y + (indy || Collide.highlight.target.indy) * Collide.highlight.target.ch,
+                w: (Collide.highlight.target.cw * indw),
+                h: (Collide.highlight.target.ch * indh),
+                indx: (indx || Collide.highlight.target.indx),
+                indy: (indy || Collide.highlight.target.indy),
                 indw: 1, indh: 1,
             }
             this.boxes.push(box)

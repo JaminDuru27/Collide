@@ -4,12 +4,14 @@ import { IoMdClose } from "react-icons/io";
 export function Feed({collide, infoobj, setinfoobj, valueRef, fullscreen}){
     const [info, setinfo] =useState({...infoobj, value: ``})
     const [value, setValue] =useState(``)
+    const inputRef = useRef(null)
     const cb = useRef(infoobj)
     useEffect(()=>{
         valueRef[`current`] = value
     }, [value])
     useEffect(()=>{
         cb[`current`] = infoobj?.cb
+        if(inputRef[`current`])inputRef[`current`].focus()
     }, [infoobj])
     useEffect(()=>{
         let mounted = true
@@ -19,11 +21,21 @@ export function Feed({collide, infoobj, setinfoobj, valueRef, fullscreen}){
             if(infoobj.type === `message`){
                 infoobj.value = ''
             }
-            collide[`current`].canvas.addEventListener(`mousedown`, ()=>{
+            function call (){
                 if(valueRef !== `` && cb[`current`])
                 cb[`current`]({value: valueRef[`current`]})
                 setValue(``)
                 setinfoobj(null)
+            }
+            window.addEventListener(`keydown`, (e)=>{
+                if(e.key === `Enter`){
+                    if(infoobj){
+                        call()
+                    }
+                }
+            })
+            collide[`current`].canvas.addEventListener(`mousedown`, ()=>{
+                call()
             })
         },100)
         return ()=>{
@@ -39,7 +51,7 @@ export function Feed({collide, infoobj, setinfoobj, valueRef, fullscreen}){
         >
             <div className="message">{infoobj?.message??``}</div>
             {infoobj && infoobj?.type !== `message` && (
-                <input type={infoobj.type??`text`} value={value}  onInput={(e)=>{
+                <input ref={inputRef} type={infoobj.type??`text`} value={value}  onInput={(e)=>{
                     setValue(infoobj.type === `number`?+(e.target.value):e.target.value)
                 }} className="text-[#fff] w-full my-2 h-full bg-white/10 rounded-2xl p-1 text-[#070014]"/>
             )}

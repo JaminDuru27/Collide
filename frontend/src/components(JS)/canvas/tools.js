@@ -4,12 +4,14 @@ import { Inspect } from "../tools/inspect"
 import { SelectTool } from "../tools/select"
 import { Pencil } from "../tools/pencil"
 import { Mark } from "../tools/mark"
+import { Move } from "../tools/move"
 
 export function Tools(canvas, Collide, sets){
     const res ={
         prevtool: undefined,
         load(){
             this.array = [
+                Move(Collide),
                 Pencil(Collide),
                 Eraser(Collide),
                 Fill(Collide),
@@ -22,6 +24,10 @@ export function Tools(canvas, Collide, sets){
             this.shortcuts()
         },
         shortcuts(){
+            Collide.shortcuts.add(`d`).cb(()=>{
+                this.setTool(`Move`);
+                sets.setupdatetools(p=>!p)
+            })
             Collide.shortcuts.add(`b`).cb(()=>{
                 this.setTool(`Pencil`);
                 sets.setupdatetools(p=>!p)

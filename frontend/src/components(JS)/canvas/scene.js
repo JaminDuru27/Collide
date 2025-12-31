@@ -56,13 +56,12 @@ export function Scene(name, Collide, sets,gets){
         getpos(){return {x: this.grid.x, y: this.grid.y}},
         load(){
             this.canvas = Collide.canvas
-            this.grid = Grid(this.canvas, Collide.mouse).basedOnNumber()
+            this.grid = Grid(this.canvas, Collide).basedOnNumber()
             this.grid.color = this.color
             this.positions = PositionPoints(Collide, Collide.shortcuts, this.grid, Collide.tools, Collide.mouse)
             this.grid.onpopulate(()=>{this.bodyLayers.getallbodies().map(body=>body.calcpos())})
             this.grid.ontranslate(()=>{this.bodyLayers.getallbodies().map(body=>body.calcpos())})
             this.imageLayers = ImageLayers(this, Collide,Collide.select, this.grid, this.selectoperations)
-            this.selectoperations = SelectOperations(Collide, this, sets)
 
             this.bodyLayers = BodyLayers(Collide, this)
 

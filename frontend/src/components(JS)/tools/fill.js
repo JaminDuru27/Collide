@@ -25,7 +25,7 @@ export function Fill(Collide){
                 tile.indx = box.indx
                 tile.indy = box.indy
                 tile.sprite = Sprite(tile, Collide, Scene())
-                tile.updateEliminateDuplicate()
+                // tile.updateEliminateDuplicate()
 
             })
         },

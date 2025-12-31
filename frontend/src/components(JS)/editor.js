@@ -1,3 +1,4 @@
+import { BsHouseSlash } from "react-icons/bs"
 import { createProject } from "../utils/addProject"
 import { DisposableCanvas } from "../utils/disposablecanvas"
 import { getProfile } from "../utils/getProfile"
@@ -12,24 +13,57 @@ import { Scenes } from "./canvas/scenes"
 import { Select } from "./canvas/select"
 import { ShortCuts } from "./canvas/shortcuts"
 import { TileOperations } from "./canvas/tileoperations"
+import { TileRef } from "./canvas/tileRef"
 import { Tools } from "./canvas/tools"
-import planck from 'plank-js'
+import planck from 'planck-js'
+import { PluginsModsPreset } from "./canvas/pluginspresets"
+import { SelectOperations } from "./canvas/selectoperations"
 
 export function Collide(canvasRef,gets, info, sets){
     const res= {
         projectName: info.projectname,
         engineid: `Collide-1122334455`,
         id: `Collide-${info.projectid}`,
-        scale: 30,
+        scale: 20,
+        sx: 1, sy: 1,
+        tx: 0, ty: 0,
+        pl: null,
+        world: null,
         updates:[],
         plugins: [],
         mods: [],
-        mtopx(v){return v * 30},
-        pxtom(){return v /30},
+        devmodecbs: [],
+        drawmodecbs: [],
+        onplaycbs: [],
+        onpausecbs: [],
+        state: null,
+        mode: `draw`,
+        devstate: `pause`,
+        // UTILS
+        $ontileswitch: [],
+        ontileswitch(cb){this.$ontileswitch.push(cb)},
+        ontileswitchcb(t){this.$ontileswitch.forEach(cb=>cb(t))},
+
+        mtopx(m){return this.scale * m},
+        pxtom(px){return px / this.scale},
         addPlugin(info){
             const plugin = this.pluginsmodshandler.getPlugin(info)()
             this.pluginsmodshandler.openPlugin(plugin)
             this.plugins.push(plugin)
+        },
+        //
+        ondevmode(cb){this.devmodecbs.push(cb)},
+        ondrawmode(cb){this.drawmodecbs.push(cb)},
+        onplay(cb){this.onplaycbs.push(cb)},
+        onpause(cb){this.onpausecbs.push(cb)},
+        setMessage(props ){if(props)sets.setFeedInfo(props)},
+        switchmode(mode){
+            if(mode === `draw`){this.mode = `draw`;this.drawmodecbs.forEach(cb=>cb())}
+            if(mode === `dev`){this.mode = `dev`;this.devmodecbs.forEach(cb=>cb())}
+        },
+        setdevstate(state){
+            if(state === `play`){this.devstate = `play`;this.onplaycbs.forEach(cb=>cb())}
+            if(state === `pause`){this.devstate = `pause`;this.onpausecbs.forEach(cb=>cb())}
         },
         load(){
             this.loadElements()
@@ -67,9 +101,56 @@ export function Collide(canvasRef,gets, info, sets){
         },
         setupPlanck(){
             this.pl = planck
-            this.world = new pl.World({
-                gravity: pl.Vec2(0, -10)
+            this.world = new this.pl.World({
+                gravity: this.pl.Vec2(0, -0.02)
             })
+            this.onplay(()=>{
+                this.world.setGravity(this.pl.Vec2(0, -1))
+            })
+            this.onpause(()=>{
+                this.world.setGravity(this.pl.Vec2(0, 0))
+            })
+            // let x = 380, y = 40
+            let x = 0, y = 0
+            this.testbody = this.world.createBody({
+                type: `dynamic`,
+                position: this.pl.Vec2(this.pxtom(x), this.pxtom(y)),
+                angle: 0,
+            }) 
+            const w = 20
+            const h = 20
+            this.testbody.info = {hw: w/2, hh: h/2, color: `green`,}
+            const verts = [
+                this.pl.Vec2(-0.8, -.4),
+                this.pl.Vec2( 0.0, -.7),
+                this.pl.Vec2( 0.8, -.4),
+                this.pl.Vec2( 0.9, -.3),
+                this.pl.Vec2( 0.0, -.7),
+                this.pl.Vec2( 0.9, -.3),
+            ]
+            this.testbody.createFixture(
+                this.pl.Polygon(verts),
+                {
+                    density: 1,
+                    friction: 0.3,
+                    restitution: 0.2,
+                }
+            )
+            let x2 = 0, y2 = -120
+            this.testbody2 = this.world.createBody({
+                type: `static`,
+                position: this.pl.Vec2(this.pxtom(x2), this.pxtom(y2)),
+                angle: 0,
+            }) 
+            this.testbody2.info = {hw: w/2, hh: h/2, color: `blue`,}
+
+            this.testbody2.createFixture(
+                this.pl.Box(this.pxtom(w/2), this.pxtom(h/2)),{
+                    density: 1,
+                    friction: 0.5,
+                    restitution: 0.2,
+                }
+            )
 
         },
         loadPlugins(genre = `All`){
@@ -78,15 +159,18 @@ export function Collide(canvasRef,gets, info, sets){
         loadElements(){
             this.getCanvas()
             this.shortcuts = ShortCuts()
+            this.pluginsmodspreset = PluginsModsPreset()
             this.tools = Tools(this.canvas, this, sets)
-            this.mouse = Mouse(this.canvas)
+            this.mouse = Mouse(this.canvas, this)
             this.select= Select(this,this.canvas, this.shortcuts,sets,)
-            this.tileoperations  = TileOperations(this,this.select,sets)
-            this.images  = Images()
+            this.selectoperations = SelectOperations(this, sets)
             
+            this.tileoperations  = TileOperations(this,this.select,sets)
+            this.images = Images()
             this.scenes = Scenes(this, sets, gets)
             this.highlight = Highlight(this.mouse, this,)
             this.collisionbodyfactory  = CollisionBodyFactory(this, sets)
+            this.tileReference = TileRef(this, sets)
             this.updates.push(
                 this.mouse,
                 this.scenes,
@@ -125,35 +209,45 @@ export function Collide(canvasRef,gets, info, sets){
             const angle = body.getAngle()
             
             this.ctx.save()
-            this.ctx.translate(pos.x * this.scale, -pos.y * this.scale)
-            this.ctx.rotate(-angle)
+            this.ctx.translate(this.mtopx(pos.x), -this.mtopx(pos.y) )
+            // this.ctx.rotate = (-angle)
             this.ctx.strokeStyle = '#fff'
             this.ctx.lineWidth = 2
-            
-            if(shapeType === 'polygon'){
-                const vertices = shape.getVertices()
-                this.ctx.beginPath()
-                if(vertices && vertices.length > 0){
-                    this.ctx.moveTo(vertices[0].x * this.scale, -vertices[0].y * this.scale)
+            if(shapeType === 'polygon' || shapeType === this.pl.Shape.Type.POLYGON){
+                // Polygon fixture: convert local vertices to world coordinates
+                const vertices = shape.m_vertices || (shape.getVertices && shape.getVertices())
+                if (vertices && vertices.length > 0){
+                    this.ctx.beginPath()
+                    const wv0 = body.getWorldPoint(vertices[0])
+                    // console.log(this.mtopx(wv0.x))
+                    this.ctx.moveTo(this.mtopx(vertices[0].x),  -this.mtopx(vertices[0].y))
+                    // this.ctx.moveTo(this.mtopx(wv0.x),  this.mtopx(wv0.y))
                     for(let i = 1; i < vertices.length; i++){
-                        this.ctx.lineTo(vertices[i].x * this.scale, -vertices[i].y * this.scale)
+                        const wv = body.getWorldPoint(vertices[i])
+                        this.ctx.lineTo(this.mtopx(vertices[i].x), -this.mtopx(vertices[i].y))
+                        // this.ctx.lineTo(this.mtopx(wv.x),  this.mtopx(wv.y))
                     }
                     this.ctx.closePath()
+                    this.ctx.globalAlpha = 0.4;this.ctx.stroke()
+                    const color = body?.info?.hidden?`transparent`:body?.info?.color || 'rgba(255,255,255,1)'
+                    this.ctx.globalAlpha = 0.3;this.ctx.fillStyle = color
+                    this.ctx.fill()
+                    this.ctx.globalAlpha = 1
                 }
-                this.ctx.stroke()
             }
+            
             else if(shapeType === 'circle'){
                 const radius = shape.getRadius()
                 this.ctx.beginPath()
-                this.ctx.arc(0, 0, radius * this.scale, 0, Math.PI * 2)
+                this.ctx.arc(0, 0, this.mtopx(radius), 0, Math.PI * 2)
                 this.ctx.stroke()
             }
             else if(shapeType === 'edge'){
                 const vertices = shape.getVertices()
                 if(vertices && vertices.length >= 2){
                     this.ctx.beginPath()
-                    this.ctx.moveTo(vertices[0].x * this.scale, -vertices[0].y * this.scale)
-                    this.ctx.lineTo(vertices[1].x * this.scale, -vertices[1].y * this.scale)
+                    this.ctx.moveTo(this.mtopx(vertices[0].x), -this.mtopx(vertices[0].y))
+                    this.ctx.lineTo(this.mtopx(vertices[1].x), -this.mtopx(vertices[1].y))
                     this.ctx.stroke()
                 }
             }
@@ -164,10 +258,12 @@ export function Collide(canvasRef,gets, info, sets){
             const animate = (p) => {
                 this.ctx = p.ctx
                 if(!this.ctx)return
+                this.ctx.scale(this.sx, this.sy)
+                this.ctx.translate(this.tx, this.ty)
                 this.updates.forEach(obj=>{
                     obj.update({ctx: this.ctx})
                     if(this.world){
-                        this.world.set(1/60)
+                        this.world.step(1/60)
                         this.drawBodies()
                     }
                 })
