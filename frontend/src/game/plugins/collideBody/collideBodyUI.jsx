@@ -48,11 +48,19 @@ export function CollideBodyUI({object}){
                     {
                         object?.shapes?.map((shape, key)=>(
                             <div 
-                            onMouseDown={(e)=>{if(e.button === 2)setfeed({id: shape.id, x: e.clientX, y: e.clientY})}}
+                            onMouseDown={(e)=>{
+                                if(e.button === 2){
+                                    const b = e.target.getBoundingClientRect()
+                                    setfeed({id: shape.id, x: e.clientX-b.x, y: e.clientY-b.y})
+                                }
+                            }}
                             onClick={()=>{object.editShape(shape)}}
                             key={`diooa` + key}
-                            className="w-full cursor-pointer relative mb-6"
-                            >
+                            className="w-full cursor-pointer relative mb-6  relative"
+                            >   
+                                {object.referenceShape === shape  && (
+                                    <div className="primary absolute capitalize text-amber-500 text-[.7rem] top-2 right-2">primary</div>
+                                )}
                                 <div className="type absolute text-[.6rem] capitalize opacity-[.7] bg-blue-900/20 p-2">{shape.type}</div>
                                 <canvas className="w-full h-30 rounded overflow-hidden mb-4 border border-white/40 "></canvas>
                                 <div className="text-[.7rem] capitalize opacity-[.7] w-full  text-center">{shape.name}</div>
@@ -101,7 +109,7 @@ export function Macros({object, setShowMacros}){
                 return (
                     <div key={`,acros-${k}`} title={title?title:""} className="w-full shrink-0 rounded-sm p-2 bg-white/10 flex justify-between items-center">
                         <div className="name">{name}</div>
-                        <Input set={(v)=>{object.targetShape.macros[name] = v}} get={()=>value}/>
+                        <Input type = {object.targetShape.macros[k].type} set={(v)=>{object.targetShape.macros[k].value = v;}} get={()=>value}/>
                     </div>
                 )
             })}    
@@ -115,14 +123,24 @@ export function Macros({object, setShowMacros}){
     )
 }
 
-export function Input({get, set}){
+export function Input({type,get, set}){
     const [value, setvalue] = useState(get()) 
-    const type = typeof get()
-    let inputtype = (type === `boolean`)?`checkbox`:(type === `function`)? `button`: type
-    if(`${get()[0]}` === `#`)inputtype === `color`
-    if(inputtype)
     return (
-        <input style={(type === `button`)?{width: `70%`, height: `100%`}:{}} type={inputtype} max={100} min={-100} step={0.1} value={value} onInput={(e)=>{setvalue(e.target.value); set(+(e.target.value))}} className="w-20 h-full cursor-pointer bg-white/10 rounded p-2 text-[.6rem]" />
+        <>
+        {
+        (type !== `checkbox`)?
+        <input 
+        style={(type === `button`)?{width: `70%`, height: `100%`}:{}} type={type} 
+        max={100} min={-100} step={0.1} value={value} 
+        onInput={(e)=>{setvalue(e.target.value); set(+(e.target.value))}}
+        className="w-20 h-full cursor-pointer bg-white/10 rounded p-2 text-[.6rem]" />
+        :
+        <input 
+        type="checkbox"
+        onChange={(e)=>{setvalue(e.target.checked); set(e.target.checked)}}
+        className="w-20 h-full cursor-pointer bg-white/10 rounded p-2 text-[.6rem]" />
+        }
+        </>
     )
 }
 

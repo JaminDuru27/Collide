@@ -7,11 +7,15 @@ import { GrSelect } from "react-icons/gr";
 import { GiStoneBlock } from "react-icons/gi";
 import { FaArrowRotateLeft } from "react-icons/fa6";
 import { useState , useEffect, useRef} from "react";
+import { TileRot } from "../tile/tileRot";
+import { BiRename } from "react-icons/bi";
+import { TileName } from "../tile/tileName";
 
 
 export function TileOptions({collide,tile, setTile}){
     const [c, setC] = useState({...collide[`current`]})
     const [pos, setpos] = useState({top: 0, left: 0})
+    const [show, setShow] = useState(false)
     const element = useRef(null) 
     useEffect(()=>{
         const time = setTimeout(()=>{
@@ -39,7 +43,6 @@ export function TileOptions({collide,tile, setTile}){
         'paste':{element: FaPaste, title: `Paste Selection (V)`, name: `paste`},
         'selectsprite':{element: GrSelect, title: `Select All Sprites `, name: `selectsprite`},
         // 'craft':{element: GiStoneBlock, title: `Use as templayer for collision `, name: `craft`},
-        'rotate':{element: FaArrowRotateLeft, title: `Rotate Tile Sprite`, name: `rotate`},
     }
     if(!c)return null
     else
@@ -48,28 +51,52 @@ export function TileOptions({collide,tile, setTile}){
             {
             c?.tileoperations &&
             
-            <motion.div 
-            initial={{opacity:0}}
-            animate={tile?{opacity:1}:{opacity:0, display:`none`}}
-            transition={{}}
-            ref={element}
-            style={{top:pos.top, left:pos.left}}
-            className="p-1 rounded-2xl gap-x-4  bg-[#060014] p-2 flex min-w-5 max-h20  absolute">
-                {
-                Object.keys(c?.tileoperations?.operations)?.map((name,x)=>(
-                
-                    operationIndex[name]?.element({
-                    onClick:()=>{
-                        collide[`current`].tileoperations.performOperation(name)
-                    }
-                    ,
-                    key:x, className:`cursor-pointer`, 
-                    size: 15, 
-                    color:`white`,
-                    title: operationIndex[name].title,  
-                })
-                ))}
-            </motion.div>
+            (
+                <>
+                <motion.div 
+                initial={{opacity:0}}
+                animate={tile?{opacity:1}:{opacity:0, display:`none`}}
+                transition={{}}
+                ref={element}
+                style={{top:pos.top, left:pos.left}}
+                className="p-1 rounded-2xl gap-x-4  bg-[#060014] p-2 flex min-w-5 max-h20  absolute">
+                    <>
+                        {
+                    Object.keys(c?.tileoperations?.operations)?.map((name,x)=>(
+                    
+                        operationIndex[name]?.element({
+                        onClick:()=>{
+                            collide[`current`].tileoperations.performOperation(name)
+                        }
+                        ,
+                        key:x, className:`cursor-pointer`, 
+                        size: 15, 
+                        color:`white`,
+                        title: operationIndex[name].title,  
+                    })
+                    ))}
+                    <FaArrowRotateLeft 
+                    onClick={()=>{setShow(`rotation`)}}
+                        key={`jiji`} 
+                        className={`cursor-pointer`} 
+                        size= {15}
+                        color={`white`}
+                        title= {`rotate`}  
+                    />
+                    <BiRename 
+                    onClick={()=>{setShow(`rename`)}}
+                        key={`jiji`} 
+                        className={`cursor-pointer`} 
+                        size= {15}
+                        color={`white`}
+                        title= {`rotate`}  
+                    />
+                    </>
+                </motion.div>
+                {`${show}` === `rotation` && <TileRot tile={tile} pos={{x: pos.left, y: pos.top}}/>}
+                {`${show}` === `rename` && <TileName tile={tile} pos={{x: pos.left, y: pos.top}}/>}
+                </>
+            )
             }
 
         </>

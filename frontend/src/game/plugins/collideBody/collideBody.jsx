@@ -14,6 +14,7 @@ export function CollideBody({Scene, Collide, Tile}){
         mx:0, my:0,
         targetShape: null,
         options: [],
+        referenceShape:undefined,
         remove(){
             Tile.collisionplugin = undefined
             Tile.plugins.splice(Tile.plugins.indexOf(this), 1)
@@ -22,6 +23,7 @@ export function CollideBody({Scene, Collide, Tile}){
                     Collide.world.destroyBody(shape.body)
                 }
             })
+            this.varnode.destroy()
         },
         downloadJSON(name = `preset`){
             const save = this.save()
@@ -37,6 +39,7 @@ export function CollideBody({Scene, Collide, Tile}){
         save(){
             const shapes = [
                 ...this.shapes.map(e=>({
+                    title: this.name,
                     type: e.type, 
                     id: e.id, 
                     name: e.name, 
@@ -66,6 +69,10 @@ export function CollideBody({Scene, Collide, Tile}){
         },
         downloaddata(){},
         load(){
+            this.varnode = Tile.varHandler.getNode({name:()=>this.name, src: `/plugins/collidebodythumb.png`})
+            this.varnode.addvar({name:()=>`toggle`, set:(v)=>this.toggle = v, get:()=>this.toggle, id: this.name})
+            this.collisionFolder = this.varnode.createFolder({name:()=>`Bodies`}) 
+            console.log(this.varnode)
             Tile.collisionplugin = this
             this.options = [
                 {name: `macros`, cb:(id, setrefresh, setshowmacros)=>{
@@ -78,23 +85,53 @@ export function CollideBody({Scene, Collide, Tile}){
                 {name: `clear`, cb:(id, setrefresh, setshowmacros)=>{
                     const find = this.shapes.find(shape=>shape.id === id)
                     if(find){
+                        if(this.targetShape.geometry !== `polygon`)return
                         this.targetShape = find
                         this.targetShape.vertices = []
                     }
-                } },
+                }},
                 {name: `delete`, cb:(id, setrefresh, setshowmacros)=>{
                     const find = this.shapes.find(shape=>shape.id === id)
                     if(find){
                         this.targetShape = find
                         this.targetShape.delete = true
-                        this.shapes.splice(this.shapes.indexOf(this.targetShape), 1)
+                        this.targetShape.remove()
                         setrefresh(p=>!p)
                     }
                 } },
+                {name: `set as primary `, cb:(id, setrefresh, setshowmacros)=>{
+                    const find = this.shapes.find(shape=>shape.id === id)
+                    if(find){
+                        this.referenceShape = find
+                        setrefresh(p=>!p)
+                    }
+                } },
+
             ]
 
             this.ui= <CollideBodyUI  object={this}/>
-            this.variables = {}            
+            this.variables = {}
+            
+            Collide.onplay(()=>{
+                this.shapes.forEach(shape=>{
+                    shape.rewriteBody()
+                })
+            })
+            Collide.onpause(()=>{
+                this.shapes.forEach(shape=>{
+                    Tile.x = Tile.initx;Tile.y = Tile.inity
+                    shape.rewriteBody()
+                    this.hidden = false
+                })
+            })
+            Collide.ondrawmode(()=>{
+                this.shapes.forEach(shape=>{
+                    Tile.x = Tile.initx;Tile.y = Tile.inity
+                    shape.rewriteBody()
+                    if(!Tile.sprite)this.hidden = false
+                    else this.hidden = true
+                })
+            })
         },
 
         pointInPolygon(point, polygon){
@@ -107,7 +144,7 @@ export function CollideBody({Scene, Collide, Tile}){
             }
             return inside
         },
-        createPolyBody({geometry, type}){
+        createPolyBody({geometry, type}, collisionFolder){
             const data = {
                 type: `dynamic`,
                 geometry:`polygon`,
@@ -116,28 +153,29 @@ export function CollideBody({Scene, Collide, Tile}){
                 vertices: [],
                 name: `shape ${this.shapes.length + 1}`,
                 macros: [
-                    {name: `title`,  value:`shape ${this.shapes.length + 1}`},
-                    {name: `offsetx`, value: 0, title:`x offset`},
-                    {name: `offsety`, value: 0, title:`y offset`},
-                    {name: `density`, var: `density`, value: 1, title:`density`},
-                    {name: `restitution`, var: `restitution`, value:0.1},
-                    {name: `friction`, var: `friction`, value:0.1},
-                    {name: `air friction`, var: `frictionAir`, value:0.01, title:`air resistance`},
-                    {name: `initial angle`, var: `angle`, value: 0},
-                    {name: `angle damping`, var: `angleDamping`, value: 0, title:`angular damping`},
-                    {name: `gravity scale`, var: `gravityScale`, value: 1, title:`weight effect`},
-                    {name: `bullet`, var: `bullet`, value: false, title:`bullet mode`},
-                    {name: `isSensor`, var: `isSensor`, value:false, title:`collision detection not physical`},
-                    {name: `fixed rotation`, var: `fixedRotation`, value: false, title:`fixed rotation`},
-                    {name: `display color`, value: getRandomHexColor()},
-                    {name: `restrict rotation`, value: ()=>{
+                    {name: `title`, type:'input',  value:`shape ${this.shapes.length + 1}`},
+                    {name: `offsetx`, value: 0,type:'number', title:`x offset`},
+                    {name: `offsety`, value: 0,type:'number', title:`y offset`},
+                    {name: `density`, type:'number', var: `density`, value: 1, title:`density`},
+                    {name: `restitution`, type:'number', var: `restitution`, value:0.1},
+                    {name: `friction`, type:'number', var: `friction`, value:0.1},
+                    {name: `air friction`, type:'number', var: `frictionAir`, value:0.01, title:`air resistance`},
+                    {name: `initial angle`, type:'number', var: `angle`, value: 0},
+                    {name: `angle damping`, type:'number', var: `angleDamping`, value: 0, title:`angular damping`},
+                    {name: `gravity scale`, type:'number', var: `gravityScale`, value: 1, title:`weight effect`},
+                    {name: `bullet`, type:'checkbox', var: `bullet`, value: false, title:`bullet mode`},
+                    {name: `isSensor`, type:'checkbox', var: `isSensor`, value:false, title:`collision detection not physical`},
+                    {name: `fixed rotation`, type:'checkbox', var: `fixedRotation`, value: false, title:`fixed rotation`},
+                    {name: `display color`, type:`color`, value: getRandomHexColor()},
+                    {name: `restrict rotation`, type:`button`,value: ()=>{
                         this.mode = `rotation`
                     }},
                 ],
                 updateFromMacros(){
-                    console.log(`updating from macros`)
                     this.macros.forEach(m=>{
-                        if(m.var === `density`){this.body?.getFixtureList().setDensity(m.value)}
+                        if(m.var === `title`){this.name = m.value}
+                        if(m.var === `color`){this.color = m.value}
+                        if(m.var === `restitution`){this.body?.getFixtureList().setRestitution(m.value)}
                         if(m.var === `restitution`){this.body?.getFixtureList().setRestitution(m.value)}
                         if(m.var === `friction`){this.body?.getFixtureList().setFriction(m.value)}
                         if(m.var === `frictionAir`){this.body?.setLinearDamping(m.value)}
@@ -145,7 +183,7 @@ export function CollideBody({Scene, Collide, Tile}){
                         if(m.var === `angleDamping`){this.body?.setAngularDamping(m.value)}
                         if(m.var === `gravityScale`){this.body?.setGravityScale(m.value)}
                         if(m.var === `bullet`){this.body?.setBullet(m.value)}
-                        if(m.var === `isSensor`){this.body?.getFixtureList().setSensor(m.value)}
+                        if(m.var === `isSensor`){console.log(m.value);this.body?.getFixtureList().setSensor(m.value)}
                     })
                 },
                 rewriteBody(){
@@ -175,6 +213,9 @@ export function CollideBody({Scene, Collide, Tile}){
 
                         if(this.body){
                             Collide.world.destroyBody(this.body)
+                            collisionFolder.destroyFolder(this.bodyFolder)
+                            if(this.referenceShape === data)this.referenceShape = undefined
+
                         }
                         this.body = Collide.world.createBody({
                             type: `${type || `dynamic`}`,
@@ -187,9 +228,38 @@ export function CollideBody({Scene, Collide, Tile}){
                             Collide.pl.Polygon(vertices),
                             props
                         )
+                        this.setupFolder()
                         this.calcpos()
                     }
                     cb()
+                },
+                setupFolder: ()=>{
+                    data.bodyFolder = this.collisionFolder.createFolder({name:()=>data.name,})
+                    data.macros.forEach(macro=>{
+                        data.bodyFolder.addvar({id: `${(macro.var || macro.name)}${this.name}`,get:()=>macro.value, set:(v)=>{if(!data.delete)macro.value = v;data.updateFromMacros()}, name: ()=>macro.name})
+                    })
+                    data.bodyFolder.addvar({id: `${this.name}destroybody`,name:()=>`destroy body`, set:(v)=>{if(!data.delete)data.remove()}, get:()=>()=>{}})
+                    data.bodyFolder.addvar({id: `${this.name}sethop`,name: ()=>`set hop`, set:(vv)=>{
+                        const v = data.body.getLinearVelocity()
+                        data.body.setLinearVelocity(Collide.pl.Vec2(v.x, 0))
+
+                        data.body.applyLinearImpulse(
+                            Collide.pl.Vec2(0, vv),
+                            data.body.getWorldCenter(),
+                            true
+                        )
+                    }, get:()=>0})
+                },
+                remove:()=>{
+                    if(data.body){
+                        if(this.bodyFolder)
+                        this.collisionFolder.destroyFolder(this.bodyFolder)
+                        if(this.referenceShape === data)this.referenceShape = undefined
+                        Collide.world.destroyBody(data.body)
+                        this.shapes.splice(this.shapes.indexOf(data), 1)
+                        console.log(this.collisionFolder)
+                        this.delete = true
+                    }
                 },
                 addvertex: (x, y)=>{
                     const v = {x, y}
@@ -210,8 +280,8 @@ export function CollideBody({Scene, Collide, Tile}){
                     data.name = data.macros.find(e=>e.name === `title`)?.value
                     data.color = data.macros.find(e=>e.name === `display color`)?.value
                     if(data?.body?.info)
-                    data.body.info.color = data.color
-
+                    data.body.info.color = data?.color
+                    if(this.hidden && Tile.sprite)data.info.color =`tranparent`
                 },
             }
             return data
@@ -222,13 +292,14 @@ export function CollideBody({Scene, Collide, Tile}){
         addBody(info){
             this.reset()
             if(info.geometry === `polygon`){
-                const b = this.createPolyBody({info})
+                const b = this.createPolyBody(info, this.collisionFolder)
                 b.type = info.type; b.geometry = info.geometry
                 this.shapes.push(b)
                 this.targetShape = b
+                if(!this.referenceShape)this.referenceShape = b
             }
             if(info.geometry === `square`){
-                const b = this.createPolyBody({info})
+                const b = this.createPolyBody(info, this.collisionFolder)
                 const vertices = [
                     {"x":251.73861694335938,"y":252.69317626953125},
                     {"x":353.7386169433594,"y":252.69317626953125},{"x":353.7386169433594,"y":354.69317626953125},
@@ -238,9 +309,10 @@ export function CollideBody({Scene, Collide, Tile}){
                 b.type = info.type; b.geometry = info.geometry
                 this.shapes.push(b)
                 this.targetShape = b
+                if(!this.referenceShape)this.referenceShape = b
             }
             if(info.geometry === `triangle`){
-                const b = this.createPolyBody({info})
+                const b = this.createPolyBody(info, this.collisionFolder)
                 const vertices = [
                     {"x":254.73861694335938,"y":350.69317626953125},{"x":304.7386169433594,"y":253.69317626953125},
                     {"x":352.7386169433594,"y":348.69317626953125},{"x":254.73861694335938,"y":347.69317626953125}
@@ -249,6 +321,7 @@ export function CollideBody({Scene, Collide, Tile}){
                 b.type = info.type; b.geometry = info.geometry
                 this.shapes.push(b)
                 this.targetShape = b
+                if(!this.referenceShape)this.referenceShape = b
             }
         },
         
@@ -306,7 +379,6 @@ export function CollideBody({Scene, Collide, Tile}){
             this.finished = true
             this.targetShape.calcpos()
             this.targetShape.rewriteBody()
-            console.log(JSON.stringify(this.targetShape.vertices))
             // this.reset()
         },
         editShape(shape){
@@ -316,15 +388,16 @@ export function CollideBody({Scene, Collide, Tile}){
             this.vertices = this.targetShape.vertices
             this.finished = false
         },
+        setReferenceShape(shape){this.referenceShape= shape},
+        updateShapes(){
+            this.shapes.forEach(shape=>{
+                if(shape.vertices.length <= 0)return
+                shape.update()
+            })
+        },
         drawvertice({ctx}){
             
             this.shapes.forEach((shape, x)=>{
-                
-                if(shape.delete){
-                    this.shapes.splice(x, 1)
-                    return
-                }
-                shape.update()
                 if(shape.vertices.length <= 0)return
                 ctx.save()
                 ctx.beginPath()
@@ -339,7 +412,8 @@ export function CollideBody({Scene, Collide, Tile}){
                 })
             
                 if(this.targetShape && this?.targetShape.id === shape.id && this?.targetShape?.geometry === `polygon`){
-                    if(this.targetShape.vertices.length <= 0)return
+                    if(this.targetShape.vertices.length >= 0)
+                    if(!this.finished)
                     ctx.lineTo(this.mx, this.my)   
                 }
                 ctx.globalAlpha = 0.2
@@ -367,14 +441,22 @@ export function CollideBody({Scene, Collide, Tile}){
             this.x= this.canvas.width/2 - this.w/2
             this.y= this.canvas.height/2 - 100
         },
+
         drawTile(p){
             const ctx = p.ctx
             ctx.save()
+            const x = this.x, y= this.y, w = this.w, h = this.h
+            p.ctx.fillStyle = `blue`
+            p.ctx.globalAlpha = 0.6
+            p.ctx.fillRect(x, y, w, h)
+            p.ctx.globalAlpha = 1
+
             if(Tile.sprite){
                 const x = this.x, y= this.y, w = this.w, h = this.h
-                Tile.sprite.drawbib(p,x, x, w, h)
+                Tile.sprite.drawbib(p,x, y, w, h)
             }
             ctx.restore()
+
         },
 
         dethover(){
@@ -388,20 +470,51 @@ export function CollideBody({Scene, Collide, Tile}){
         },
         highlightHoveredShape({ctx}){
         },
+        updateTileDim(){
+            if(Collide.devstate === `pause`)return
+            if(this.referenceShape){
+                const body = this.referenceShape.body
+                if(!body)return 
+                const pos = body.getPosition()
+                const angle = -body.getAngle()
+                const x= Collide.mtopx(pos.x)
+                const y = -Collide.mtopx(pos.y)
+                Tile.x = x; Tile.y = y; Tile.angle= angle
+                // console.log(Tile.x, Tile.y)
+            }
+        },
+        dispid: genId(),
         open(canvasRef){
+            this.canvasRef = canvasRef
             this.canvas = canvasRef[`current`]
-            this.disposableCanvas = DisposableCanvas(this, canvasRef).onupdate((p)=>{
+            this.disposableCanvas = DisposableCanvas(this, canvasRef, this.dispid).onupdate((p)=>{
                 if(!this.toggle)return
+                this.updateDim()
                 this.drawTile(p)
+                this.updateShapes()
                 this.drawvertice(p)
                 this.highlightHoveredShape(p)
                 this.dethover()
+                this.updateTileDim()
             }).update()
-
             this.updateDim()
-
+        },
+        maximize(){
+            if(this.canvasRef)
+            this.open(this.canvasRef)
+        },
+        minimize(){
+            if(this.canvasRef)
+            this.close()
+        },
+        update(){
+            if(!this.toggle)return
+            this.updateShapes()
+            this.dethover()
+            this.updateTileDim()
         },
         close(){
+            if(this.disposableCanvas)
             this.disposableCanvas.dispose()
         },
     }
@@ -410,7 +523,7 @@ export function CollideBody({Scene, Collide, Tile}){
 }
 CollideBody.prototype.info = ()=> ({
     name: `CollideBody`,
-    thumbnailSource: `/plugins/collide1thumb.png`,
+    thumbnailSource: `/plugins/collidebodythumb.png`,
     descr: 'Bring Characters into the world with this exciting plugin',
     id: `9392hdd-12288dhw8dpdq/Collide-1122334455`,//id is id/enfineid for verification 
     type: `tile`,

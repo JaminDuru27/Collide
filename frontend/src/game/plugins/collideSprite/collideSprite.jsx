@@ -14,15 +14,17 @@ export function CollideSprite({Scene, Collide, Tile}){
         spw: 100, sph: 100,
         minframe: 0, maxframe: 0,
         framex: 0, framey: 0,
+        angle: 0,
         frame:0,
-        imageid: Tile.sprite.imageobj.id,
-        sw:Tile.sprite.sw, sh: Tile.sprite.sh,
+        imageid: undefined,
+        sw:undefined, sh: undefined,
         
         // requirements(){return Tile.collisionplugin !== undefined},
         requirements(){return true},
         requiredMessage: `CollideSprite plugin requires CollideBody plugin to be added to the tile first.`,
         save(){
             const data = {
+                title: this.name,
                 vars:{
                     name: this.name,
                     toggle: this.toggle, imageid:this.imageid,
@@ -67,11 +69,12 @@ export function CollideSprite({Scene, Collide, Tile}){
             a.href = URL.createObjectURL(blob)
             a.click()
         },
+        dispid: genId(),
         open(canvasRef, setrefresh){
             this.setrefresh = setrefresh
             this.canvas = canvasRef[`current`]
             this.opened = true
-            this.disposableCanvas = DisposableCanvas(this, canvasRef).onupdate((p)=>{
+            this.disposableCanvas = DisposableCanvas(this, canvasRef, this.dispid).onupdate((p)=>{
                 if(!this.toggle)return
                 if(this.propsavailable() && this.opened){
                     this.drawrefs(p)
@@ -97,11 +100,24 @@ export function CollideSprite({Scene, Collide, Tile}){
         },
         load(){
             if(!this.requirements())return
-            Tile[`sprite`] = undefined
-            Tile[`sprite`] = this 
-            this.ui = <CollideSpriteUI object = {this}/>
-            this.image = Collide.images.array.find(e=>e.id=== this.imageid)?.image
-            this.calcnxny()
+            let imagemenu
+            if(Tile.sprite){
+                this.varnode = Tile.varHandler.getNode({name: ()=>this.name, src: `/plugins/collidespritethumb.png`})
+                this.varnode.addvar({name:()=>`toggle`, id:`133-${this.name}`, set:(v)=>this.toggle = v, get:()=>this.toggle})
+                this.clipsfolder =this.varnode.createFolder({name:()=>`clips`})
+                this.imageid= Tile?.sprite?.imageobj?.id
+                this.sw=Tile?.sprite?.sw
+                this.sh= Tile?.sprite?.sh
+                this.image = Collide.images.array.find(e=>e.id=== this.imageid)?.image
+                this.calcnxny()
+            }else imagemenu = true
+            this.ui = <CollideSpriteUI object = {this} Tile={Tile} imagemenu={imagemenu}/>
+
+            if(this.propsavailable()){
+                Tile[`sprite`] = undefined
+                Tile[`sprite`] = this 
+            }
+            
         },
         calcnxny(){
             this.nx = Math.floor(this.image.width / this.sw)
@@ -118,6 +134,7 @@ export function CollideSprite({Scene, Collide, Tile}){
         },
         scale: 1,
         tileref(){return Tile}, 
+        degtorad(deg){return deg * Math.PI * 180},
         getrefdim(){
             if(!this.collisionbodyref){
                 return {x: this.tilx, y: this.tily, w: this.tilw, h: this.tilh}
@@ -127,8 +144,8 @@ export function CollideSprite({Scene, Collide, Tile}){
             const {x, y, w, h} = this.getrefdim()
             if(!this.collisionbodyref){
                 this.ratio = {
-                    x: this.spx / w,
-                    y: this.spy / h,
+                    x: (x- this.spx)  / w,
+                    y: (y-this.spy) / h,
                     w: this.spw / w,
                     h: this.sph / h,
                 }
@@ -137,18 +154,17 @@ export function CollideSprite({Scene, Collide, Tile}){
         resetdimfromratio(){
             if(this.ratio){
                 const {x,y, w, h} = this.getrefdim()
-                this.spx = this.ratio.x * w   
-                this.spy = this.ratio.y * h
-                this.roffsetx = this.ratio.x * this.w   
-                this.roffsety = this.ratio.y * this.h   
-                console.log(this.ratio, this.spx, this.roffsetx)
+                this.spx = x - this.ratio.x * w   
+                this.spy = y - this.ratio.y * h 
+                this.roffsetx = this.ratio.x * w  
+                this.roffsety = this.ratio.y * h   
             }
         },
         drawdim({ctx}){
             const scale = this.scale
             ctx.fillStyle = `gold`
             ctx.globalAlpha  = 0.4
-            ctx.fillRect(this.spx, this.spy, this.w, this.h)
+            ctx.fillRect(this.spx, this.spy, this.spw, this.sph)
             ctx.globalAlpha  = 1
             ctx.lineWidth = 2
             ctx.setLineDash([4, 3])
@@ -169,12 +185,15 @@ export function CollideSprite({Scene, Collide, Tile}){
         },
         drawbib({ctx}, x, y, w, h){
             ctx.save()
+            ctx.translate(x, y)
+            ctx.translate(w/2, h/2)//centering
+            ctx.rotate(Tile.angle)
             ctx.drawImage(
                 this.image,
                 this.sw * this.framex, 
                 this.sh * this.framey,
                 this.sw, this.sh,                
-                x, y, w,h,
+                -w/2, -h/2,w,h,
             )
             ctx.restore()
         },
@@ -186,6 +205,17 @@ export function CollideSprite({Scene, Collide, Tile}){
                 name: name || `clip${this.clips.length +1}`,
                 $onframe: [],
                 onframe(frame, cb){this.$onframe.push({frame, cb}); return this},
+                remove:()=>{
+                    data.flaggeddelete = true
+                    this.clips.forEach((clip, i)=>{
+                        if(clip === data){
+                            this.clips.splice(i, 1)
+                        }
+                    })
+                    if(data.folder){
+                        this.clipsfolder.destroyFolder(data.folder)
+                    }
+                },
                 updateFromMain:()=>{
                     data.delaytime = this.delaytime
                     data.from = this.minframe
@@ -199,8 +229,19 @@ export function CollideSprite({Scene, Collide, Tile}){
                         }
                     })
                 }
+
             }
             data.updateFromMain.bind(this)
+            data.folder = this?.clipsfolder?.createFolder({name: ()=>data.name});
+
+            [`from`, `to`, `delaytime`, `name`, `loop`, `name`].map(x=>{
+                data.folder.addvar({id: `${data.name}${x}`,name: ()=>x, set:(v)=>{if(v){data[x] = v}}, get: ()=>data[x]})
+            })
+            data.folder.addvar({id: `play${data.name}`, name:()=>`play`, 
+            set:(v)=>{
+                this.playclip(data)
+            }, get: ()=>()=>{}})
+
             this.clips.push(data)
             this.setcurrentclip(data)
             return data
@@ -223,13 +264,25 @@ export function CollideSprite({Scene, Collide, Tile}){
             this.minframe = from
             this.frame = from
         },   
+        replay(){
+            this.frame = this.minframe
+        },
+        replayfromframe(frame){
+            if(frame < this.clip.from)return
+            if(frame > this.clip.to)return
+            
+            this.frame = frame
+        },
         update(p){
+            if(!this.toggle)return
             if(!this.propsavailable())return
             if(!this.ratio)return
-            this.x = Tile.x + this.roffsetx
-            this.y = Tile.y + this.roffsety
-            this.w = Tile.w
-            this.h = Tile.h
+            this.w = Tile.w * this.ratio.w
+            this.h = Tile.h * this.ratio.h
+
+            this.x = Tile.x - this.roffsetx - this.w/2
+            this.y = Tile.y - this.roffsety - this.h/2
+            
             this.drawbib(p, 
             this.x, 
             this.y,
@@ -243,7 +296,9 @@ export function CollideSprite({Scene, Collide, Tile}){
         },
         remove(){
             Tile.sprite = undefined
-
+            this.clips.forEach(clip=>{
+                clip.remove()
+            })
         },
 
         updateframes(){
@@ -251,7 +306,7 @@ export function CollideSprite({Scene, Collide, Tile}){
                 if(this.loop)this.frame = this.minframe
                 else this.frame = this.maxframe
             }else {
-                this.delay(100, ()=>{
+                this.delay(this.delaytime, ()=>{
                     this.framey = Math.floor(this.frame/this.ny)
                     this.framey = Math.min(this.ny -1, this.framey)
                     this.framex = this.frame  - this.framey * this.nx
@@ -266,7 +321,7 @@ export function CollideSprite({Scene, Collide, Tile}){
             this.h = Tile.h + this.roffseth
             this.spx = this.canvas.width/2 - (this.w/2)
             this.spy = this.canvas.height/2 - (this.h/2)
-            this.tilx = this.canvas.height/2 - (this.h/2)
+            this.tilx = this.canvas.width/2 - (this.w/2)
             this.tily = this.canvas.height/2 - (this.h/2)
             this.tilw = this.spw; this.tilh = this.sph
         },
@@ -308,7 +363,7 @@ export function CollideSprite({Scene, Collide, Tile}){
 }
 CollideSprite.prototype.info =()=> ({
     name: `CollideSprite`,
-    thumbnailSource: `/plugins/ui1thumb.jpg`,
+    thumbnailSource: `/plugins/collidespritethumb.png`,
     descr: 'animate spritesheets with this plugin. Bring yout characters to life!',
     id: `93i0j30djd9n'ddjdi/Colllide-1122334455`,//id is id/enfineid for verification 
     type: `tile`,

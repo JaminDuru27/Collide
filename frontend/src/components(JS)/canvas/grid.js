@@ -96,8 +96,8 @@ export function Grid(canvas, Collide, gridtranslate = false){
                     const box = {
                         indx: x, indy: y, cw, ch,
                         inveiw:()=>{
-                            const px = this.x + (x * cw)
-                            const py = this.y + (y * ch)
+                            const px = this.x + (x * cw) + (Collide.tx || 0)
+                            const py = this.y + (y * ch) + (Collide.ty || 0)
                             return(
                                 (px + cw > 0 &&
                                 py + ch > 0) &&
@@ -126,8 +126,8 @@ export function Grid(canvas, Collide, gridtranslate = false){
                 for(let x =0; x< this.nx; x++){
                     const box = {indx: x, indy: y, cw, ch,
                         inveiw:()=>{
-                            const px = this.x + (x * cw)
-                            const py = this.y + (y * ch)
+                            const px = this.x + (x * cw) + (Collide.tx || 0)
+                            const py = this.y + (y * ch) + (Collide.ty || 0)
                             return(
                                 (px + cw > 0 &&
                                 py + ch > 0) &&
@@ -157,6 +157,7 @@ export function Grid(canvas, Collide, gridtranslate = false){
             ctx.translate(this.x, this.y)
             this.boxes.map(box=>{
                 // console.log(box.inveiw())
+                if(this.hidden)return
                 if(!box.inveiw()){box.hidden = true;return}
                 else box.hidden = false
                 ctx.globalAlpha = this.alpha

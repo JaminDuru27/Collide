@@ -31,11 +31,24 @@ export function TileRef(Collide, sets){
         addMod(){},
         draw(p){
             if(!this.tile)return;
+            const w = 50, h= 50
+            const canvas  = p.ctx.canvas
             if(this.tile.sprite){
-                const w = 50, h= 50
-                const canvas  = p.ctx.canvas
-                // console.log(canvas.width, canvas.height)
                 this.tile.sprite.drawbib(p, canvas.width/2 - (w/2), canvas.height/2 - (h/2), w, h)
+            }else{
+                const ctx = p.ctx
+                ctx.save()
+                ctx.strokeStyle = this?.tile?.color || `blue`
+                ctx.fillStyle = this?.tile?.color || `blue`
+                ctx.globalAlpha = 0.5
+                ctx.fillRect(canvas.width/2 - (w/2), canvas.height/2 - (h/2), w, h)
+                ctx.globalAlpha = 1
+                ctx.strokeRect(canvas.width/2 - (w/2), canvas.height/2 - (h/2), w, h)
+                ctx.restore()
+                ctx.fillStyle = `white`
+                ctx.globalAlpha = 0.5
+                ctx.font = `12px geoform`
+                ctx.fillText((this.tile.title||`Unknown Tile`), 10, 20)
             }
         },
         setup(cref){

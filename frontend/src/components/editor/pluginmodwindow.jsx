@@ -59,7 +59,11 @@ export function PluginModWindow({collide, editorref}){
                     <div 
                         onClick={()=>{
                             const p =c.pluginsmodshandler?.currentPlugin
+                            if(full)
                             if(p?.minimize)p.minimize()      
+                            if(!full)
+                            if(p?.maximize)p.maximize()      
+                            
                             setFull(p=>!p)
                         }}
                         className="">

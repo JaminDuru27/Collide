@@ -42,7 +42,7 @@ export function Collide(canvasRef,gets, info, sets){
         // UTILS
         $ontileswitch: [],
         ontileswitch(cb){this.$ontileswitch.push(cb)},
-        ontileswitchcb(t){this.$ontileswitch.forEach(cb=>cb(t))},
+        ontileswitchcb(t){this.$ontileswitch.forEach(cb=>{cb(t); console.log(t)})},
 
         mtopx(m){return this.scale * m},
         pxtom(px){return px / this.scale},
@@ -57,17 +57,20 @@ export function Collide(canvasRef,gets, info, sets){
         onplay(cb){this.onplaycbs.push(cb)},
         onpause(cb){this.onpausecbs.push(cb)},
         setMessage(props ){if(props)sets.setFeedInfo(props)},
+        startVariableOptions(varhandler, p){
+            sets.setVarHandler({varhandler, ...p})
+        },
         switchmode(mode){
-            if(mode === `draw`){this.mode = `draw`;this.drawmodecbs.forEach(cb=>cb())}
-            if(mode === `dev`){this.mode = `dev`;this.devmodecbs.forEach(cb=>cb())}
+            if(mode === `draw`){this.mode = `draw`;this.drawmodecbs.forEach(cb=>cb());sets.setMode(mode)}
+            if(mode === `dev`){this.mode = `dev`;this.devmodecbs.forEach(cb=>cb());sets.setMode(mode)}
         },
         setdevstate(state){
             if(state === `play`){this.devstate = `play`;this.onplaycbs.forEach(cb=>cb())}
             if(state === `pause`){this.devstate = `pause`;this.onpausecbs.forEach(cb=>cb())}
         },
         load(){
-            this.loadElements()
             this.loadPlugins()
+            this.loadElements()
             this.setupPlanck()
             this.state = State(this, sets)
             
@@ -102,7 +105,12 @@ export function Collide(canvasRef,gets, info, sets){
         setupPlanck(){
             this.pl = planck
             this.world = new this.pl.World({
-                gravity: this.pl.Vec2(0, -0.02)
+                gravity: this.pl.Vec2(0, 0)
+            })
+            this.ondrawmode(()=>{
+                this.setdevstate(`pause`)
+                this.world.setGravity(this.pl.Vec2(0, 0))
+                sets.setupdateAll(p=>!p)
             })
             this.onplay(()=>{
                 this.world.setGravity(this.pl.Vec2(0, -1))
@@ -110,56 +118,16 @@ export function Collide(canvasRef,gets, info, sets){
             this.onpause(()=>{
                 this.world.setGravity(this.pl.Vec2(0, 0))
             })
-            // let x = 380, y = 40
-            let x = 0, y = 0
-            this.testbody = this.world.createBody({
-                type: `dynamic`,
-                position: this.pl.Vec2(this.pxtom(x), this.pxtom(y)),
-                angle: 0,
-            }) 
-            const w = 20
-            const h = 20
-            this.testbody.info = {hw: w/2, hh: h/2, color: `green`,}
-            const verts = [
-                this.pl.Vec2(-0.8, -.4),
-                this.pl.Vec2( 0.0, -.7),
-                this.pl.Vec2( 0.8, -.4),
-                this.pl.Vec2( 0.9, -.3),
-                this.pl.Vec2( 0.0, -.7),
-                this.pl.Vec2( 0.9, -.3),
-            ]
-            this.testbody.createFixture(
-                this.pl.Polygon(verts),
-                {
-                    density: 1,
-                    friction: 0.3,
-                    restitution: 0.2,
-                }
-            )
-            let x2 = 0, y2 = -120
-            this.testbody2 = this.world.createBody({
-                type: `static`,
-                position: this.pl.Vec2(this.pxtom(x2), this.pxtom(y2)),
-                angle: 0,
-            }) 
-            this.testbody2.info = {hw: w/2, hh: h/2, color: `blue`,}
-
-            this.testbody2.createFixture(
-                this.pl.Box(this.pxtom(w/2), this.pxtom(h/2)),{
-                    density: 1,
-                    friction: 0.5,
-                    restitution: 0.2,
-                }
-            )
+            
 
         },
         loadPlugins(genre = `All`){
+            this.pluginsmodspreset = PluginsModsPreset()
             this.pluginsmodshandler = pluginsModsFinder(sets).loadplugins(genre) 
         },
         loadElements(){
             this.getCanvas()
             this.shortcuts = ShortCuts()
-            this.pluginsmodspreset = PluginsModsPreset()
             this.tools = Tools(this.canvas, this, sets)
             this.mouse = Mouse(this.canvas, this)
             this.select= Select(this,this.canvas, this.shortcuts,sets,)
@@ -182,6 +150,37 @@ export function Collide(canvasRef,gets, info, sets){
 
             //assets
             this.images = Images()
+            const c = ()=>{
+                const scenes  = this.scenes.currentLocker.scenes
+                if(scenes)
+                scenes.forEach(scene=>{
+                    const layer = scene.imageLayers.currentLayer
+                    if(layer)
+                    layer?.tiles?.forEach(tile=>tile.resetdim())
+                    layer.target = undefined
+
+                    const grid = scene.grid
+                    grid.hidden = false
+
+                })
+
+            }
+            const cc = ()=>{
+                const scenes  = this.scenes.currentLocker.scenes
+                if(scenes)
+                scenes.forEach(scene=>{
+                    const grid = scene.grid
+                    grid.hidden = true
+                }) 
+            }
+            this.onpause(()=>{c()})
+            this.onplay(()=>{cc()})
+            this.ondrawmode(()=>{c()})
+            this.shortcuts.add('`').cb(()=>{
+                if(this.mode === `dev`)this.switchmode(`draw`)
+                else if(this.mode === `draw`)this.switchmode(`dev`)
+                console.log(this.mode)
+            })
         },
         getCanvas(){
             this.canvas = canvasRef[`current`]
@@ -210,7 +209,7 @@ export function Collide(canvasRef,gets, info, sets){
             
             this.ctx.save()
             this.ctx.translate(this.mtopx(pos.x), -this.mtopx(pos.y) )
-            // this.ctx.rotate = (-angle)
+            this.ctx.rotate(-angle)
             this.ctx.strokeStyle = '#fff'
             this.ctx.lineWidth = 2
             if(shapeType === 'polygon' || shapeType === this.pl.Shape.Type.POLYGON){
@@ -229,6 +228,7 @@ export function Collide(canvasRef,gets, info, sets){
                     }
                     this.ctx.closePath()
                     this.ctx.globalAlpha = 0.4;this.ctx.stroke()
+                    
                     const color = body?.info?.hidden?`transparent`:body?.info?.color || 'rgba(255,255,255,1)'
                     this.ctx.globalAlpha = 0.3;this.ctx.fillStyle = color
                     this.ctx.fill()
@@ -261,11 +261,12 @@ export function Collide(canvasRef,gets, info, sets){
                 this.ctx.scale(this.sx, this.sy)
                 this.ctx.translate(this.tx, this.ty)
                 this.updates.forEach(obj=>{
-                    obj.update({ctx: this.ctx})
                     if(this.world){
                         this.world.step(1/60)
                         this.drawBodies()
                     }
+                    obj.update({ctx: this.ctx})
+                    
                 })
             }
             this.disposableCanvas = DisposableCanvas(this, canvasRef)

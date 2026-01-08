@@ -21,7 +21,6 @@ export function Intro({toggle, setToggle, progreslist}){
             <img src="/editor/logo.png" alt="" 
             style={{width: `calc(20vw + 1rem)`,}}
             className="p-2 bg-white/10 backdrop-blur-2xl rounded-[50%]" />
-            <div className="text-[#fff] overflow-hidden font-bold opacity-[.7]" style={{fontSize: `calc(5vw + 1rem)`}}>Collide</div>
         </div>
         
         <div className="text-[#fff] text-2xl font-bold opacity-[.7]">Build Great Pixel Games </div>

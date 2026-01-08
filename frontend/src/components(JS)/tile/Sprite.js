@@ -55,18 +55,20 @@ export function Sprite(Tile,Collide, Scene){
         },
         drawbib({ctx}, x, y, w, h){
             ctx.save()
-            ctx.translate(x, y)
-            ctx.rotate = this.angle
+            ctx.translate(x , y )
+            ctx.translate(w/2, h/2)//centering
+            ctx.rotate(this.degtorag(this.angle))
+        
             if(this.targetimg && this.targetimg.loaded)
             ctx.drawImage(
                 this.targetimg.image,
                 this.sx, this.sy, 
                 this.sw, this.sh,                
-                0, 0, w,h,
+                -w/2, -h/2, w,h,
             )
             ctx.restore()
         },
-        angle :0,
+        angle:0,
         degtorag(deg){return deg * Math.PI * 180},
         draw({ctx}){
             const x = Scene.grid.x
@@ -81,9 +83,7 @@ export function Sprite(Tile,Collide, Scene){
                 const img = Collide.images.array.find(img=>img.id === this.imageobj.id )
                 this.targetimg = img 
             }
-            ctx.rotate(this.degtorag(this.angle))
-            this.angle += 0.01
-
+            ctx.rotate(Tile.angle)
             if(this.targetimg && this.targetimg.loaded)
             ctx.drawImage(this.targetimg.image,
                 this.sx, this.sy, 

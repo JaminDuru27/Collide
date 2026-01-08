@@ -44,28 +44,24 @@ export function ImageLayer({Scene, Collide,select, grid, selectoperations,Layers
             ctx.restore()
         },
         higlightCurrentTile({ctx}){
-            this.tiles.forEach(t=>{
-                
-                if(t.onHover()){
-                    if(this.target !== t){this.target = t;Collide.ontileswitchcb(t)}
-                    this.target = t
+            let t 
+            this.tiles.forEach(tile=>{if(tile.onHover())t = tile})
+            if(!t)return
 
+            if(!t.lock)
+            t.indication = true
+            
+            if(t.indication){
+                ctx.save()
+                ctx.strokeStyle = `orange`
+                ctx.fillStyle = `#ffa50033`
+                ctx.lineWidth = 1
+                const p = 5
+                ctx.strokeRect(t.x - p, t.y - p, t.w + p*2, t.h + p* 2)
+                ctx.fillRect(t.x - p, t.y - p, t.w + p*2, t.h + p* 2)
+                ctx.restore()
 
-                    if(!t.lock)
-                    t.indication = true
-                    
-                    if(t.indication){
-                        ctx.save()
-                        ctx.strokeStyle = `orange`
-                        ctx.fillStyle = `#ffa50033`
-                        ctx.lineWidth = 1
-                        const p = 5
-                        ctx.strokeRect(t.x - p, t.y - p, t.w + p*2, t.h + p* 2)
-                        ctx.fillRect(t.x - p, t.y - p, t.w + p*2, t.h + p* 2)
-                        ctx.restore()
-                    }
-                }else Collide.ontileswitchcb(null)
-            })
+            }
         },
         update(props){
             if(this.hidden)return

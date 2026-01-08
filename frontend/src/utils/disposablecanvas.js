@@ -1,19 +1,27 @@
-export function DisposableCanvas(object, canvasRef){
+let disposables = []
+export function DisposableCanvas(object, canvasRef, id){
     const res = {
-
+        id,
         load(){
+            disposables.forEach(disp=>{
+                if(disp.id === id){
+                    disp.dispose()
+                }
+            })
+            
             object.ctx = canvasRef[`current`].getContext(`2d`) 
             canvasRef[`current`].width = canvasRef[`current`].clientWidth 
             canvasRef[`current`].height = canvasRef[`current`].clientHeight 
 
             window.addEventListener(`resize`, ()=>{
-            canvasRef[`current`].width = canvasRef[`current`].clientWidth 
-            canvasRef[`current`].height = canvasRef[`current`].clientHeight 
+                canvasRef[`current`].width = canvasRef[`current`].clientWidth 
+                canvasRef[`current`].height = canvasRef[`current`].clientHeight 
                 if(object.onresize)object.onresize
             })
             object.clear = this.clear.bind(this)
             object.dispose = this.dispose.bind(this)
             object.updatedisposablecanvas = this.update.bind(this)
+            if(id)disposables.push(this)
         },
         clear(){object.ctx.clearRect(0, 0, canvasRef[`current`]?.width, canvasRef[`current`]?.height); return this},
         hardimage(){object.ctx.imageSmoothingEnabled = false},
@@ -38,6 +46,7 @@ export function DisposableCanvas(object, canvasRef){
         },
         dispose(){
             clearInterval(this.interval)
+            disposables = disposables.filter(e=>e.id !== id)
         },
     }
     res.load()

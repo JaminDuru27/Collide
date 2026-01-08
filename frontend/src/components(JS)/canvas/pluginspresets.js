@@ -10,8 +10,7 @@ export function PluginsModsPreset(){
         add(id, data){
             if(!this.list[id])this.list[id] = []
             const d= data
-            console.log(data, d)
-            if(!d.name)d.name = `plugin preset - ${Date.now()}` 
+            if(!d.name)d.name = data.title +` plugin preset - ${Date.now()}` 
             if(!d.id)d.id = `${id}${genId()}`
             this.list[id].push(data)
             d.creationDate = Date.now()

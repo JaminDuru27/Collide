@@ -86,12 +86,13 @@ function Section({name, array, onclick}){
                 const info = plugin?.info
                 return (
                     <div 
+                    title = {info.name}
                     onClick={()=>{onclick(plugin, array,name)}}
                     key={`plmods-${x}`}
-                    style={{backgroundImage: `url(${info.thumbnailSource})`}}
-                    className="black cursor-pointer w-full gap-2 border bg-repeat[no-repeat] flex justify-start items-center border-white/20 rounded px-2 py-2">
+                    style={{backgroundImage: `url(${info.thumbnailSource})`, textOverflow: `ellipsis`}}
+                    className="black shrink-0 text-ellipsis cursor-pointer  relative overflow-hidden w-full gap-2 border bg-repeat[no-repeat] flex justify-start items-center border-white/20 rounded px-2 py-2">
                         <img src={info.thumbnailSource} className="rounded w-5 h-5" alt="" />
-                        <div className="text-[.7rem]">{info.name}</div>
+                        <div className="text-[.7rem] w-full text-ellipsis">{info.name}</div>
                     </div>
                 )
             })}

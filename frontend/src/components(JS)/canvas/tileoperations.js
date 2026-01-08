@@ -8,7 +8,6 @@ export function TileOperations(Collide, Select, sets){
             this.operations = {
                 'selectsprite': this.selectsprite.bind(this),
                 'craft': this.craft.bind(this),
-                'rotate': this.rotate.bind(this),
                 'copy': this.copy.bind(this),
                 'cut': this.cut.bind(this),
                 'paste': this.paste.bind(this),
@@ -24,6 +23,8 @@ export function TileOperations(Collide, Select, sets){
                 if(!findTile)return
                 Collide.currentSelectedTile = findTile
                 Collide.currentSelectedTile.lock = true
+                Collide.ontileswitchcb(findTile)
+                
                 layer.target = findTile
                 sets.setRefreshTilePluginsMods(p =>!p)
                 if(e.button === 2)
@@ -43,12 +44,6 @@ export function TileOperations(Collide, Select, sets){
             })
         },
         craft(){},
-        rotate(){
-            const layer = this.Scene().imageLayers.currentLayer
-            this.pt()    
-            const tiletarget = layer.target
-            if(tiletarget)tiletarget.rotation = 180
-        },
         selectsprite(){
             Select.boxes = []
             const layer = this.Scene().imageLayers.currentLayer
@@ -115,12 +110,9 @@ export function TileOperations(Collide, Select, sets){
             })
         },
         delete(){
-            if(!Collide.currentSelectedTile)return
-            this.pt()    
-            Collide.selectoperations.performOperation(`delete`)  
-            sets.setTile(null)
-            Select.boxes = []
-            Collide.currentSelectedTile.lock = false
+            const layer = this.Scene().imageLayers.currentLayer
+            if(layer.target)
+            layer.target.remove()
         },
     }
     res.load()

@@ -45,7 +45,7 @@ export function CollideUI(){
 }
 CollideUI.prototype.info =()=> ({
     name: `CollideUI`,
-    thumbnailSource: `/plugins/ui2thumb.jpg`,
+    thumbnailSource: `/plugins/collideuithumb.png`,
     descr: 'create visually appealing UIs wih this plugin',
     id: `2u29i919jdjjkjdljjddj/Collide-1122334455`,//id is id/enfineid for verification 
     type: `environment`,

@@ -1,0 +1,42 @@
+import { DisposableCanvas } from "../../../utils/disposablecanvas"
+import { genId } from "../../../utils/genid"
+import { CollideFSMUI } from "./collideFSMUI"
+
+export function CollideFSM({Collide, Scene, Tile}){
+    const res  = {
+        name: `CollideFSM`,
+        toggle: true,
+        requirements(){return true},
+        requiredMessage: ``,
+        save(){},
+        revert(){},
+        downloaddata(){},
+        dispid: genId(),//import
+        remove(){
+            Tile.plugins.splice(Tile.plugins.indexOf(this), 1)
+        },
+        open(canvasref){
+            this.disposableCanvas = DisposableCanvas(this, canvasRef, this.dispid).onupdate((p)=>{
+                if(!this.toggle)return
+            }).update()
+        },
+        close(){},
+        maximize(){},
+        minimize(){},
+        load(){
+            this.ui = <CollideFSMUI object={this} Tile={Tile} Collide={Collide}/>
+        },
+        render(p){}
+    }
+    res.load()
+    return res
+}
+
+CollideFSM.prototype.info =()=> ({
+    name: `CollideFSM`,
+    thumbnailSource: `/plugins/ui1thumb.jpg`,
+    descr: 'Finite State Machine For Creating Character and Game States',
+    id: `2038i3038hc-=ma'di32ddjdi/Colllide-1122334455`,//id is id/enfineid for verification 
+    type: `both`,
+    genre: `All`,
+})

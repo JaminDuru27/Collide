@@ -42,6 +42,7 @@ export function Editor(){
     const [renderlockerscenes, setrenderlockerscenes] = useState(false)
     const [updateAll, setupdateAll] = useState(false)
     const [pluginmodcb, setpluginmodcb]= useState(null)
+    const [varHandler,setVarHandler] = useState(null)
     let handlefeed = ()=>{}
     const canvasoptions = (e, info)=>{
         setcontextobject({
@@ -86,11 +87,11 @@ export function Editor(){
                 feedvalueref, isModified, setisModified, imagecanvas,
                 feedinfo, fullscreen, url, selectoptions, mode, play, progresslist,
                 hideside, head, tile, bodyfactory, updatetools, updateAll, toggle,
-                refreshTilePluginsMods, pluginmodcb
+                refreshTilePluginsMods, pluginmodcb, varHandler
             }}
             sets={{
                 setFeedInfo, setFullscreen, seturl, setPlay, setupdatetools,setupdatestats, setprogresslist,setpluginmodcb,
-                 setMode, setselectoptions, setTile, setbodyfactory, setupdateAll, setToggle, setRefreshTilePluginsMods
+                 setMode, setselectoptions, setTile, setbodyfactory, setupdateAll, setToggle, setRefreshTilePluginsMods, setVarHandler
             }} />
             <Title collide={collide} fullscreen={fullscreen} isModified={isModified}/>
             <DevTools
@@ -134,6 +135,7 @@ export function Editor(){
                     </>
                 )
             }
+            {varHandler && <VarHandler varHandler={varHandler} setVarHandler={setVarHandler}/>}
         </div>
 
         </>
@@ -163,4 +165,5 @@ import { useSearchParams } from "react-router-dom";
 import { Intro } from "../components/intro";
 import { PluginModWindow } from "../components/editor/pluginmodwindow";
 import { SideTilePluginMods } from "../components/editor/sidetilepluginmods";
+import { VarHandler } from "../components/editor/varHandler";
 

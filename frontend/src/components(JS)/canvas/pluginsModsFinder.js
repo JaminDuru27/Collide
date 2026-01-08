@@ -19,6 +19,7 @@ export function pluginsModsFinder(sets){
              
         // },
         getPlugin(info, type = `environment`){
+            if(info.type !== `both`)
             if(info.type !== type){
                 sets.setFeedInfo({message:`This Plugin Is Not For ${type}`, type:`message`})
                 return null

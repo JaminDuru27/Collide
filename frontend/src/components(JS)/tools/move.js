@@ -23,6 +23,8 @@ export function Move (Collide){
             if(this.down && this.t){
                 this.t.x = Collide.mouse.x - (this.d.x || 0)
                 this.t.y = Collide.mouse.y - (this.d.y || 0)
+                this.t.initx  = Collide.mouse.x - (this.d.x || 0)
+                this.t.inity = Collide.mouse.y - (this.d.y || 0)
             }
         },
 
