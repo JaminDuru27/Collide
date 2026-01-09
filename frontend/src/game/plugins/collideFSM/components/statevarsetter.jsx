@@ -67,7 +67,7 @@ export function StateVariableSetter({obj,voptype, Tile}){
                         checked={value}
                         value={value} 
                         onChange={(e)=>{(inputType === `checkbox`)?setvalue(p=>!p):null}} 
-                        onInput={(e)=>{setvalue(e.target.value)}} name="" id="" />
+                        onInput={(e)=>{(inputType !== `checkbox`)?setvalue(e.target.value):null}} name="" id="" />
                         }
                         </div>
                     )

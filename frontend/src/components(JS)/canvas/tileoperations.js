@@ -24,7 +24,7 @@ export function TileOperations(Collide, Select, sets){
                 Collide.currentSelectedTile = findTile
                 Collide.currentSelectedTile.lock = true
                 Collide.ontileswitchcb(findTile)
-                
+                sets.setupdateAll(p=>!p)
                 layer.target = findTile
                 sets.setRefreshTilePluginsMods(p =>!p)
                 if(e.button === 2)

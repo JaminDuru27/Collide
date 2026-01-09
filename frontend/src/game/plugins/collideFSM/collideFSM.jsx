@@ -27,7 +27,7 @@ export function CollideFSM({Collide, Scene, Tile}){
                 next(){return undefined},
                 shouldEnter(){return false},
                 shouldLeave(){return false},
-                isValid(){return this.shouldEnter()},
+                isValid(){return this.shouldEnter() && this.transitions.every(t=>t.isValid() === false)},
                 isInValid(){return this.shouldLeave()},
                 transitionDuration: 0,
                 shouldeResetOnLeave:false,
@@ -38,8 +38,33 @@ export function CollideFSM({Collide, Scene, Tile}){
                 onleaveconds:[],
                 onenterconds:[],
                 transitions:[],
-                insertTransition(){},
-                
+                createTransition(){
+                    const data = {
+                        conditions:[],
+                        isValid(){return false},
+                        ref: undefined,
+                        getref(){return Tile.varHandler?.getvar(this.ref?.id)},
+                    }
+                    data.addcondsgroup = ({grouparray, operator})=>{
+                        const newgarray = [...grouparray.map(c=>({...c, shouldRun: true}))]
+                        const gcondcb = this.getGroupCondCb(newgarray)
+                        const obj ={...grouparray, group: newgarray, operator}
+                        obj.isValid=()=>{return (gcondcb())} 
+                        data.conditions.push(obj)
+
+                        const validcb = this.getCond(data.conditions)
+                        data.isValid = validcb
+                    }
+                    return data
+                },
+                addNewTransition(){
+                    const transition = this.createTransition()
+                    transition.remove =()=>{
+                        this.transitions.splice(this.transitions.indexOf(this), 1)
+                    }
+                    this.transitions.push(transition)
+                    return this.insertTransition
+                },
                 insertOnEnterConds(groupdata){
                     const newgrouparray = [
                         ...groupdata.group.map((d,x)=>({...d, shouldRun: true, 
@@ -114,11 +139,16 @@ export function CollideFSM({Collide, Scene, Tile}){
                         this.onupdatevars.forEach(v=>{
                             v.variable.set(v.value)
                         })
-                        console.log(`update`)
+                        const valids = [...this.transitions.filter(t=>t.isValid()).map(t=>t.getref()?.get())]
+                        const sorted = valids.sort((a, b)=>a.priority - b.priority)
+                        if(sorted){
+                            const highestpriority = sorted[sorted.length -1]
+                            if(highestpriority)
+                            highestpriority.isValid = ()=>true
+                        }
                     }else {
                         if(this.delaybeforentertimer < this.delaybeforentervalue + 1)
                         this.delaybeforentertimer ++
-                        console.log(this.delaybeforentertimer)
                     }
                     
                 },

@@ -8,9 +8,11 @@ import { selectStyles } from "./components/selectdata";
 import { State } from "./components/state";
 import { VarLab } from "./components/varlab";
 import { ConditionLab } from "./components/conditionlab";
+import { TransitionLab } from "./components/transitionsLab";
 export function CollideFSMUI({object, Tile}){
     const [reload, setreload] = useState(false)
     const [varlab, setvarlab] = useState(null)
+    const selectedTransition = useRef(null)
     const condsbtns =[
         {name: `on enter`, v:`on enter conditions`, voptype: [`conditions`, `variables`]},
         {name: `on leave`, v: `on leave conditions`, voptype: [`conditions`, `variables`]}
@@ -29,25 +31,31 @@ export function CollideFSMUI({object, Tile}){
                  <div className="title w-full border-b px-2 uppercase opacity-[.7] border-white/40 py-2 text-bold text-[.8rem]">Conditions</div>
                 {condsbtns.map(({v, name}, key)=>{
                     return (
-                        <div 
-                            onClick={()=>setvarlab(v)}
-                            style={{boxShadow: `0px 0px 24px -4px #0000009e`}}
-                            className="onenter text-[.9rem] text-white/70 bg-white/5 capitalize rounded-md  w-full p-2 border border-white/10 flex justify-between items-center">
-                                <div className="name">{name}</div>
-                        </div>
+                        <Navbtn name={name} cb={()=>setvarlab(v)} key={key} />
                     )
                 })}
                 <div className="title w-full border-b px-2 uppercase opacity-[.7] border-white/40 py-2 text-bold text-[.8rem]">Variables</div>
                 {varssbtns.map(({v, name}, key)=>{
                     return (
-                        <div 
-                            onClick={()=>setvarlab(v)}
-                            style={{boxShadow: `0px 0px 24px -4px #0000009e`}}
-                            className="onenter text-[.9rem] text-white/70 bg-white/5 capitalize rounded-md  w-full p-2 border border-white/10 flex justify-between items-center">
-                                <div className="name">{name}</div>
-                        </div>
+                        <Navbtn name={name} cb={()=>{setvarlab(v)}} key={key} />
                     )
                 })}
+                <div className="title w-full border-b px-2 uppercase opacity-[.7] border-white/40 py-2 text-bold text-[.8rem]">Transitions</div>
+                <div className="transitions p-2 border w-full flex justify-star items-start gap-2 flex-col border-white/20 rounded-2xl">
+                    {(object?.currentState?.transitions || []).map((t, k)=>{
+
+                        const getref = ()=>Tile?.varHandler?.getvar(selectedTransition[`current`]?.ref?.id)
+                        const name = getref()?.get()?.name
+                        return (
+                            <Navbtn name={name?`${name} transition`:`Enter Transition`} cb={()=>{selectedTransition[`current`] = t;setvarlab(`transition`)}} key={`dkidk8339002${k}`} />
+                        )
+                    })}
+                </div>
+                <Navbtn name={`add transition`} cb={()=>{
+                    object.currentState.addNewTransition()
+                    setreload(p=>!p)
+                }} key={`k99j92`} />
+
             </motion.div>
             <div className="main w-full h-full">
                 <div className="content flex justify-center w-full h-full items-center gap-5">{
@@ -78,13 +86,24 @@ export function CollideFSMUI({object, Tile}){
                     {varlab === `on variable enter` && <VarLab object={object} Tile={Tile} voptype= {[`conditions`, `variables`, `functions`]} targetArray = {`onentervars`}/>}
                     {varlab === `on variable leave` && <VarLab object={object} Tile={Tile} voptype= {[`conditions`, `variables`, `functions`]} targetArray = {`onleavevars`}/>}
                     {varlab === `on variable update` && <VarLab object={object} Tile={Tile} voptype= {[`conditions`, `variables`, `functions`]} targetArray = {`onupdatevars`}/>}
+                    {varlab === `transition` &&  selectedTransition.current && <TransitionLab object={object} transition={selectedTransition} Tile={Tile} voptype= {[`conditions`, `variables`]} targetArray = {``}/>}
             </div>
             </div>}
         </div>
     )
 }
 
-
+export function Navbtn({cb,name, key}){
+    return (
+        <div 
+            key ={`jdji8830-d--d:${name}:${key}`}
+            onClick={()=>{cb()}}
+            style={{boxShadow: `0px 0px 24px -4px #0000009e`}}
+            className="onenter text-[.9rem] text-white/70 bg-white/5 capitalize rounded-md  w-full p-2 border border-white/10 flex justify-between items-center">
+                <div className="name">{name}</div>
+        </div>
+    )
+}
 export function FSMInput({cs, setreload}){
     const [value, setValue] = useState(cs.name||'')
     return(

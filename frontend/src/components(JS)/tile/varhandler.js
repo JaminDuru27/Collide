@@ -25,8 +25,8 @@ export function TileVarHandler(Tile){
                 return (type === `boolean` || type === `string`)?[`===`, `!==`]:(type === `number`)?[`===`, `<=`, `>=`, `!==`]:[]
             }
             const getinputType = (get)=>{
-                const type = typeof get() 
-                const yy = (type === `function`)?`button`:(type===`boolean`)?`checkbox`:(type===`string`)?`text`:(`${type[0]}` === `#`)?`color`:type
+                const type = typeof get()  
+                const yy = (type === `function`)?`button`:(type === `object`)?`reference`:(type===`boolean`)?`checkbox`:(type===`string`)?`text`:(`${type[0]}` === `#`)?`color`:type
                 return  yy
             }
             const parseinput= (v,get)=>{

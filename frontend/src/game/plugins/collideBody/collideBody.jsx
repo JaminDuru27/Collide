@@ -50,6 +50,8 @@ export function CollideBody({Scene, Collide, Tile}){
                 }))
             ]
             const data = {
+                title: this.name,
+                referenceShape:this.referenceShape.id,
                 vars: {name: this.name,size: this.size,},
                 shapes
             }
@@ -60,12 +62,18 @@ export function CollideBody({Scene, Collide, Tile}){
             this.targetShape = undefined
             this.name = data.vars.name; this.size = data.vars.size
             data?.shapes.forEach(shapedata=>{
-                const d = this.createPolyBody({geometry: shapedata.geometry,type: shapedata.type})
+                const d = this.createPolyBody({geometry: shapedata.geometry,type: shapedata.type}, this.collisionFolder)
                 for(let x in shapedata){
                     d[x]  = shapedata[x]
                 }
+                if(data.referenceShape.id === shapedata.id)this.referenceShape = data
+                d.id = genId()
+                d.color = getRandomHexColor()
+                d.updateFromMacros()
+                d.rewriteBody()
                 this.shapes.push(d)
             })
+            if(this.setrefresh)this.setrefresh(p=>!p)
         },
         downloaddata(){},
         load(){
@@ -213,7 +221,9 @@ export function CollideBody({Scene, Collide, Tile}){
 
                         if(this.body){
                             Collide.world.destroyBody(this.body)
-                            collisionFolder.destroyFolder(this.bodyFolder)
+
+                            if(collisionFolder)
+                            collisionFolder?.destroyFolder(this.bodyFolder)
                             if(this.referenceShape === data)this.referenceShape = undefined
 
                         }
@@ -235,9 +245,9 @@ export function CollideBody({Scene, Collide, Tile}){
                 },
                 setupFolder: ()=>{
                     data.bodyFolder = this.collisionFolder.createFolder({name:()=>data.name,})
-                    data.macros.forEach(macro=>{
-                        data.bodyFolder.addvar({id: `${(macro.var || macro.name)}${this.name}`,get:()=>macro.value, set:(v)=>{if(!data.delete)macro.value = v;data.updateFromMacros()}, name: ()=>macro.name})
-                    })
+                    // data.macros.forEach(macro=>{
+                    //     data.bodyFolder.addvar({id: `${(macro.var || macro.name)}${this.name}`,get:()=>macro.value, set:(v)=>{if(!data.delete)macro.value = v;data.updateFromMacros()}, name: ()=>macro.name})
+                    // })
                     data.bodyFolder.addvar({id: `${this.name}destroybody`,name:()=>`destroy body`, set:(v)=>{if(!data.delete)data.remove()}, get:()=>()=>{}})
                     data.bodyFolder.addvar({id: `${this.name}sethop`,name: ()=>`set hop`, set:(vv)=>{
                         const v = data.body.getLinearVelocity()
@@ -249,6 +259,21 @@ export function CollideBody({Scene, Collide, Tile}){
                             true
                         )
                     }, get:()=>0})
+                    data.variables = data.bodyFolder.createFolder({name: ()=>`varianles`})
+                    data.variables.addvar({id: `es224posx${this.name}`,name:()=>`position x`,set:(v)=>{}, get:()=>data.body.getPosition,})
+                    data.variables.addvar({id: `es224posy${this.name}`,name:()=>`position x`,set:(v)=>{}, get:()=>data.body.getPosition,})
+                    data.variables.addvar({id: `d3244setangke${this.name}`,name:()=>`angle`,set:(v)=>{if(v)data.body.setAngle(v)}, get:()=>data.body.getAngle,})
+                    data.variables.addvar({id: `d3244setvx${this.name}`,name:()=>`vx`,set:(v)=>{if(v)data.e(v)}, get:()=>data.body.getAngle,})
+                    data.variables.addvar({id: `d3244setvy${this.name}`,name:()=>`vy`,set:(v)=>{if(v)data.body.setAngle(v)}, get:()=>data.body.getAngle,})
+                    data.variables.addvar({id: `24dko9dngetmass${this.name}`,name:()=>`inertia`,set:(v)=>{}, get:()=>data.body.getMass,})
+                    data.variables.addvar({id: `3j0-r39jx302getmass${this.name}`,name:()=>`mass`,set:(v)=>{}, get:()=>data.body.getInertia,})
+                    data.variables.addvar({id: `32rr93j999jdjngetlinearDamping${this.name}`,name:()=>`linearDamping`,set:(v)=>{}, get:()=>data.body.getLinearDamping,})
+                    data.variables.addvar({id: `3j9x9-2jngetAngularDamping${this.name}`,name:()=>`AngularDamping`,set:(v)=>{}, get:()=>data.body.getAngularDamping,})
+                    data.variables.addvar({id: `3j9434jd2jngetgravityscale${this.name}`,name:()=>`gravityscale`,set:(v)=>{}, get:()=>data.body.getGravityScale,})
+                    data.variables.addvar({id: `3jepe00e2jngetawake${this.name}`,name:()=>`awake`,set:(v)=>{}, get:()=>data.body.isAwake,})
+                    data.variables.addvar({id: `44390,ccjj2jngetbullet${this.name}`,name:()=>`bullet`,set:(v)=>{}, get:()=>data.body.isBullet,})
+                    data.variables.addvar({id: `405-.do0d2jngetfixed${this.name}`,name:()=>`fixed rotation`,set:(v)=>{}, get:()=>data.body.isFixedRotation})
+                    data.variables.addvar({id: `405-.do0d2jngetfixed${this.name}`,name:()=>`set type`,set:(v)=>{}, get:()=>data.body.getType,})
                 },
                 remove:()=>{
                     if(data.body){
