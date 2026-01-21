@@ -2,7 +2,7 @@ import { DisposableCanvas } from "../../../utils/disposablecanvas"
 import { genId } from "../../../utils/genid"
 import { CollideFSMUI } from "./collideFSMUI"
 
-export function CollideFSM({Collide, Scene, Tile}){
+export default function CollideFSM({Collide, Scene, Tile}){
     const res  = {
         name: `CollideFSM`,
         toggle: true,
@@ -21,15 +21,13 @@ export function CollideFSM({Collide, Scene, Tile}){
                 id: genId(),
                 priority: 0,
                 name: `States${this.states.length}`,
-                delaybeforentervalue: 100,
-                mintimeinstate: 10,
+                
                 prev(){return undefined},
                 next(){return undefined},
-                shouldEnter(){return false},
+                shouldEnter(){return true},
                 shouldLeave(){return false},
                 isValid(){return this.shouldEnter() && this.transitions.every(t=>t.isValid() === false)},
                 isInValid(){return this.shouldLeave()},
-                transitionDuration: 0,
                 shouldeResetOnLeave:false,
                 shouldeResetOnEnter:false,
                 onentervars:[],
@@ -53,7 +51,7 @@ export function CollideFSM({Collide, Scene, Tile}){
                         data.conditions.push(obj)
 
                         const validcb = this.getCond(data.conditions)
-                        data.isValid = validcb
+                        data.isValid = ()=>{return validcb() &&  this.mintimeinstatetimer >= this.mintimeinstate}
                     }
                     return data
                 },
@@ -95,8 +93,8 @@ export function CollideFSM({Collide, Scene, Tile}){
                         :(conditionobject.condition === `!==`)? conditionobject?.variable?.get() !== conditionobject.value
                         :(conditionobject.condition === `>=`)? conditionobject?.variable?.get() >= conditionobject.value
                         :(conditionobject.condition === `<=`)? conditionobject?.variable?.get() <= conditionobject.value
-                        :()=>false 
-                        if(!conditionobject.shouldRun)current = ()=>false
+                        :()=>true 
+                        if(!conditionobject.shouldRun)current = ()=>true
                         const condition = conditionobject.condition
                         if(index === 0)return current
                         if(conditionobject.operator === `AND`)
@@ -104,7 +102,7 @@ export function CollideFSM({Collide, Scene, Tile}){
                         if(conditionobject.operator === `OR`)
                         return ()=>result() || current()
                         return result
-                    }, ()=>false)
+                    }, ()=>true)
                 },
                 getCond(array = []){
                     return array.reduce((result, cond, index) =>{
@@ -113,7 +111,7 @@ export function CollideFSM({Collide, Scene, Tile}){
                         if(cond?.operator === `AND`)return ()=>result() && current() 
                         if(cond?.operator === `OR`)return ()=>result() && current() 
                         return result
-                    }, ()=>false)
+                    }, ()=>true)
                 },        
                 // addconditions(){},
                 load(){},
@@ -130,25 +128,50 @@ export function CollideFSM({Collide, Scene, Tile}){
                     setreload(p=>!p)
                     this.reset()
                 },
-                delaybeforentertimer: 0,
                 reset(){
-                    this.delaybeforentertimer = 0
+                    this.delaybeforstarttimer = 0
+                    this.mintimeinstatetimer = 0
+                    this.hasEntered = false
                 },
-                update(){
-                    if(this.delaybeforentertimer >= this.delaybeforentervalue){
-                        this.onupdatevars.forEach(v=>{
-                            v.variable.set(v.value)
-                        })
-                        const valids = [...this.transitions.filter(t=>t.isValid()).map(t=>t.getref()?.get())]
-                        const sorted = valids.sort((a, b)=>a.priority - b.priority)
-                        if(sorted){
-                            const highestpriority = sorted[sorted.length -1]
-                            if(highestpriority)
-                            highestpriority.isValid = ()=>true
+                delaybeforstart: 1,
+                mintimeinstate: 1,
+                delaybeforstarttimer: 0,
+                mintimeinstatetimer: 0,
+                hasEntered: false,
+                update:()=>{
+                    if(data.delaybeforstarttimer >= data.delaybeforstart){
+                        if(!data.hasEntered){
+                            data.start()
+                            data.mintimeinstatetimer = 0
+                            data.hasEntered = true
+                        }
+                        
+                        
+                        //if min time in state reached
+                        if(data.mintimeinstatetimer >= data.mintimeinstate){
+                            data.onupdatevars.forEach(v=>{
+                                v.variable.set(v.value)
+                            })
+                            const valids = [...data.transitions.filter(t=>t.isValid()).map(t=>t.getref()?.get())]
+                            // const sorted = valids.sort((a, b)=>a.priority - b.priority)
+                            if(valids?.length){
+                                const state = valids[0]
+                                // console.log(`switching to ${state.name}, ${state.isValid()}`)
+                                if(state.isValid()){
+                                    console.log(state.isValid(), state.name)
+                                    if(this.state){this.state.end(); this.state.reset()}
+                                    this.state = state
+                                    this.state.reset()
+                                    if(this.setreload)this.setreload(p=>!p)
+                                }
+                            }
+                        }else {
+                            if(data.mintimeinstatetimer < data.mintimeinstate + 1)
+                            data.mintimeinstatetimer ++ 
                         }
                     }else {
-                        if(this.delaybeforentertimer < this.delaybeforentervalue + 1)
-                        this.delaybeforentertimer ++
+                        if(data.delaybeforstarttimer < data.delaybeforstart + 1)
+                        data.delaybeforstarttimer ++
                     }
                     
                 },
@@ -183,43 +206,15 @@ export function CollideFSM({Collide, Scene, Tile}){
         mintimeinstate : 10,
         render(){
             if(!this.toggle)return
-            this.states.forEach(state=>{
-                if(state.isValid() && !state.running){
-                    if(!this.currentValidState || this.currentValidState?.priority <= state.priority){
-                        state.running = true
-                        state.start()
-                        this.currentValidState = state
-                        this.mintimeinstatetimer = 0
-                        this.mintimeinstate = state.mintimeinstate
-                        console.log(`switch states prev ${this.currentValidState?.priority} current ${state.priority}`)
-                    }
-                } else if((!state.isValid() || state.isInValid()) && state.running){
-                    if(this.mintimeinstatetimer >= this.mintimeinstate){
-                        state.end()
-                        state.running = false
-                        this.currentValidState = undefined
-                        console.log(`end`)
-                    }
-                    else {
-                        this.mintimeinstatetimer ++
-                        console.log(`countdown to end `)
-                    }
-                }
-                if(this.currentValidState){
-                    this.currentValidState.update()
-                }
-            })
+            if(!this.state && this.states.length === 1){
+                this.state = this.states[0]
+                this.state.isValid = ()=>true
+                this.state.reset()
+            }
+            if(this.state)
+            this?.state?.update()
         },
     }
     res.load()
     return res
 }
-
-CollideFSM.prototype.info =()=> ({
-    name: `CollideFSM`,
-    thumbnailSource: `/plugins/collidefsmthumb.png`,
-    descr: 'Finite State Machine For Creating Character and Game States',
-    id: `2038i3038hc-=ma'di32ddjdi/Colllide-1122334455`,//id is id/enfineid for verification 
-    type: `both`,
-    genre: `All`,
-})

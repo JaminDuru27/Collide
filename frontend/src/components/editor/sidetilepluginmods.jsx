@@ -3,10 +3,13 @@ import { useEffect } from "react";
 import { useRef } from "react";
 import { useState } from "react"
 import { BiSolidLeftArrow } from "react-icons/bi";
+import { BsBoxArrowInDown, BsBoxArrowInUp } from "react-icons/bs";
 import { MdDelete } from "react-icons/md";
 
 export function SideTilePluginMods({collide, setcontextobject}){
     const [toggle, setToggle] = useState(false)
+    const [setrefresh, setRefresh] = useState(false)
+
     const canvasref = useRef(null)
     useEffect(()=>{
         const t = setTimeout(()=>{
@@ -67,17 +70,17 @@ export function SideTilePluginMods({collide, setcontextobject}){
             {(collide[`current`]?.tileReference?.tile)?
             (
                 <>
-                <Section name={`plugins`} onclick={(plugin)=>{
+                <Section setRefresh={setRefresh} setcontextobject = {setcontextobject} name={`plugins`} onclick={(plugin)=>{
                     collide[`current`].pluginsmodshandler.openPlugin(plugin)
                 }} array={collide[`current`]?.tileReference?.tile?.plugins}/>
-                <Section name={`mods`} onclick={()=>{}} array={collide[`current`]?.tileReference?.tile?.mods}/>
+                <Section setRefresh={setRefresh} setcontextobject={setcontextobject} name={`mods`} onclick={()=>{}} array={collide[`current`]?.tileReference?.tile?.mods}/>
                 </>
             ):<div className='text-center  w-full opacity-[.5]'>Select a Tile</div>}
             
         </motion.div>
     )
 }
-function Section({name, array, onclick}){
+function Section({name, array, setRefresh, onclick, setcontextobject}){
     return (
         <>
         <h1 className="plugins text-[.7rem] mb-2 capitalize">{name}</h1>
@@ -86,8 +89,38 @@ function Section({name, array, onclick}){
                 const info = plugin?.info
                 return (
                     <div 
+                    onMouseDown={(e)=>{
+                        if(e.button === 0){onclick(plugin, array,name)}
+                        if(e.button === 2){
+                            setcontextobject({
+                                pos:{x: e?.clientX + 2 , y: (e?.clientY + 2 )},
+                                [`scene`]:[
+                                    {   
+                                        element: MdDelete,
+                                        name: `delete plugin`,
+                                        cb:()=>{
+                                            plugin.remove()
+                                            setRefresh(p=>!p)
+                                        }
+                                    },
+                                    {   
+                                        element: BsBoxArrowInDown,
+                                        name: `move down`,
+                                        cb:()=>{
+                                        }
+                                    },
+                                    {   
+                                        element: BsBoxArrowInUp,
+                                        name: `move up`,
+                                        cb:()=>{
+                                        }
+                                    },
+                                ],
+                                })}
+
+                    }}
                     title = {info.name}
-                    onClick={()=>{onclick(plugin, array,name)}}
+
                     key={`plmods-${x}`}
                     style={{backgroundImage: `url(${info.thumbnailSource})`, textOverflow: `ellipsis`}}
                     className="black shrink-0 text-ellipsis cursor-pointer  relative overflow-hidden w-full gap-2 border bg-repeat[no-repeat] flex justify-start items-center border-white/20 rounded px-2 py-2">

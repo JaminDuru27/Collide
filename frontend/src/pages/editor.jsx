@@ -62,7 +62,24 @@ export function Editor(){
                         collide[`current`].scenes.currentLocker.unlockallscenes()
                     }
                 },
+            ],
+            [`add`]:[
+                {   
+                    element: PiPlugsFill,
+                    name: `add environment plugins`,
+                    cb:()=>{
+                        collide[`current`].scenes.currentLocker.addplugin()
+                    }
+                },
+                {   
+                    element: HiViewGridAdd,
+                    name: `add environment mods`,
+                    cb:()=>{
+                        collide[`current`].scenes.currentLocker.addmod()
+                    }
+                },
             ]
+
     })}
     
     
@@ -166,4 +183,6 @@ import { Intro } from "../components/intro";
 import { PluginModWindow } from "../components/editor/pluginmodwindow";
 import { SideTilePluginMods } from "../components/editor/sidetilepluginmods";
 import { VarHandler } from "../components/editor/varHandler";
+import { PiPlugsFill } from "react-icons/pi";
+import { HiViewGridAdd } from "react-icons/hi";
 

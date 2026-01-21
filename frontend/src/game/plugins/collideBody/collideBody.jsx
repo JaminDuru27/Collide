@@ -3,7 +3,7 @@ import { genId } from "../../../utils/genid"
 import { getRandomHexColor } from "../../../utils/randomcolor"
 import { CollideBodyUI } from "./collideBodyUI"
 
-export function CollideBody({Scene, Collide, Tile}){
+export default function CollideBody({Scene, Collide, Tile}){
     const res = {
         name:`CollideBody`,
         mode: undefined,
@@ -19,6 +19,7 @@ export function CollideBody({Scene, Collide, Tile}){
             Tile.collisionplugin = undefined
             Tile.plugins.splice(Tile.plugins.indexOf(this), 1)
             this.shapes.forEach(shape=>{
+                console.log(shape)
                 if(shape.body){
                     Collide.world.destroyBody(shape.body)
                 }
@@ -179,19 +180,15 @@ export function CollideBody({Scene, Collide, Tile}){
                         this.mode = `rotation`
                     }},
                 ],
+                
                 updateFromMacros(){
+                    const bs = this.bs()
                     this.macros.forEach(m=>{
                         if(m.var === `title`){this.name = m.value}
                         if(m.var === `color`){this.color = m.value}
-                        if(m.var === `restitution`){this.body?.getFixtureList().setRestitution(m.value)}
-                        if(m.var === `restitution`){this.body?.getFixtureList().setRestitution(m.value)}
-                        if(m.var === `friction`){this.body?.getFixtureList().setFriction(m.value)}
-                        if(m.var === `frictionAir`){this.body?.setLinearDamping(m.value)}
-                        if(m.var === `angle`){this.body?.setAngle(m.value * Math.PI / 180)}
-                        if(m.var === `angleDamping`){this.body?.setAngularDamping(m.value)}
-                        if(m.var === `gravityScale`){this.body?.setGravityScale(m.value)}
-                        if(m.var === `bullet`){this.body?.setBullet(m.value)}
-                        if(m.var === `isSensor`){console.log(m.value);this.body?.getFixtureList().setSensor(m.value)}
+                        if(bs[m]){
+                            bs[m].set(v)
+                        }
                     })
                 },
                 rewriteBody(){
@@ -243,6 +240,30 @@ export function CollideBody({Scene, Collide, Tile}){
                     }
                     cb()
                 },
+                bs(){
+                    return {
+                        'x': {set:(v)=>{this.body.setPosition(Collide.pl.Vec2(Collide.pxtom(v), this.body.getPosition().y))}, get:()=>Collide.mtopx(this.body.getPosition().x)},
+                        'y': {set:(v)=>{this.body.setPosition(Collide.pl.Vec2(this.body.getPosition().x, Collide.pxtom(v)))}, get:()=>Collide.mtopx(this.body.getPosition().y)},
+                        'vx': {set:(v)=>{this.body.setLinearVelocity(Collide.pl.Vec2(v, this.body.getLinearVelocity().y))}, get:()=>this.body.getLinearVelocity().x},
+                        'vy': {set:(v)=>{this.body.setLinearVelocity(Collide.pl.Vec2(this.body.getLinearVelocity().x, v))}, get:()=>this.body.getLinearVelocity().y},
+                        'restitution': {set:(v)=>{this.body?.getFixtureList().setRestitution(v)}, get:()=>this.body?.getFixtureList().getRestitution()},
+                        'friction': {set:(v)=>{this.body?.getFixtureList().setFriction(v);this.body.setAwake(true)}, get:()=>this.body?.getFixtureList().getFriction()},
+                        'angle': {set:(v)=>{this.body?.setAngle(v * Math.PI / 180)}, get:()=>this.body.getAngle()},
+                        'gravityScale': {set:(v)=>{this.body?.setGravityScale(v)}, get:()=>this.body.getGravityScale()},
+                        'bullet': {set:(v)=>{this.body?.setBullet(v)}, get:()=>this.body.isBullet()},
+                        'isSensor': {set:(v)=>{this.body?.getFixtureList().setSensor(m.value)}, get:()=>this.body?.getFixtureList().isSensor()},
+                        'mass': {set:(v)=>{}, get:()=>this.body.getMass()},
+                        'inertia': {set:(v)=>{}, get:()=>this.body.getInertia()},
+                        'linearDamping': {set:(v)=>{this.body.setLinearDamping(v)}, get:()=>this.body.getLinearDamping()},
+                        'angleDamping': {set:(v)=>{this.body.setAngularDamping(v)}, get:()=>this.body.getAngularDamping()},
+                        'angularVelocity': {set:(v)=>{this.body.setAngularVelocity(v)}, get:()=>this.body.getAngularVelocity()},
+                        'torque': {set:(v)=>{this.body.applyTorque(v, true); this.body.setAwake(true)}, get:()=>0},
+                        'awake': {set:(v)=>{this.body.setAwake(v)}, get:()=>this.body.isAwake()},
+                        'fixedRotation': {set:(v)=>{this.body.setFixedRotation(v);this.body.setAngularVelocity(0);this.body.setTorque(0);this.body.setAwake(true)}, get:()=>this.body.isFixedRotation()},
+                        'type': {set:(v)=>{this.body.setType(v)}, get:()=>this.body.getType()},
+
+                    }
+                },
                 setupFolder: ()=>{
                     data.bodyFolder = this.collisionFolder.createFolder({name:()=>data.name,})
                     // data.macros.forEach(macro=>{
@@ -259,21 +280,23 @@ export function CollideBody({Scene, Collide, Tile}){
                             true
                         )
                     }, get:()=>0})
-                    data.variables = data.bodyFolder.createFolder({name: ()=>`varianles`})
-                    data.variables.addvar({id: `es224posx${this.name}`,name:()=>`position x`,set:(v)=>{}, get:()=>data.body.getPosition,})
-                    data.variables.addvar({id: `es224posy${this.name}`,name:()=>`position x`,set:(v)=>{}, get:()=>data.body.getPosition,})
-                    data.variables.addvar({id: `d3244setangke${this.name}`,name:()=>`angle`,set:(v)=>{if(v)data.body.setAngle(v)}, get:()=>data.body.getAngle,})
-                    data.variables.addvar({id: `d3244setvx${this.name}`,name:()=>`vx`,set:(v)=>{if(v)data.e(v)}, get:()=>data.body.getAngle,})
-                    data.variables.addvar({id: `d3244setvy${this.name}`,name:()=>`vy`,set:(v)=>{if(v)data.body.setAngle(v)}, get:()=>data.body.getAngle,})
-                    data.variables.addvar({id: `24dko9dngetmass${this.name}`,name:()=>`inertia`,set:(v)=>{}, get:()=>data.body.getMass,})
-                    data.variables.addvar({id: `3j0-r39jx302getmass${this.name}`,name:()=>`mass`,set:(v)=>{}, get:()=>data.body.getInertia,})
-                    data.variables.addvar({id: `32rr93j999jdjngetlinearDamping${this.name}`,name:()=>`linearDamping`,set:(v)=>{}, get:()=>data.body.getLinearDamping,})
-                    data.variables.addvar({id: `3j9x9-2jngetAngularDamping${this.name}`,name:()=>`AngularDamping`,set:(v)=>{}, get:()=>data.body.getAngularDamping,})
-                    data.variables.addvar({id: `3j9434jd2jngetgravityscale${this.name}`,name:()=>`gravityscale`,set:(v)=>{}, get:()=>data.body.getGravityScale,})
-                    data.variables.addvar({id: `3jepe00e2jngetawake${this.name}`,name:()=>`awake`,set:(v)=>{}, get:()=>data.body.isAwake,})
-                    data.variables.addvar({id: `44390,ccjj2jngetbullet${this.name}`,name:()=>`bullet`,set:(v)=>{}, get:()=>data.body.isBullet,})
-                    data.variables.addvar({id: `405-.do0d2jngetfixed${this.name}`,name:()=>`fixed rotation`,set:(v)=>{}, get:()=>data.body.isFixedRotation})
-                    data.variables.addvar({id: `405-.do0d2jngetfixed${this.name}`,name:()=>`set type`,set:(v)=>{}, get:()=>data.body.getType,})
+                    const bs = data.bs()
+                    data.variables = data.bodyFolder.createFolder({name: ()=>`variables`})
+                   
+                    data.variables.addvar({id: `es224posx${this.name}`,name:()=>`position x`,set:(v)=>{bs.x.set(v)}, get:()=>bs.x.get()})
+                    data.variables.addvar({id: `es224posy${this.name}`,name:()=>`position y`,set:(v)=>{bs.y.set(v)}, get:()=>bs.y.get(),})
+                    data.variables.addvar({id: `d3244setangke${this.name}`,name:()=>`angle`,set:(v)=>{bs.angle.set(v)}, get:()=>bs.angle.get()})
+                    data.variables.addvar({id: `d3244setvx${this.name}`,name:()=>`vx`,set:(v)=>{bs.vx.set(v)}, get:()=>bs.vx.get()})
+                    data.variables.addvar({id: `d3244setvy${this.name}`,name:()=>`vy`,set:(v)=>{bs.vy.set(v)}, get:()=>bs.vy.get()})
+                    data.variables.addvar({id: `24dko9dngetmass${this.name}`,name:()=>`inertia`,set:(v)=>{bs.mass.set(v)}, get:()=>bs.mass.get(),})
+                    data.variables.addvar({id: `3j0-r39jx302getmass${this.name}`,name:()=>`mass`,set:(v)=>{bs.inertia.set(v)}, get:()=>bs.inertia.get(),})
+                    data.variables.addvar({id: `32rr93j999jdjngetlinearDamping${this.name}`,name:()=>`linearDamping`,set:(v)=>{bs.linearDamping(v).set(v)}, get:()=>bs.linearDamping.get(),})
+                    data.variables.addvar({id: `3j9x9-2jngetAngularDamping${this.name}`,name:()=>`AngularDamping`,set:(v)=>{bs.angleDamping.set(v)}, get:()=>bs.angleDamping.get(),})
+                    data.variables.addvar({id: `3j9434jd2jngetgravityscale${this.name}`,name:()=>`gravityscale`,set:(v)=>{bs.gravityScale.set(v)}, get:()=>bs.gravityScale.get(),})
+                    data.variables.addvar({id: `3jepe00e2jngetawake${this.name}`,name:()=>`awake`,set:(v)=>{bs.awake.set(v)}, get:()=>bs.awake.get(),})
+                    data.variables.addvar({id: `44390,ccjj2jngetbullet${this.name}`,name:()=>`bullet`,set:(v)=>{bs.bullet.set(v)}, get:()=>bs.bullet.get(),})
+                    data.variables.addvar({id: `405-.do0d2jngetfixed${this.name}`,name:()=>`fixed rotation`,set:(v)=>{bs.fixedRotation.set(v)}, get:()=>bs.fixedRotation.get()})
+                    data.variables.addvar({id: `405-.do0d2jngetfixed${this.name}`,name:()=>`set type`,set:(v)=>{bs.type.set(v)}, get:()=>bs.type.get()})
                 },
                 remove:()=>{
                     if(data.body){
@@ -306,7 +329,7 @@ export function CollideBody({Scene, Collide, Tile}){
                     data.color = data.macros.find(e=>e.name === `display color`)?.value
                     if(data?.body?.info)
                     data.body.info.color = data?.color
-                    if(this.hidden && Tile.sprite)data.info.color =`tranparent`
+                    if(this.hidden && Tile.sprite)data.body.info.color =`tranparent`
                 },
             }
             return data
@@ -546,11 +569,3 @@ export function CollideBody({Scene, Collide, Tile}){
     res.load()
     return res
 }
-CollideBody.prototype.info = ()=> ({
-    name: `CollideBody`,
-    thumbnailSource: `/plugins/collidebodythumb.png`,
-    descr: 'Bring Characters into the world with this exciting plugin',
-    id: `9392hdd-12288dhw8dpdq/Collide-1122334455`,//id is id/enfineid for verification 
-    type: `tile`,
-    genre: `All`
-})

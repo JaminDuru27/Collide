@@ -7,7 +7,7 @@ import { CollisionBodyFactory } from "./canvas/collisionbodyfactory"
 import { Highlight } from "./canvas/highlight"
 import { Images } from "./canvas/images"
 import { Mouse } from "./canvas/mouse"
-import { pluginsModsFinder } from "./canvas/pluginsModsFinder"
+import { pluginsModsFinder } from "./canvas/pluginsModsFinder.jsx"
 import { State } from "./canvas/savestate"
 import { Scenes } from "./canvas/scenes"
 import { Select } from "./canvas/select"
@@ -25,6 +25,7 @@ export function Collide(canvasRef,gets, info, sets){
         engineid: `Collide-1122334455`,
         id: `Collide-${info.projectid}`,
         scale: 20,
+        collisionsHidden: false,
         sx: 1, sy: 1,
         tx: 0, ty: 0,
         pl: null,
@@ -123,7 +124,7 @@ export function Collide(canvasRef,gets, info, sets){
         },
         loadPlugins(genre = `All`){
             this.pluginsmodspreset = PluginsModsPreset()
-            this.pluginsmodshandler = pluginsModsFinder(sets).loadplugins(genre) 
+            this.pluginsmodshandler = pluginsModsFinder(sets).load(genre) 
         },
         loadElements(){
             this.getCanvas()
@@ -210,7 +211,7 @@ export function Collide(canvasRef,gets, info, sets){
             this.ctx.save()
             this.ctx.translate(this.mtopx(pos.x), -this.mtopx(pos.y) )
             this.ctx.rotate(-angle)
-            this.ctx.strokeStyle = '#fff'
+            this.ctx.strokeStyle = !this.collisionsHidden?'#fff': `transparent`
             this.ctx.lineWidth = 2
             if(shapeType === 'polygon' || shapeType === this.pl.Shape.Type.POLYGON){
                 // Polygon fixture: convert local vertices to world coordinates
@@ -230,7 +231,8 @@ export function Collide(canvasRef,gets, info, sets){
                     this.ctx.globalAlpha = 0.4;this.ctx.stroke()
                     
                     const color = body?.info?.hidden?`transparent`:body?.info?.color || 'rgba(255,255,255,1)'
-                    this.ctx.globalAlpha = 0.3;this.ctx.fillStyle = color
+                    
+                    this.ctx.globalAlpha = 0.3;this.ctx.fillStyle = (!this.collisionsHidden)?color:`transparent`
                     this.ctx.fill()
                     this.ctx.globalAlpha = 1
                 }

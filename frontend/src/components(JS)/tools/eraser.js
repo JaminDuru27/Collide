@@ -13,7 +13,9 @@ export function Eraser(Collide){
                 const m = Collide.mouse
                 layer[`tiles`].map(tile=>{
                     if(
-                        tile.onHover()
+                        tile.onHover() &&
+                        tile.plugins.length <=0 &&
+                        tile.mods.length <= 0
                     ){
                         tile.remove() 
                         layer.target = undefined

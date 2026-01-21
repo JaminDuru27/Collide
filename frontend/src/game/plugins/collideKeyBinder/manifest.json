@@ -1,0 +1,37 @@
+{
+    "meta": {
+        "name": "CollideKeyBinder",
+        "thumbnailSource": "/plugins/collidekeybinderthumb.png",
+        "descr": "Finite State Machine For Creating Character and Game States",
+        "id": "9938888jjciippeqomx9-3=ma32ddjdi/Colllide-1122334455",
+        "type": "both",
+        "genre": "All",
+        "version": "1.0.0"
+    },
+    "entry":{
+        "main": "collideKeyBinder.jsx"
+    },
+    "install":{
+        "method": "copy",
+        "target": "plugins",
+        "files":[
+            "./dist",
+            "./assets",
+            "./manifests.json"
+        ],
+        "posgInstall":[
+            "registerPlugin",
+            "clearCache"
+        ]
+    },
+    "compatibity":{
+        "engine": "collide",
+        "engineId": "Collide-1122334455",
+        "platforms": ["windows", "mac", "lunux"]
+    },
+    "permissions":{
+        "filesystem": false,
+        "network": false,
+        "input": true
+    }
+}

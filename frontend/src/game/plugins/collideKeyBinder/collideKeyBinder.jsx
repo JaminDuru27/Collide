@@ -2,7 +2,7 @@ import { DisposableCanvas } from "../../../utils/disposablecanvas"
 import { genId } from "../../../utils/genid"
 import { CollideKeyBinderUI } from "./collideKeyBinderUI"
 
-export function CollideKeyBinder({Collide, Scene, Tile}){
+export default function CollideKeyBinder({Collide, Scene, Tile}){
     const res  = {
         name: `CollideKeyBinder`,
         toggle: true,
@@ -66,8 +66,11 @@ export function CollideKeyBinder({Collide, Scene, Tile}){
             const key = e.key.toLocaleLowerCase()
             this.addinputkeys(key)
             this.binds.forEach(bind=>{
-                if(bind.isvalid(this.inputs) && !bind.called){
+                if(bind.isvalid(this.inputs) ){
+                    if(!bind.called)
                     bind.varsdown.forEach(v=>{v.variable.set(v.value)})
+                    bind.varshold.forEach(v=>{v.variable.set(v.value)})
+                    
                     bind.called = true
                 }
             })
@@ -80,7 +83,7 @@ export function CollideKeyBinder({Collide, Scene, Tile}){
         windowsupevent(e){
             if(!this.toggle)return
             this.binds.forEach(bind=>{
-                if(bind.isnotvalid(this.inputs)){
+                if(!bind.isvalid(this.inputs)){
                     bind.varsup.forEach(v=>{v.variable.set(v.value)})
                 }
                 console.log(bind.isnotvalid(), `bind is not valid`)
@@ -103,10 +106,16 @@ export function CollideKeyBinder({Collide, Scene, Tile}){
             const data  = {
                 name,
                 keys: [],
+                varshold:[],
                 varsdown: [],
                 varsup: [],
                 isvalid(){return false},
                 isnotvalid(){return true},
+                addvarhold(){
+                    const obj = {variable: undefined, value: undefined} 
+                    obj.delete = ()=>{console.log(this.varsdown.indexOf(obj));this.varsdown  = this.varsdown.filter(v=>v!==obj)}
+                    this.varshold.push(obj)
+                },
                 addvardown(){
                     const obj = {variable: undefined, value: undefined} 
                     obj.delete = ()=>{console.log(this.varsdown.indexOf(obj));this.varsdown  = this.varsdown.filter(v=>v!==obj)}
@@ -141,12 +150,3 @@ export function CollideKeyBinder({Collide, Scene, Tile}){
     res.load()
     return res
 }
-
-CollideKeyBinder.prototype.info =()=> ({
-    name: `CollideKeyBinder`,
-    thumbnailSource: `/plugins/collidekeybinderthumb.png`,
-    descr: 'Finite State Machine For Creating Character and Game States',
-    id: `9938888jjciippeqomx9-3=ma32ddjdi/Colllide-1122334455`,//id is id/enfineid for verification 
-    type: `both`,
-    genre: `All`,
-})

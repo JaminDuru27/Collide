@@ -6,6 +6,8 @@ export function SceneLocker(name, Collide, Scenes, sets,gets){
         name,
         id: `scene`+ genId(),
         scenes : [],
+        plugins : [],
+        mods : [],
         showplacement: false,
         add(scene = Scene(`Scene ${this.scenes.length + 1}`, Collide, sets,gets), tagnew = true){
             this.scenes.push(scene)
@@ -13,6 +15,48 @@ export function SceneLocker(name, Collide, Scenes, sets,gets){
             this.currentScene = scene
             return scene
         },
+        addplugin(){
+            sets.setpluginmodcb(p=>({cb:(info)=>{
+                const func = Collide.pluginsmodshandler.getPlugin(info, `environment`)
+                if(!func)return
+                const object = func(Collide,this)
+                if(!object.requirements)object.requirements = ()=> true
+                if(object?.requirements() === true){
+                    object.info = func.prototype.info()
+                    this.plugins.push(object)
+                    const l = this.plugins.filter(p=>p.info.id === object.info.id)?.length
+                    if(l > 1){object.name = `${object.name} #${l -1}`; object.info.name = `${object.info.name} #${l -1}` }
+                    Collide.pluginsmodshandler.openPlugin(object)
+                    return object
+            
+                }else {
+                    Collide.setMessage({type:`message`, flag:`warning`, message: object.requiredMessage})
+                    this.plugins.forEach(p=>{if(p === object)this.plugins = this.plugins.filter(e=>e !== p)})
+                    object = null
+                }
+            }, type:`environment`}))
+        },
+        addmod(){
+            sets.setpluginmodcb(p=>({cb:(info)=>{
+                const func = Collide.pluginsmodshandler.getPlugin(info, `environment`)
+                if(!func)return
+                const object = func(Collide,this)
+                if(!object.requirements)object.requirements = ()=> true
+                if(object?.requirements() === true){
+                    object.info = func.prototype.info()
+                    this.mods.push(object)
+                    const l = this.mods.filter(p=>p.info.id === object.info.id)?.length
+                    if(l > 1){object.name = `${object.name} #${l -1}`; object.info.name = `${object.info.name} #${l -1}` }
+                    Collide.pluginsmodshandler.openPlugin(object)
+                    return object
+            
+                }else {
+                    Collide.setMessage({type:`message`, flag:`warning`, message: object.requiredMessage})
+                    this.mods.forEach(p=>{if(p === object)this.mods = this.mods.filter(e=>e !== p)})
+                    object = null
+                }
+            }, type:`environment`}))
+        },      
         unlockallscenes(){this.scenes.map(scene=>scene.locked = false)},
         targetScene(id){
             console.log(id)

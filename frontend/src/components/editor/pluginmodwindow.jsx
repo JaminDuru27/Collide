@@ -30,7 +30,7 @@ export function PluginModWindow({collide, editorref}){
     if(!c)return <></>
     return (
         <>
-        {c.pluginsmodshandler?.currentPlugin && (
+        {c.pluginsmodshandler?.current && (
             <motion.div 
             ref={editorref}
             drag
@@ -46,19 +46,19 @@ export function PluginModWindow({collide, editorref}){
             onPointerDown={(e)=>{dragControls.start(e)}}
             onPointerUp={(e)=>{dragControls.stop()}}
             className="nav gap-2 w-full p-2 bg-black/20 h-fit p-2 flex justify-between items-center">
-                {(c.pluginsmodshandler?.currentPlugin?.info?.thumbnailSource) && (
+                {(c.pluginsmodshandler?.current?.info?.thumbnailSource) && (
                     <div className="flex justify-center mr-10 items-center gap-4">
                         <img 
                         onClick={()=>{setShowWindowOptions(p=>!p)}}
                         className="w-5 h-5 outline-2 rounded outline-white/30 outline-offset-2 cursor-pointer"
-                        src={c.pluginsmodshandler?.currentPlugin?.info?.thumbnailSource}/>
-                        <div className="text-[.7rem]">{c.pluginsmodshandler?.currentPlugin?.info?.name}</div>
+                        src={c.pluginsmodshandler?.current?.info?.thumbnailSource}/>
+                        <div className="text-[.7rem]">{c.pluginsmodshandler?.current?.info?.name}</div>
                     </div>
                 )}
                 <div className="wrap flex gap-2  ">
                     <div 
                         onClick={()=>{
-                            const p =c.pluginsmodshandler?.currentPlugin
+                            const p =c.pluginsmodshandler?.current
                             if(full)
                             if(p?.minimize)p.minimize()      
                             if(!full)
@@ -83,7 +83,7 @@ export function PluginModWindow({collide, editorref}){
             <motion.div 
             animate={(!full)?{height: `0px`, display:`none`}:{height:`93%`, display:`block`}}
             className="content relative w-full h-[93%]">
-            {[c.pluginsmodshandler?.currentPlugin].map((e)=>{
+            {[c.pluginsmodshandler?.current].map((e)=>{
                 const UI = e.ui
                 return UI
             })}
@@ -95,13 +95,13 @@ export function PluginModWindow({collide, editorref}){
                 collide={collide}
                 />
             )}
-            {!c.pluginsmodshandler?.currentPlugin?.toggle && (
+            {!c.pluginsmodshandler?.current?.toggle && (
                 <div className="w-full h-full bg-black/80 backdrop-blur-2xl flex justify-center items-center absolute top-0 left-0">
                     <div className="flex justify-between items-center gap-4 flex-col">
                         <div className="text-6xl absolute top-10 left-1/2 translate-x-[-50%] capitalize opacity-[.1]">Turned Off</div>
                         <div
                         onClick={()=>{
-                            const p = c.pluginsmodshandler?.currentPlugin
+                            const p = c.pluginsmodshandler?.current
                             if(p) p.toggle = !p.toggle
                             setreload(p=>!p)
                         }}
@@ -127,7 +127,7 @@ export function PluginModWindow({collide, editorref}){
 }
 export function PresetList({collide, setshowpresetlist}){
     const currentp = ()=>{
-        return collide[`current`].pluginsmodshandler?.currentPlugin
+        return collide[`current`].pluginsmodshandler?.current
     }
     return (
         <div className="w-full h-full p-4 bg-black z-20 absolute top-0 left-0">
@@ -159,7 +159,7 @@ export function PresetList({collide, setshowpresetlist}){
 export function WindowOptions({setshowpresetlist,setShowWindowOptions, collide}){
     const [toggle, setToggle] = useState(false)
     const currentp = ()=>{
-        return collide[`current`].pluginsmodshandler?.currentPlugin
+        return collide[`current`].pluginsmodshandler?.current
     }
     const options =[
         

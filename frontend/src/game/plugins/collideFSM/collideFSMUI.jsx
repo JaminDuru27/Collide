@@ -13,6 +13,7 @@ export function CollideFSMUI({object, Tile}){
     const [reload, setreload] = useState(false)
     const [varlab, setvarlab] = useState(null)
     const selectedTransition = useRef(null)
+    object.setreload  = setreload
     const condsbtns =[
         {name: `on enter`, v:`on enter conditions`, voptype: [`conditions`, `variables`]},
         {name: `on leave`, v: `on leave conditions`, voptype: [`conditions`, `variables`]}
@@ -27,7 +28,7 @@ export function CollideFSMUI({object, Tile}){
             <motion.div 
             animate={(object.currentState)?{translateX:`0`}:{translateX:`-100%`}}
             style = {{background: `linear-gradient(128deg, #090b1b 12%, #222068 91%)`}}
-            className="sidebar w-1/4 h-fill overflow-y-auto scrolly flex flex-col justify-start gap-8 items-start p-2 bg-black/30 backdrop-blur-2xl absolute top-0 left-0 border border-white/30 rounded  h-full">
+            className="sidebar w-1/4 h-fill overflow-y-auto scrolly z-10 backdrop-blur-2xl flex flex-col justify-start gap-8 items-start p-2 bg-black/30 backdrop-blur-2xl absolute top-0 left-0 border border-white/30 rounded  h-full">
                  <div className="title w-full border-b px-2 uppercase opacity-[.7] border-white/40 py-2 text-bold text-[.8rem]">Conditions</div>
                 {condsbtns.map(({v, name}, key)=>{
                     return (
@@ -39,15 +40,14 @@ export function CollideFSMUI({object, Tile}){
                     return (
                         <Navbtn name={name} cb={()=>{setvarlab(v)}} key={key} />
                     )
-                })}
+                })} 
                 <div className="title w-full border-b px-2 uppercase opacity-[.7] border-white/40 py-2 text-bold text-[.8rem]">Transitions</div>
                 <div className="transitions p-2 border w-full flex justify-star items-start gap-2 flex-col border-white/20 rounded-2xl">
                     {(object?.currentState?.transitions || []).map((t, k)=>{
-
-                        const getref = ()=>Tile?.varHandler?.getvar(selectedTransition[`current`]?.ref?.id)
+                        const getref = ()=>Tile?.varHandler?.getvar(t?.ref?.id)
                         const name = getref()?.get()?.name
                         return (
-                            <Navbtn name={name?`${name} transition`:`Enter Transition`} cb={()=>{selectedTransition[`current`] = t;setvarlab(`transition`)}} key={`dkidk8339002${k}`} />
+                            <Navbtn name={name?`${name} transition`:`Enter Transition`} delcb={()=>{t.remove(); setreload(p=>!p)}} cb={()=>{selectedTransition[`current`] = t;setvarlab(`transition`)}} key={`dkidk8339002${k}`} />
                         )
                     })}
                 </div>
@@ -55,10 +55,17 @@ export function CollideFSMUI({object, Tile}){
                     object.currentState.addNewTransition()
                     setreload(p=>!p)
                 }} key={`k99j92`} />
-
+                <div className="title w-full border-b px-2 uppercase opacity-[.7] border-white/40 py-2 text-bold text-[.8rem]">Values</div>
+                {object.currentState && (
+                    <>
+                    <MInput name={`min time in state`} state={object.currentState} v={'mintimeinstate'}/>
+                    <MInput name={`min time before start`} state={object.currentState} v={'delaybeforstart'}/>
+                    <MInput name={`priority`} state={object.currentState} v={'priority'}/>
+                    </>
+                )}
             </motion.div>
             <div className="main w-full h-full">
-                <div className="content flex justify-center w-full h-full items-center gap-5">{
+                <div className="content flex flex-wrap gap-4 justify-center w-full h-full items-center gap-5">{
                 (object.states || []).map((state, k)=>{
                     return (
                         <State state={state} setreload={setreload} object= {object} key={k}></State>
@@ -92,15 +99,25 @@ export function CollideFSMUI({object, Tile}){
         </div>
     )
 }
+export function MInput({name, state, v}){
+    const [value, setValue] = useState(state[v])
+    return (
+        <div className="flex flex-col gap-2 justify-start items-center border-rounded p-2 text-[.7rem] capitalize ">
+            <div className="">{name}</div>
+            <input type="number" value={value} onChange= {(e)=>{setValue(+(e.target.value));state[v]= +(e.target.value)}} className="rounded-md p-2 text-[.7rem] w-full border border-white/30 " />
+        </div>
+    )
+}
 
-export function Navbtn({cb,name, key}){
+export function Navbtn({cb,name, delcb, key}){
     return (
         <div 
             key ={`jdji8830-d--d:${name}:${key}`}
             onClick={()=>{cb()}}
             style={{boxShadow: `0px 0px 24px -4px #0000009e`}}
-            className="onenter text-[.9rem] text-white/70 bg-white/5 capitalize rounded-md  w-full p-2 border border-white/10 flex justify-between items-center">
+            className="onenter flex justify-between items-center text-[.9rem] text-white/70 bg-white/5 capitalize rounded-md  w-full p-2 border border-white/10 flex justify-between items-center">
                 <div className="name">{name}</div>
+                {delcb && <MdDelete onClick={()=>{delcb()}} className={`cursor-pointer`} color="red"/>}
         </div>
     )
 }

@@ -5,11 +5,10 @@ export function TileVarHandler(Tile){
         nodes: [],
         allvars:{},
         getvar(id){
-            console.log(id)
             return this.allvars[id]
         },
         load(){},
-        node({name, src}){
+        node({name, src, id}){
             const folder = ({name}, par)=>{
                 const obj  = gg.bind(this)(par)  
                 const data = {name}
@@ -58,22 +57,25 @@ export function TileVarHandler(Tile){
                         delete res.allvars[obj.id]
                     }
                     res.allvars[obj.id] = obj
+                    par.ids[obj.id] = obj.id
                     this.vars.push(obj)
+                    
                     return obj
                 },
                 
             })
             
             const data = {
-                name, src,                
+                name, src, id: !id ?`${name}${src}`: id, 
+                ids: {},
                 destroy:()=>{
-                    this.nodes.forEach((node, x)=>{
-                        if(node === this){
-                            res.allvars = []
-                            this.nodes.splice(x, 1)
-                        }
-                    })
+                    for(let x in data.ids){
+                        delete res.allvars[x]
+                    }  
                     
+                    this.nodes.forEach((node, x)=>{
+                        if(node.id === data.id)this.nodes.splice(x, 1)
+                    })
                 },
             }
             let obj =gg(data)

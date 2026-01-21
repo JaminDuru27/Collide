@@ -29,6 +29,35 @@ export function Settings({showsettings,collide, setshowsettings}){
             </div>
             <div className="content text-[.7rem] flex flex-col justify-start items-start gap-2 capitalize w-full mt-4 mb-3 rounded-lg overflow-y-auto scrolly bg-white/20 p-2">
             
+            <Input
+            type='range'
+            title='scale'
+            min={20}
+            max={30}
+            value={collide[`current`].scale}
+            cb= {(v)=>{collide[`current`].scale = Number(v)}}
+            />
+            <Input
+            type='checkbox'
+            title='hide collisions'
+            value={false}
+            cb= {(v)=>{collide[`current`].collisionsHidden = Boolean(v)}}
+            />
+            <Input
+            type='number'
+            min={-20} max={20}
+            title='set gravity y'
+            value={1}
+            cb= {(v)=>{collide[`current`].world.setGravity(collide[`current`].pl.Vec2(Number(-v), 0))}}
+            />
+            <Input
+            type='number'
+            min={-20} max={20}
+            title='set gravity x'
+            value={1}
+            cb= {(v)=>{collide[`current`].world.setGravity(collide[`current`].pl.Vec2(0, Number(-v)))}}
+            />
+            
             <div 
             className=""
             onClick={()=>{collide.current.state.download()}}
@@ -57,5 +86,19 @@ export function Settings({showsettings,collide, setshowsettings}){
                 <FaDownLong onClick={()=>{setshowjsjson(p=>!p)}} title={`download world data`} className="cursor-pointer"/>
             </div>
         </motion.div>
+    )
+}
+export function Input({value = 0, title, type = `number`, min= 0, step=1, max =  1, cb = ()=>{}}){
+    const [v, setv] = useState(value)
+    return (
+        <div className="flex justify-between w-full p-2 bg-black/20  rounded-sm" title={title}>
+            <div className="name">{title}</div>
+            <input type={type} min={min} max={max} 
+            value={v} step={step}
+            onClick={()=>{type === `button`? cb():null}} 
+            onChange={(e)=>{if(type === `checkbox`){cb(e.target.checked); setv(e.target.checked)}}}
+            onInput={(e)=>{if(type !== `checkbox` && type !== `button`){cb(e.target.value); setv(e.target.value)}}}
+            className="" />
+        </div>
     )
 }

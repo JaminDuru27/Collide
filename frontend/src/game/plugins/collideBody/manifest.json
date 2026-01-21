@@ -1,0 +1,38 @@
+{
+    "meta": {
+        "name": "CollideBody",
+        "thumbnailSource": "/plugins/collidebodythumb.png",
+        "descr": "Bring Characters into the world with this exciting plugin",
+        "id": "9392hdd-12288dhw8dpdq/Collide-1122334455",
+        "path": "",
+        "type": "tile",
+        "genre": "All",
+        "version": "1.0.0"
+    },
+    "entry":{
+        "main": "collideBody.jsx"
+    },
+    "install":{
+        "method": "copy",
+        "target": "plugins",
+        "files":[
+            "./dist",
+            "./assets",
+            "./manifests.json"
+        ],
+        "posgInstall":[
+            "registerPlugin",
+            "clearCache"
+        ]
+    },
+    "compatibity":{
+        "engine": "collide",
+        "engineId": "Collide-1122334455",
+        "platforms": ["windows", "mac", "lunux"]
+    },
+    "permissions":{
+        "filesystem": false,
+        "network": false,
+        "input": true
+    }
+}

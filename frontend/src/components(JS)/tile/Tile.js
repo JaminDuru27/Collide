@@ -21,12 +21,12 @@ export function Tile(Scene,Collide){
             Scene.imageLayers.currentLayer.tiles.push(this)
             this.varHandler  = TileVarHandler(this)
         },
-        addPlugin(func){
-            const info = func.prototype.info()
-
+        async addPlugin(entry, plugin){
+            const factory = await entry
+            const info = plugin.manifest.meta
             if(info.type === `environment`){return}
 
-            let object = func({Scene, Collide, Tile: this})
+            let object = factory({Scene, Collide, Tile: this})
             if(!object.requirements)object.requirements = ()=> true
             if(object?.requirements() === true){
                 object.info = info

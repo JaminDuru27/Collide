@@ -1,0 +1,37 @@
+{
+    "meta": {
+        "name": "CollideUI",
+        "thumbnailSource": "/plugins/collideuithumb.png",
+        "descr": "create visually appealing UIs wih this plugin",
+        "id": "2u29i919jdjjkjdljjddj/Collide-1122334455",
+        "type": "environment",
+        "genre": "All",
+        "version": "1.0.0"
+    },
+    "entry":{
+        "main": "collideui.jsx"
+    },
+    "install":{
+        "method": "copy",
+        "target": "plugins",
+        "files":[
+            "./dist",
+            "./assets",
+            "./manifests.json"
+        ],
+        "posgInstall":[
+            "registerPlugin",
+            "clearCache"
+        ]
+    },
+    "compatibity":{
+        "engine": "collide",
+        "engineId": "Collide-1122334455",
+        "platforms": ["windows", "mac", "lunux"]
+    },
+    "permissions":{
+        "filesystem": false,
+        "network": false,
+        "input": true
+    }
+}

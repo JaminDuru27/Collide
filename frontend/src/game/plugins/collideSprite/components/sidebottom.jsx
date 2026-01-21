@@ -7,9 +7,16 @@ export function CollideSpriteSideBottom({object, Tile, ref}){
     
     const props = [
         {name: `angle`, oninput: (value)=>{
-            console.log(Tile)
-            // Tile.angle = +(value)
-        }, type:"range", min: 0, max: 0.1, step: 0.0001},
+            Tile.angle = Number(value)
+        }, type:"range", min: 0, max: 10, step: 0.01},
+        {name: `flipX`, oninput: (value)=>{
+            object.flipX = value
+            console.log(value)
+        }, type:"checkbox", value:object.flipx},
+        {name: `flipY`, oninput: (value)=>{
+            object.flipY = value
+            console.log(value)
+        }, type:"checkbox", value:object.flipy},
     ]
     const [open, setOpen] = useState(false)
     if(!object.propsavailable())return <></>
@@ -31,9 +38,9 @@ export function CollideSpriteSideBottom({object, Tile, ref}){
                     {
                         props.map((p, key)=>{
                             return (
-                                <div key={`colidtiitktitki-${key}`} className="flex justify-between items-center ">
+                                <div key={`colidtiitktitki-${key}`} className="flex w-full justify-between items-center ">
                                     <div  className="nam text-[.6rem] capitalize">{p.name}</div>
-                                    <input type={p.type} className="bg-white/30 w-1/2" min={(p.min || 0)} step={(p.step || 0)} max={(p.max || 0)} onInput={(e)=>{p.oninput(e.target.value)}} name="" id="" />
+                                    <input type={p.type} className="bg-white/30 w-1/2" min={(p.min || 0)} step={(p.step || 0)} max={(p.max || 0)} value={(p.value)?p.value:null}onChange={(e)=>{p.type === `checkbox`?p.oninput(e.target.checked):null}} onInput={(e)=>{(p.type !== `checkbox`)?p.oninput(e.target.value):null}} name="" id="" />
                                 </div>
                             )
                         })

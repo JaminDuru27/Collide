@@ -43,13 +43,17 @@ export function CollideSpriteUI({object, Tile}){
                             onClick={()=>{
                                 object.setcurrentclip(clip)
                                 object.playclip(clip)
-                                setshowspritemacro(true)
+                                    
                             }}
                             className={`clip cursor-pointer relative p-2 m-2 border  ${ (object.currentclip?.id === clip.id)?`border-amber-400`:`border-white/30`} rounded-sm flex justify-between items-center`}>
                                 {clip.loop && <MdLoop className="absolute top-1 left-1  bg-black" title="looping" size={10} color="orange"/>}
-                                <div className="name text-[.8rem]">{clip.name}</div>
+                                <div 
+                                onClick={()=>{
+                                    setshowspritemacro(true)
+                                }}
+                                className="name cursor-pointer text-[.8rem]">{clip.name}</div>
                                 <div className="frames text-[.7rem] opacity-50">{clip.from} - {clip.to}</div>
-                                <div onClick={()=>{clip.delete}} className="flex w-fit h-fit justify-center cursor-pointer items-center"><MdDelete/></div>
+                                <div onClick={()=>{clip.remove(); setrefresh(p=>!p)}} className="flex w-fit h-fit justify-center cursor-pointer items-center"><MdDelete/></div>
                             </div>
                         ))}
                         
@@ -70,15 +74,17 @@ export function CollideSpriteUI({object, Tile}){
                         setrefresh(p=>!p)
                     }} className="absolute top-2 left-2 z-10 cursor-pointer" size={20}/>
                     <div className="absolute top-0 left-0 bg-black p-2 py-10 w-full h-full flex flex-col justify-start items-start gap-4">
-                        {[
-                            ['name', `input`,[ `name`]], 
-                            ['from', `number`,[ `minframe`, `frame`]], 
+                         {[['name', `text`,[`name`]]].map((e,x)=>{
+                            return <CollideSpriteInput key={x} object={object.currentclip} ps = {e[2]} type={e[1]} name={e[0]} />
+                        })}
+                        {[ 
+                            ['from', `number`,[ `minframe`, `frame`],], 
                             ['to', 'number', [`maxframe`]], 
                             ['delaytime', 'number', [`delaytime`]], 
                             ['loop','checkbox', [`loop`]]
                             ].map((e,x)=>{
                             return (
-                                <CollideSpriteInput key={x} object={object} v={e} clip={object.currentclip} />
+                                <CollideSpriteInput key={x} object={object} ps = {e[2]} type={e[1]} name={e[0]} />
                             )
                         })}
                     </div>

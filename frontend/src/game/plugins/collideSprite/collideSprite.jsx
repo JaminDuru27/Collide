@@ -1,7 +1,7 @@
 import { DisposableCanvas } from "../../../utils/disposablecanvas.js"
 import { genId } from "../../../utils/genid.js"
 import { CollideSpriteUI } from "./collideSpriteUI.jsx"
-export function CollideSprite({Scene, Collide, Tile}){
+export default function CollideSprite({Scene, Collide, Tile}){
     const res = {
         name: `CollideSprite`,
         toggle: true,
@@ -11,6 +11,7 @@ export function CollideSprite({Scene, Collide, Tile}){
         roffsetx: 0, roffsety: 0, roffsetw: 0, roffseth: 0,
         offsetx:0, offsety: 0, offsetw: 0, offseth: 0,
         x: 0, y: 0, w: 0, h: 0, 
+        flipX: false, flipY: false,
         spw: 100, sph: 100,
         minframe: 0, maxframe: 0,
         framex: 0, framey: 0,
@@ -104,6 +105,8 @@ export function CollideSprite({Scene, Collide, Tile}){
             if(Tile.sprite){
                 this.varnode = Tile.varHandler.getNode({name: ()=>this.name, src: `/plugins/collidespritethumb.png`})
                 this.varnode.addvar({name:()=>`toggle`, id:`133-${this.name}`, set:(v)=>this.toggle = v, get:()=>this.toggle})
+                this.varnode.addvar({name:()=>`flip X`, id:`1ef302ne5237flippxi-${this.name}`, set:(v)=>this.flipX = v, get:()=>this.flipX})
+                this.varnode.addvar({name:()=>`flip Y`, id:`139g377g32psfliootpy33-${this.name}`, set:(v)=>this.flipY = v, get:()=>this.flipY})
                 this.clipsfolder =this.varnode.createFolder({name:()=>`clips`})
                 this.imageid= Tile?.sprite?.imageobj?.id
                 this.sw=Tile?.sprite?.sw
@@ -185,15 +188,18 @@ export function CollideSprite({Scene, Collide, Tile}){
         },
         drawbib({ctx}, x, y, w, h){
             ctx.save()
-            ctx.translate(x, y)
-            ctx.translate(w/2, h/2)//centering
+            const xm = (this.flipX)?-1: 1
+            const ym = (this.flipY)?-1: 1
+            ctx.scale(xm, ym)
+            ctx.translate(xm * x, ym * y)
+            ctx.translate(xm * w/2, ym * h/2)//centering
             ctx.rotate(Tile.angle)
             ctx.drawImage(
                 this.image,
                 this.sw * this.framex, 
                 this.sh * this.framey,
                 this.sw, this.sh,                
-                -w/2, -h/2,w,h,
+                xm * (-w/2), ym * (-h/2),xm * w, ym * h,
             )
             ctx.restore()
         },
@@ -280,8 +286,8 @@ export function CollideSprite({Scene, Collide, Tile}){
             this.w = Tile.w * this.ratio.w
             this.h = Tile.h * this.ratio.h
 
-            this.x = Tile.x - this.roffsetx - this.w/2
-            this.y = Tile.y - this.roffsety - this.h/2
+            this.x = Tile.x - this.roffsetx 
+            this.y = Tile.y - this.roffsety 
             
             this.drawbib(p, 
             this.x, 
@@ -307,9 +313,8 @@ export function CollideSprite({Scene, Collide, Tile}){
                 else this.frame = this.maxframe
             }else {
                 this.delay(this.delaytime, ()=>{
-                    this.framey = Math.floor(this.frame/this.ny)
-                    this.framey = Math.min(this.ny -1, this.framey)
-                    this.framex = this.frame  - this.framey * this.nx
+                    this.framex = Math.floor(this.frame % this.nx)
+                    this.framey = Math.floor(this.frame / this.nx)
                     this.frame++
                 })
             }
@@ -361,11 +366,3 @@ export function CollideSprite({Scene, Collide, Tile}){
     res.load()
     return res
 }
-CollideSprite.prototype.info =()=> ({
-    name: `CollideSprite`,
-    thumbnailSource: `/plugins/collidespritethumb.png`,
-    descr: 'animate spritesheets with this plugin. Bring yout characters to life!',
-    id: `93i0j30djd9n'ddjdi/Colllide-1122334455`,//id is id/enfineid for verification 
-    type: `tile`,
-    genre: `All`,
-})

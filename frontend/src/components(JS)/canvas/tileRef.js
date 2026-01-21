@@ -23,10 +23,10 @@ export function TileRef(Collide, sets){
        
         addPlugin(){
             sets.setpluginmodcb(p=>({cb:(info)=>{
-                const func = Collide.pluginsmodshandler.getPlugin(info, `tile`)
-                if(!func)return
-                this.tile.addPlugin(func)
-            }}))
+                const {entry, plugin} = Collide.pluginsmodshandler.getPlugin(info, `tile`)
+                if(!entry)return
+                this.tile.addPlugin(entry, plugin)
+            }, type:`tile`}))
         },
         addMod(){},
         draw(p){

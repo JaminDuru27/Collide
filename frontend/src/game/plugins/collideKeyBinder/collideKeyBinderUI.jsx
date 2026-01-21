@@ -102,6 +102,22 @@ export function Keyboard({object, setrefresh, Tile}){
         />
         
         <div className="w-full">
+            <div className="my-4 capitalize ">on key held</div>
+            <div className="varibles my-4 overflow-y-auto scrolly w-full gap-2 max-h-50 border-2 flex flex-col justify-start items-start border-dash border-white/20 p-2 rounded-2xl">
+                {(object?.bind?.varshold || []).map((v)=>{
+                    return (
+                        <KeyboardVar object={object} Tile={Tile} setrefresh={setrefresh} v={v}/>
+                    )
+                })}
+            </div>
+            <AddVarBtn cb={()=>{
+                if(!object.bind)return
+                object.bind.addvarhold()
+                setrefresh(p=>!p)
+            }}/>
+        </div>
+        
+        <div className="w-full">
             <div className="my-4 capitalize ">on key down</div>
             <div className="varibles my-4 overflow-y-auto scrolly w-full gap-2 max-h-50 border-2 flex flex-col justify-start items-start border-dash border-white/20 p-2 rounded-2xl">
                 {(object?.bind?.varsdown || []).map((v)=>{

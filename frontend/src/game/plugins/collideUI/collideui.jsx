@@ -1,7 +1,7 @@
 import { CollideUIUI } from "./collideuiui.jsx"
 import { Element } from "./components/element.jsx"
 import * as Banks from './exports.js'
-export function CollideUI(){
+export default function CollideUI(){
     const res = {
         banks: [],
         selectedBanks: [],
@@ -43,11 +43,3 @@ export function CollideUI(){
     res.load()
     return res
 }
-CollideUI.prototype.info =()=> ({
-    name: `CollideUI`,
-    thumbnailSource: `/plugins/collideuithumb.png`,
-    descr: 'create visually appealing UIs wih this plugin',
-    id: `2u29i919jdjjkjdljjddj/Collide-1122334455`,//id is id/enfineid for verification 
-    type: `environment`,
-    genre: `All`,
-})
